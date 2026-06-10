@@ -11,7 +11,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Pipeline
             </span>
           </Link>
-          <span className="text-sm text-gray-400">CiMA Sales</span>
+          <Link href="/julia" className="text-sm font-medium text-violet-700 hover:underline">
+            Vista de Julia
+          </Link>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>

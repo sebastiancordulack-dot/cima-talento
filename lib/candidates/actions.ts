@@ -18,6 +18,7 @@ export interface ActionResult {
 
 function revalidateCandidate(id: string) {
   revalidatePath('/dashboard');
+  revalidatePath('/julia');
   revalidatePath(`/dashboard/candidates/${id}`);
 }
 
@@ -39,6 +40,33 @@ export async function markNotFit(candidateId: string): Promise<ActionResult> {
   try {
     await transitionCandidateStatus(candidateId, 'rejected_hm', {
       patch: { hm_decision: 'not_fit', hm_call_at: new Date().toISOString() },
+    });
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** Julia approves → status `approved`, Email 4 (Bienvenido/a) + talent pool.
+ *  The talent-pool insert is handled inside the transition layer. */
+export async function approveCandidate(candidateId: string): Promise<ActionResult> {
+  try {
+    await transitionCandidateStatus(candidateId, 'approved', {
+      patch: { julia_decision: 'approved', julia_call_at: new Date().toISOString() },
+    });
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** Julia does not advance → status `rejected_julia`, Email 5 (No avanza). */
+export async function doNotAdvanceCandidate(candidateId: string): Promise<ActionResult> {
+  try {
+    await transitionCandidateStatus(candidateId, 'rejected_julia', {
+      patch: { julia_decision: 'not_approved', julia_call_at: new Date().toISOString() },
     });
     revalidateCandidate(candidateId);
     return { ok: true };

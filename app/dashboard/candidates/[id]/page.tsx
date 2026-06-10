@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
+import { JuliaActions } from '@/components/JuliaActions';
 import { getCandidateProfile } from '@/lib/candidates/queries';
 import { STATUS_META } from '@/lib/candidates/status';
 import {
@@ -67,7 +68,20 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
             {candidate.state ? ` · ${candidate.state}` : ''}
           </p>
         </div>
-        <StatusBadge status={candidate.status} />
+        <div className="flex flex-col items-end gap-2">
+          <StatusBadge status={candidate.status} />
+          {['new', 'scheduled', 'in_review'].includes(candidate.status) && (
+            <Link
+              href={`/dashboard/candidates/${candidate.id}/scorecard`}
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Completar scorecard
+            </Link>
+          )}
+          {['advanced', 'julia_scheduled'].includes(candidate.status) && (
+            <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
+          )}
+        </div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">

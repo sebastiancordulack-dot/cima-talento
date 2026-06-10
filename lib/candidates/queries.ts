@@ -28,6 +28,20 @@ export async function listCandidatesForTab(tab: DashboardTab): Promise<Candidate
   return data ?? [];
 }
 
+/** Julia's review queue: candidates awaiting or in her call (Brief §5.2),
+ *  ordered by HM score (strongest first) then submission date. */
+export async function listJuliaQueue(): Promise<Candidate[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('candidates')
+    .select('*')
+    .in('status', ['advanced', 'julia_scheduled'])
+    .order('score_total', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
 /** Per-tab counts for the nav badges. */
 export async function tabCounts(): Promise<Record<DashboardTab, number>> {
   const supabase = createAdminClient();
