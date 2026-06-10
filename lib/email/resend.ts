@@ -15,5 +15,8 @@ export function getResend(): Resend {
   return client;
 }
 
+// Tolerate a value that was pasted into an env UI with surrounding quotes or
+// stray whitespace (a common cause of Resend "Invalid `from` field" errors).
+const rawFrom = process.env.RESEND_FROM_EMAIL?.trim().replace(/^["']|["']$/g, '');
 export const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? 'Cima Talento <talento@cimasales.com>';
+  rawFrom && rawFrom.length > 0 ? rawFrom : 'Cima Talento <talento@cimasales.com>';
