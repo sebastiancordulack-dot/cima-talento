@@ -1,9 +1,11 @@
 import { JuliaCandidateCard } from '@/components/JuliaCandidateCard';
 import { listJuliaQueue } from '@/lib/candidates/queries';
+import { requireAdmin } from '@/lib/auth/session';
 
 export const dynamic = 'force-dynamic';
 
 export default async function JuliaPage() {
+  await requireAdmin(); // admin/Julia only
   const candidates = await listJuliaQueue();
 
   return (

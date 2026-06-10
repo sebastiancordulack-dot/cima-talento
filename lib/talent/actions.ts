@@ -5,6 +5,7 @@
 // first-class, server-controlled boolean from day one.
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { assertAdmin } from '@/lib/auth/session';
 
 export interface ActionResult {
   ok: boolean;
@@ -16,6 +17,7 @@ async function updateTalent(
   patch: { active?: boolean; onboarding_complete?: boolean }
 ): Promise<ActionResult> {
   try {
+    await assertAdmin(); // talent_pool is admin-managed (matches RLS)
     const supabase = createAdminClient();
     const { error } = await supabase.from('talent_pool').update(patch).eq('id', talentId);
     if (error) throw error;

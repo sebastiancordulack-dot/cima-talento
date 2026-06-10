@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
 import { JuliaActions } from '@/components/JuliaActions';
 import { getCandidateProfile } from '@/lib/candidates/queries';
+import { getSessionUser, isAdminRole } from '@/lib/auth/session';
 import { STATUS_META } from '@/lib/candidates/status';
 import {
   HARD_FILTERS,
@@ -45,9 +46,10 @@ function readScore(data: Record<string, unknown>, key: string): number | null {
 }
 
 export default async function CandidateProfilePage({ params }: { params: { id: string } }) {
-  const profile = await getCandidateProfile(params.id);
+  const [profile, user] = await Promise.all([getCandidateProfile(params.id), getSessionUser()]);
   if (!profile) notFound();
   const { candidate, history, emails } = profile;
+  const isAdmin = isAdminRole(user?.hm?.role);
   const scorecard = candidate.scorecard_data as Record<string, unknown>;
   const hasScores = SCORED_QUESTIONS.some((q) => readScore(scorecard, q.key) !== null);
 
@@ -78,7 +80,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
               Completar scorecard
             </Link>
           )}
-          {['advanced', 'julia_scheduled'].includes(candidate.status) && (
+          {isAdmin && ['advanced', 'julia_scheduled'].includes(candidate.status) && (
             <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
           )}
         </div>

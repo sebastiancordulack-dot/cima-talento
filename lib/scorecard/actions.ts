@@ -10,6 +10,7 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { transitionCandidateStatus } from '@/lib/candidates/transitions';
+import { assertCandidateAccess } from '@/lib/auth/session';
 import {
   computeTotal,
   scoresComplete,
@@ -37,6 +38,12 @@ export async function submitScorecard(
 ): Promise<SubmitResult> {
   const invalid = validateDecision(payload, decision);
   if (invalid) return { ok: false, error: invalid.message };
+
+  try {
+    await assertCandidateAccess(candidateId);
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
 
   // Build the field patch shared by every decision. Keys in hardFilters/bonus
   // are exactly the candidate column names.

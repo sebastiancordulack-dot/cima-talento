@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SignOutButton } from '@/components/SignOutButton';
 
 // Julia's simplified review area (Brief §5.2) — its own minimal shell, scoped
 // to candidates awaiting her approval. Distinct from the HM dashboard.
@@ -13,9 +14,12 @@ export default function JuliaLayout({ children }: { children: React.ReactNode })
               Aprobación · Julia
             </span>
           </Link>
-          <Link href="/dashboard" className="text-sm text-gray-400 hover:text-gray-600">
-            Ver panel completo
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="text-sm text-gray-400 hover:text-gray-600">
+              Ver panel completo
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>

@@ -3,7 +3,7 @@
 // bilingual/experience (on the candidate). This is the future dispatch board,
 // so availability + active + location are surfaced as first-class fields.
 import 'server-only';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import type { Availability } from '@/lib/database.types';
 
 export interface TalentCandidate {
@@ -43,7 +43,7 @@ const CANDIDATE_COLS =
   'first_name,last_name,email,phone,city,bilingual,prior_experience,app_comfortable,score_total';
 
 export async function listTalentPool(filters: TalentFilters): Promise<TalentRow[]> {
-  const supabase = createAdminClient();
+  const supabase = createClient();
 
   // talent_pool-level filters run in the query; inner join pulls the candidate.
   let query = supabase
@@ -80,7 +80,7 @@ export interface TalentFacets {
 
 /** Distinct metros/states for the filter dropdowns, plus the pool size. */
 export async function talentFacets(): Promise<TalentFacets> {
-  const supabase = createAdminClient();
+  const supabase = createClient();
   const { data, error } = await supabase.from('talent_pool').select('metro_area,state');
   if (error) throw error;
   const metros = new Set<string>();

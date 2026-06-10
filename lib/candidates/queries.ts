@@ -1,12 +1,10 @@
 // Dashboard data access.
 //
-// NOTE (Step 9): these reads currently use the service-role admin client so the
-// dashboard works before auth exists. When Supabase Auth + RLS land, swap
-// `createAdminClient()` for the session-scoped server client — the RLS policies
-// (admin/Julia see all; HMs see their metros) will then enforce visibility, and
-// these query shapes won't need to change.
+// Reads run through the session-scoped server client, so the RLS policies
+// enforce visibility (admin/Julia see all; HMs see their assigned metros). The
+// query shapes are identical to the unscoped versions — RLS does the filtering.
 import 'server-only';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { DASHBOARD_TABS, type DashboardTab } from '@/lib/candidates/status';
 import type { Database } from '@/lib/database.types';
 
@@ -17,7 +15,7 @@ export type EmailLogRow = Database['public']['Tables']['email_log']['Row'];
 /** Candidates for a dashboard tab, grouped by metro then by submission date
  *  (Brief §5.1 — sorted by metro area, then submission date). */
 export async function listCandidatesForTab(tab: DashboardTab): Promise<Candidate[]> {
-  const supabase = createAdminClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('candidates')
     .select('*')
@@ -31,7 +29,7 @@ export async function listCandidatesForTab(tab: DashboardTab): Promise<Candidate
 /** Julia's review queue: candidates awaiting or in her call (Brief §5.2),
  *  ordered by HM score (strongest first) then submission date. */
 export async function listJuliaQueue(): Promise<Candidate[]> {
-  const supabase = createAdminClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('candidates')
     .select('*')
@@ -44,7 +42,7 @@ export async function listJuliaQueue(): Promise<Candidate[]> {
 
 /** Per-tab counts for the nav badges. */
 export async function tabCounts(): Promise<Record<DashboardTab, number>> {
-  const supabase = createAdminClient();
+  const supabase = createClient();
   const entries = await Promise.all(
     (Object.keys(DASHBOARD_TABS) as DashboardTab[]).map(async (tab) => {
       const { count, error } = await supabase
@@ -66,7 +64,7 @@ export interface CandidateProfile {
 
 /** Full profile bundle: candidate + status timeline + email log. */
 export async function getCandidateProfile(id: string): Promise<CandidateProfile | null> {
-  const supabase = createAdminClient();
+  const supabase = createClient();
   const { data: candidate, error } = await supabase
     .from('candidates')
     .select('*')

@@ -1,6 +1,11 @@
 import Link from 'next/link';
+import { SignOutButton } from '@/components/SignOutButton';
+import { getSessionUser, isAdminRole } from '@/lib/auth/session';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const user = await getSessionUser();
+  const isAdmin = isAdminRole(user?.hm?.role);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white">
@@ -11,9 +16,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Pipeline
             </span>
           </Link>
-          <Link href="/julia" className="text-sm font-medium text-violet-700 hover:underline">
-            Vista de Julia
-          </Link>
+          <div className="flex items-center gap-4">
+            {isAdmin && (
+              <Link href="/julia" className="text-sm font-medium text-violet-700 hover:underline">
+                Vista de Julia
+              </Link>
+            )}
+            {user && (
+              <span className="hidden text-sm text-gray-500 sm:inline">
+                {user.hm?.name ?? user.email}
+              </span>
+            )}
+            <SignOutButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>

@@ -4,12 +4,14 @@
 // way the UI changes a candidate's state, so the right email always fires
 // (Brief §7) and nothing is sent manually.
 //
-// NOTE (Step 9): once auth lands, each action should verify the caller's role
-// and metro scope before mutating. The data mutations themselves already go
-// through the service-role transition layer.
+// Each action authorizes the caller first (Brief §10): HMs may act on
+// candidates in their assigned metros; only admins/Julia may approve to (or
+// reject from) the talent pool. The mutations themselves run through the
+// service-role transition layer, so the guard is the access boundary.
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { transitionCandidateStatus } from '@/lib/candidates/transitions';
+import { assertCandidateAccess, assertAdmin } from '@/lib/auth/session';
 
 export interface ActionResult {
   ok: boolean;
@@ -25,8 +27,10 @@ function revalidateCandidate(id: string) {
 /** HM marks the candidate a fit → status `advanced`, Email 3 (Agenda con Julia). */
 export async function markFit(candidateId: string): Promise<ActionResult> {
   try {
+    const user = await assertCandidateAccess(candidateId);
     await transitionCandidateStatus(candidateId, 'advanced', {
       patch: { hm_decision: 'fit', hm_call_at: new Date().toISOString() },
+      actorId: user.hm?.id ?? null,
     });
     revalidateCandidate(candidateId);
     return { ok: true };
@@ -38,8 +42,10 @@ export async function markFit(candidateId: string): Promise<ActionResult> {
 /** HM marks the candidate not a fit → status `rejected_hm`, Email 2 (No es un fit). */
 export async function markNotFit(candidateId: string): Promise<ActionResult> {
   try {
+    const user = await assertCandidateAccess(candidateId);
     await transitionCandidateStatus(candidateId, 'rejected_hm', {
       patch: { hm_decision: 'not_fit', hm_call_at: new Date().toISOString() },
+      actorId: user.hm?.id ?? null,
     });
     revalidateCandidate(candidateId);
     return { ok: true };
@@ -52,8 +58,10 @@ export async function markNotFit(candidateId: string): Promise<ActionResult> {
  *  The talent-pool insert is handled inside the transition layer. */
 export async function approveCandidate(candidateId: string): Promise<ActionResult> {
   try {
+    const user = await assertAdmin();
     await transitionCandidateStatus(candidateId, 'approved', {
       patch: { julia_decision: 'approved', julia_call_at: new Date().toISOString() },
+      actorId: user.hm?.id ?? null,
     });
     revalidateCandidate(candidateId);
     return { ok: true };
@@ -65,8 +73,10 @@ export async function approveCandidate(candidateId: string): Promise<ActionResul
 /** Julia does not advance → status `rejected_julia`, Email 5 (No avanza). */
 export async function doNotAdvanceCandidate(candidateId: string): Promise<ActionResult> {
   try {
+    const user = await assertAdmin();
     await transitionCandidateStatus(candidateId, 'rejected_julia', {
       patch: { julia_decision: 'not_approved', julia_call_at: new Date().toISOString() },
+      actorId: user.hm?.id ?? null,
     });
     revalidateCandidate(candidateId);
     return { ok: true };
@@ -78,6 +88,7 @@ export async function doNotAdvanceCandidate(candidateId: string): Promise<Action
 /** Save inline call notes — no status change, no email. */
 export async function saveNotes(candidateId: string, notes: string): Promise<ActionResult> {
   try {
+    await assertCandidateAccess(candidateId);
     const supabase = createAdminClient();
     const { error } = await supabase
       .from('candidates')
