@@ -14,6 +14,7 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { deriveLocation } from '@/lib/location/metro';
+import { sendCandidateEmail } from '@/lib/email/send';
 import type { Database } from '@/lib/database.types';
 
 /** Normalized candidate fields a form adapter must produce. */
@@ -105,10 +106,10 @@ export async function ingestCandidate(intake: CandidateIntake): Promise<IngestRe
 
   if (error) throw error;
 
-  // STEP 3: trigger Email 1 (Disponibilidad) via Resend here, using the
-  // Calendly link for the candidate's metro's hiring manager, and record it in
-  // email_log. Intentionally a no-op until the Resend system is built.
-  // await sendAvailabilityEmail(data);
+  // New candidate enters `new` → fire Email 1 (Disponibilidad) with the metro's
+  // HM Calendly link and log it. Resilient: a send failure is recorded in
+  // email_log but never fails ingestion (the candidate must still be saved).
+  await sendCandidateEmail(data, 'availability');
 
   return { candidate: data, isNew: true };
 }
