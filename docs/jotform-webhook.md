@@ -22,7 +22,7 @@ env vars below.
 ## Required env vars (add to Vercel: Production + Preview + Development)
 
 ```
-JOTFORM_WEBHOOK_TOKEN=6ccc6624e74ebf54b2462dcbb991c0c8ae877cb60105e04b
+JOTFORM_WEBHOOK_TOKEN=<the token from .env.local — keep secret>
 JOTFORM_FORM_ID=261605489959071
 ```
 
@@ -33,7 +33,7 @@ JOTFORM_FORM_ID=261605489959071
 2. Paste the URL, **including the `?token=` secret**:
 
    ```
-   https://<your-vercel-domain>/api/webhooks/jotform?token=6ccc6624e74ebf54b2462dcbb991c0c8ae877cb60105e04b
+   https://<your-vercel-domain>/api/webhooks/jotform?token=<JOTFORM_WEBHOOK_TOKEN>
    ```
 
 3. Complete (no payload format options needed — Jotform posts form-data).
