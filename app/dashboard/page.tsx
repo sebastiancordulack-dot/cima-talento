@@ -1,5 +1,6 @@
 import { CandidateCard } from '@/components/CandidateCard';
 import { DashboardTabs } from '@/components/DashboardTabs';
+import { TalentPoolSection } from '@/components/talent/TalentPoolSection';
 import { listCandidatesForTab, tabCounts, type Candidate } from '@/lib/candidates/queries';
 import { DASHBOARD_TABS, isDashboardTab, type DashboardTab } from '@/lib/candidates/status';
 
@@ -24,40 +25,48 @@ function groupByMetro(candidates: Candidate[]): [string, Candidate[]][] {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { tab?: string };
+  searchParams: { tab?: string } & Record<string, string | undefined>;
 }) {
   const tab: DashboardTab = isDashboardTab(searchParams.tab) ? searchParams.tab : 'nuevos';
-  const [candidates, counts] = await Promise.all([
-    listCandidatesForTab(tab),
-    tabCounts(),
-  ]);
-  const groups = groupByMetro(candidates);
+  const counts = await tabCounts();
 
   return (
     <div>
       <h1 className="mb-4 text-2xl font-bold text-gray-900">{DASHBOARD_TABS[tab].label}</h1>
       <DashboardTabs active={tab} counts={counts} />
 
-      {candidates.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-gray-400">
-          No hay candidatos en esta vista.
-        </p>
+      {/* Red de talento — the filterable dispatch board (Brief §5.3). */}
+      {tab === 'talento' ? (
+        <TalentPoolSection searchParams={searchParams} />
       ) : (
-        <div className="mt-6 space-y-8">
-          {groups.map(([metro, list]) => (
-            <section key={metro}>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                {metro} · {list.length}
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {list.map((c) => (
-                  <CandidateCard key={c.id} candidate={c} />
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+        <CandidateQueue tab={tab} />
       )}
+    </div>
+  );
+}
+
+async function CandidateQueue({ tab }: { tab: DashboardTab }) {
+  const candidates = await listCandidatesForTab(tab);
+  const groups = groupByMetro(candidates);
+
+  if (candidates.length === 0) {
+    return <p className="mt-10 text-center text-sm text-gray-400">No hay candidatos en esta vista.</p>;
+  }
+
+  return (
+    <div className="mt-6 space-y-8">
+      {groups.map(([metro, list]) => (
+        <section key={metro}>
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+            {metro} · {list.length}
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {list.map((c) => (
+              <CandidateCard key={c.id} candidate={c} />
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
