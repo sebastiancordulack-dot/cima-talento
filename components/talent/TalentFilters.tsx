@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { ResetFiltersButton } from '@/components/talent/ResetFiltersButton';
 
 export function TalentFilters({ metros, states }: { metros: string[]; states: string[] }) {
   const router = useRouter();
@@ -84,6 +85,8 @@ export function TalentFilters({ metros, states }: { metros: string[]; states: st
         />
         Con experiencia
       </label>
+
+      <ResetFiltersButton className="ml-auto inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50" />
     </div>
   );
 }

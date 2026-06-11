@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { geoAlbersUsa } from 'd3-geo';
+import { ResetFiltersButton } from '@/components/talent/ResetFiltersButton';
 import type { MetroCount } from '@/lib/talent/queries';
 
 // Viewport + projection. The HTML dot/popup overlay reuses this exact
@@ -57,11 +58,14 @@ export function TalentMap({
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-gray-700">Mapa de la Red de Talento</h3>
-        <p className="hidden text-xs text-gray-400 sm:block">
-          Clic en un punto para ver el conteo · clic de nuevo para abrir la red
-        </p>
+        <div className="flex items-center gap-3">
+          <ResetFiltersButton className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50" />
+          <p className="hidden text-xs text-gray-400 sm:block">
+            Clic en un punto para ver el conteo · clic de nuevo para abrir la red
+          </p>
+        </div>
       </div>
 
       {/* relative wrapper: the SVG sets the height (width:100%, height:auto) and
