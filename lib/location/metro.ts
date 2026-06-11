@@ -9,7 +9,8 @@
 //
 // A null metro_area is intentional and safe: such candidates are visible to all
 // hiring managers (RLS), so nobody falls through the cracks before being mapped.
-import { ZIP3_TO_METRO, CITY_TO_METRO, normalizeText, normalizeState } from '@/lib/location/metro-data';
+import { normalizeText, normalizeState } from '@/lib/location/metro-data';
+import { getMetroLookups } from '@/lib/location/metros-store';
 import { geocodeMetro } from '@/lib/location/geocode';
 
 export interface DerivedLocation {
@@ -25,17 +26,18 @@ export interface LocationInput {
 
 export async function deriveLocation(input: LocationInput): Promise<DerivedLocation> {
   const state = normalizeState(input.state);
+  const { zip3, city } = await getMetroLookups();
 
   // 1. ZIP prefix.
   const digits = (input.zip_code ?? '').replace(/\D/g, '');
   if (digits.length >= 3) {
-    const hit = ZIP3_TO_METRO[digits.slice(0, 3)];
+    const hit = zip3[digits.slice(0, 3)];
     if (hit) return { metro_area: hit.metro, state: state ?? hit.state };
   }
 
   // 2. City name.
   if (input.city) {
-    const hit = CITY_TO_METRO[normalizeText(input.city)];
+    const hit = city[normalizeText(input.city)];
     if (hit) return { metro_area: hit.metro, state: state ?? hit.state };
   }
 

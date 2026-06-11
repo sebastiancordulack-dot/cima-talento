@@ -7,7 +7,7 @@
 // queues stay metro-scoped via RLS; the talent pool is intentionally shared.
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { METROS } from '@/lib/location/metro-data';
+import { getMetros } from '@/lib/location/metros-store';
 import type { Availability } from '@/lib/database.types';
 
 export interface TalentCandidate {
@@ -110,8 +110,9 @@ export async function metroCounts(): Promise<MetroCount[]> {
     tally.set(r.metro_area, t);
   }
 
+  const metros = await getMetros();
   const out: MetroCount[] = [];
-  for (const m of METROS) {
+  for (const m of metros) {
     const t = tally.get(m.metro);
     if (!t) continue; // no one here → no dot
     out.push({ metro: m.metro, coords: m.coords, active: t.active, total: t.total });

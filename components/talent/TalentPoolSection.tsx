@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { TalentFilters } from '@/components/talent/TalentFilters';
 import { ActiveToggle, OnboardingToggle } from '@/components/talent/TalentRowToggles';
 import { AddTalentButton } from '@/components/talent/AddTalentButton';
+import { AddMetroButton } from '@/components/talent/AddMetroButton';
 import { RemoveTalentButton } from '@/components/talent/RemoveTalentButton';
 import { TalentMap } from '@/components/talent/TalentMap';
 import { listTalentPool, talentFacets, metroCounts, type TalentRow, type TalentFilters as Filters } from '@/lib/talent/queries';
@@ -58,7 +59,10 @@ export async function TalentPoolSection({
         <p className="text-sm text-gray-500">
           {rows.length} de {facets.total} en la Red de Talento
         </p>
-        <AddTalentButton />
+        <div className="flex items-center gap-2">
+          <AddMetroButton />
+          <AddTalentButton />
+        </div>
       </div>
 
       <TalentFilters metros={facets.metros} states={facets.states} />

@@ -9,12 +9,19 @@
 // Currently wired for Google Geocoding; swap the URL/parser for Radar etc. by
 // editing `callProvider`. Always fails soft (returns null) so a geocoder
 // outage never blocks candidate ingestion.
-import { ZIP3_TO_METRO, CITY_TO_METRO, normalizeText } from '@/lib/location/metro-data';
+import { normalizeText } from '@/lib/location/metro-data';
+import { getMetroLookups } from '@/lib/location/metros-store';
 import type { LocationInput } from '@/lib/location/metro';
 
 export interface GeocodeResult {
   metro_area: string;
   state: string;
+}
+
+export interface PlaceCoords {
+  lng: number;
+  lat: number;
+  state: string | null;
 }
 
 interface ResolvedAddress {
@@ -36,16 +43,47 @@ export async function geocodeMetro(input: LocationInput): Promise<GeocodeResult 
   if (!resolved) return null;
 
   // Map the cleaned address back onto our canonical metros.
+  const { zip3: zip3Map, city: cityMap } = await getMetroLookups();
   const zip3 = (resolved.zip ?? '').replace(/\D/g, '').slice(0, 3);
-  if (zip3.length === 3 && ZIP3_TO_METRO[zip3]) {
-    const hit = ZIP3_TO_METRO[zip3];
+  if (zip3.length === 3 && zip3Map[zip3]) {
+    const hit = zip3Map[zip3];
     return { metro_area: hit.metro, state: resolved.state ?? hit.state };
   }
   if (resolved.city) {
-    const hit = CITY_TO_METRO[normalizeText(resolved.city)];
+    const hit = cityMap[normalizeText(resolved.city)];
     if (hit) return { metro_area: hit.metro, state: resolved.state ?? hit.state };
   }
   return null;
+}
+
+/**
+ * Geocode a free-text place ("Denver, CO") to map coordinates for a new metro.
+ * Returns null when no key is configured or the place can't be located — the
+ * caller then asks the user for coordinates manually.
+ */
+export async function geocodePlaceCoords(query: string): Promise<PlaceCoords | null> {
+  const key = process.env.GEOCODING_API_KEY;
+  if (!key || !query.trim()) return null;
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&components=country:US&key=${key}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      status: string;
+      results: {
+        geometry: { location: { lat: number; lng: number } };
+        address_components: { short_name: string; types: string[] }[];
+      }[];
+    };
+    if (data.status !== 'OK' || !data.results.length) return null;
+    const r = data.results[0];
+    const state =
+      r.address_components.find((c) => c.types.includes('administrative_area_level_1'))?.short_name ??
+      null;
+    return { lng: r.geometry.location.lng, lat: r.geometry.location.lat, state };
+  } catch {
+    return null;
+  }
 }
 
 // Google Geocoding API. Returns the normalized city/ZIP/state components.

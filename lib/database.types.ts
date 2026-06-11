@@ -203,6 +203,32 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['email_log']['Insert']>;
         Relationships: [];
       };
+      metros: {
+        Row: {
+          id: string;
+          created_at: string;
+          metro: string;
+          state: string;
+          lng: number;
+          lat: number;
+          zip3: string[];
+          cities: string[];
+          created_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          metro: string;
+          state: string;
+          lng: number;
+          lat: number;
+          zip3?: string[];
+          cities?: string[];
+          created_by?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['metros']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };
