@@ -1,9 +1,16 @@
-// Location derivation — city/ZIP → metro area + state.
+// Location derivation — city/ZIP → metro area + state (Brief §9).
 //
-// STEP 10 will replace the stub below with a real static city→metro lookup for
-// CiMA's operating states (NY, NJ, CT, MA, RI, MD, VA, DC, IL, GA, TN, TX, FL,
-// and growing) plus a geocoding fallback (Brief §9). The signature is stable so
-// the ingestion path doesn't change when the mapping lands.
+// Order of precedence:
+//   1. ZIP 3-digit prefix  (most reliable)
+//   2. city name           (normalized, accent-insensitive)
+//   3. geocoding fallback  (optional; only if a provider key is configured)
+// The state comes from the form when present (normalized to a 2-letter code),
+// otherwise from whatever the metro match implies.
+//
+// A null metro_area is intentional and safe: such candidates are visible to all
+// hiring managers (RLS), so nobody falls through the cracks before being mapped.
+import { ZIP3_TO_METRO, CITY_TO_METRO, normalizeText, normalizeState } from '@/lib/location/metro-data';
+import { geocodeMetro } from '@/lib/location/geocode';
 
 export interface DerivedLocation {
   metro_area: string | null;
@@ -16,16 +23,25 @@ export interface LocationInput {
   state?: string | null;
 }
 
-/**
- * Derive metro area + state from a candidate's city/ZIP.
- *
- * Stub: passes through any state already supplied and leaves metro_area null.
- * A null metro_area is intentionally visible to all hiring managers (RLS), so
- * candidates never fall through the cracks before they're mapped.
- */
-export function deriveLocation(input: LocationInput): DerivedLocation {
-  return {
-    metro_area: null,
-    state: input.state ?? null,
-  };
+export async function deriveLocation(input: LocationInput): Promise<DerivedLocation> {
+  const state = normalizeState(input.state);
+
+  // 1. ZIP prefix.
+  const digits = (input.zip_code ?? '').replace(/\D/g, '');
+  if (digits.length >= 3) {
+    const hit = ZIP3_TO_METRO[digits.slice(0, 3)];
+    if (hit) return { metro_area: hit.metro, state: state ?? hit.state };
+  }
+
+  // 2. City name.
+  if (input.city) {
+    const hit = CITY_TO_METRO[normalizeText(input.city)];
+    if (hit) return { metro_area: hit.metro, state: state ?? hit.state };
+  }
+
+  // 3. Geocoding fallback (no-op unless configured).
+  const geo = await geocodeMetro(input);
+  if (geo) return { metro_area: geo.metro_area, state: state ?? geo.state };
+
+  return { metro_area: null, state };
 }

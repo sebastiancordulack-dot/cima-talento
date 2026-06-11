@@ -46,7 +46,7 @@ const normalizeEmail = (email: string) => email.trim().toLowerCase();
 export async function ingestCandidate(intake: CandidateIntake): Promise<IngestResult> {
   const supabase = createAdminClient();
   const email = normalizeEmail(intake.email);
-  const location = deriveLocation({
+  const location = await deriveLocation({
     city: intake.city,
     zip_code: intake.zip_code,
     state: intake.state,
