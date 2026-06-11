@@ -17,14 +17,44 @@ const DAYS: { key: keyof Availability; label: string }[] = [
 
 const DEFAULT_HOURS = '09:00-17:00';
 
-export function AddTalentForm({ onDone }: { onDone: () => void }) {
+export interface TalentPrefill {
+  first_name?: string;
+  last_name?: string | null;
+  email?: string;
+  phone?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip_code?: string | null;
+  metro_area?: string | null;
+}
+
+export function AddTalentForm({
+  onDone,
+  initial,
+  lockEmail = false,
+  title = 'Agregar persona a la Red de Talento',
+  submitLabel = 'Agregar a la red',
+}: {
+  onDone: () => void;
+  initial?: TalentPrefill;
+  lockEmail?: boolean;
+  title?: string;
+  submitLabel?: string;
+}) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [f, setF] = useState({
-    first_name: '', last_name: '', email: '', phone: '',
-    city: '', state: '', zip_code: '', metro_area: '',
-    onboarding_complete: false, send_welcome: false,
+    first_name: initial?.first_name ?? '',
+    last_name: initial?.last_name ?? '',
+    email: initial?.email ?? '',
+    phone: initial?.phone ?? '',
+    city: initial?.city ?? '',
+    state: initial?.state ?? '',
+    zip_code: initial?.zip_code ?? '',
+    metro_area: initial?.metro_area ?? '',
+    onboarding_complete: false,
+    send_welcome: false,
   });
   const [days, setDays] = useState<Record<string, boolean>>({});
 
@@ -57,7 +87,7 @@ export function AddTalentForm({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <h3 className="mb-3 text-sm font-semibold text-gray-700">Agregar persona a la Red de Talento</h3>
+      <h3 className="mb-3 text-sm font-semibold text-gray-700">{title}</h3>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs text-gray-500">Nombre *</label>
@@ -69,7 +99,13 @@ export function AddTalentForm({ onDone }: { onDone: () => void }) {
         </div>
         <div>
           <label className="mb-1 block text-xs text-gray-500">Correo *</label>
-          <input type="email" className={input} value={f.email} onChange={(e) => set('email', e.target.value)} />
+          <input
+            type="email"
+            className={`${input} ${lockEmail ? 'bg-gray-100 text-gray-500' : ''}`}
+            value={f.email}
+            onChange={(e) => set('email', e.target.value)}
+            readOnly={lockEmail}
+          />
         </div>
         <div>
           <label className="mb-1 block text-xs text-gray-500">Teléfono</label>
@@ -130,7 +166,7 @@ export function AddTalentForm({ onDone }: { onDone: () => void }) {
 
       <div className="mt-4 flex gap-2">
         <button onClick={submit} disabled={pending} className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
-          {pending ? 'Agregando…' : 'Agregar a la red'}
+          {pending ? 'Guardando…' : submitLabel}
         </button>
         <button onClick={onDone} disabled={pending} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
           Cancelar

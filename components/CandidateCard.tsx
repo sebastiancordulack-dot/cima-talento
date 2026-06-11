@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { StatusBadge } from '@/components/StatusBadge';
 import { markFit, markNotFit, saveNotes } from '@/lib/candidates/actions';
+import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { formatDate, fullName } from '@/lib/format';
 import type { Candidate } from '@/lib/candidates/queries';
 
@@ -127,6 +128,7 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
             Scorecard
           </Link>
         )}
+        {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
         <Link
           href={`/dashboard/candidates/${candidate.id}`}
           className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"

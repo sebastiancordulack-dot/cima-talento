@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
 import { JuliaActions } from '@/components/JuliaActions';
+import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { getCandidateProfile } from '@/lib/candidates/queries';
 import { getSessionUser, isAdminRole } from '@/lib/auth/session';
 import { STATUS_META } from '@/lib/candidates/status';
@@ -83,6 +84,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           {isAdmin && ['advanced', 'julia_scheduled'].includes(candidate.status) && (
             <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
           )}
+          {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
         </div>
       </div>
 
