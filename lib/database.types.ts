@@ -10,7 +10,8 @@ export type CandidateStatus =
   | 'approved'
   | 'rejected_hm'
   | 'rejected_julia'
-  | 'no_show';
+  | 'no_show'
+  | 'removed';
 
 export type UserRole = 'admin' | 'hiring_manager' | 'julia' | 'regional_manager';
 

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { TalentFilters } from '@/components/talent/TalentFilters';
 import { ActiveToggle, OnboardingToggle } from '@/components/talent/TalentRowToggles';
+import { AddTalentButton } from '@/components/talent/AddTalentButton';
+import { RemoveTalentButton } from '@/components/talent/RemoveTalentButton';
 import { listTalentPool, talentFacets, type TalentRow, type TalentFilters as Filters } from '@/lib/talent/queries';
 import { formatAvailability, fullName } from '@/lib/format';
 
@@ -49,6 +51,7 @@ export async function TalentPoolSection({
         <p className="text-sm text-gray-500">
           {rows.length} de {facets.total} en la Red de Talento
         </p>
+        <AddTalentButton />
       </div>
 
       <TalentFilters metros={facets.metros} states={facets.states} />
@@ -100,6 +103,7 @@ export async function TalentPoolSection({
                           <div className="flex flex-wrap gap-1.5">
                             <ActiveToggle talentId={r.id} active={r.active} />
                             <OnboardingToggle talentId={r.id} complete={r.onboarding_complete} />
+                            <RemoveTalentButton talentId={r.id} name={fullName(r.candidates.first_name, r.candidates.last_name)} />
                           </div>
                         </td>
                       </tr>

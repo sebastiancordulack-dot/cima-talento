@@ -2,8 +2,11 @@
 // view can filter by metro/state/active/onboarding (on talent_pool) and by
 // bilingual/experience (on the candidate). This is the future dispatch board,
 // so availability + active + location are surfaced as first-class fields.
+// The talent pool is managed by all staff (any metro), so reads use the
+// service-role client and are gated only by login (middleware). The pipeline
+// queues stay metro-scoped via RLS; the talent pool is intentionally shared.
 import 'server-only';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { Availability } from '@/lib/database.types';
 
 export interface TalentCandidate {
@@ -43,7 +46,7 @@ const CANDIDATE_COLS =
   'first_name,last_name,email,phone,city,bilingual,prior_experience,app_comfortable,score_total';
 
 export async function listTalentPool(filters: TalentFilters): Promise<TalentRow[]> {
-  const supabase = createClient();
+  const supabase = createAdminClient();
 
   // talent_pool-level filters run in the query; inner join pulls the candidate.
   let query = supabase
@@ -80,7 +83,7 @@ export interface TalentFacets {
 
 /** Distinct metros/states for the filter dropdowns, plus the pool size. */
 export async function talentFacets(): Promise<TalentFacets> {
-  const supabase = createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase.from('talent_pool').select('metro_area,state');
   if (error) throw error;
   const metros = new Set<string>();
