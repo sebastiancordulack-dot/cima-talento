@@ -3,7 +3,8 @@ import { TalentFilters } from '@/components/talent/TalentFilters';
 import { ActiveToggle, OnboardingToggle } from '@/components/talent/TalentRowToggles';
 import { AddTalentButton } from '@/components/talent/AddTalentButton';
 import { RemoveTalentButton } from '@/components/talent/RemoveTalentButton';
-import { listTalentPool, talentFacets, type TalentRow, type TalentFilters as Filters } from '@/lib/talent/queries';
+import { TalentMap } from '@/components/talent/TalentMap';
+import { listTalentPool, talentFacets, metroCounts, type TalentRow, type TalentFilters as Filters } from '@/lib/talent/queries';
 import { formatAvailability, fullName } from '@/lib/format';
 
 // Parse the URL search params into a typed filter set.
@@ -42,11 +43,17 @@ export async function TalentPoolSection({
   searchParams: Record<string, string | undefined>;
 }) {
   const filters = parseFilters(searchParams);
-  const [rows, facets] = await Promise.all([listTalentPool(filters), talentFacets()]);
+  const [rows, facets, mapMetros] = await Promise.all([
+    listTalentPool(filters),
+    talentFacets(),
+    metroCounts(),
+  ]);
   const groups = groupByMetro(rows);
 
   return (
     <div className="mt-6 space-y-4">
+      <TalentMap metros={mapMetros} activeMetro={filters.metro} />
+
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
           {rows.length} de {facets.total} en la Red de Talento

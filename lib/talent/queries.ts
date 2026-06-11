@@ -7,6 +7,7 @@
 // queues stay metro-scoped via RLS; the talent pool is intentionally shared.
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { METROS } from '@/lib/location/metro-data';
 import type { Availability } from '@/lib/database.types';
 
 export interface TalentCandidate {
@@ -79,6 +80,43 @@ export interface TalentFacets {
   metros: string[];
   states: string[];
   total: number;
+}
+
+export interface MetroCount {
+  metro: string;
+  coords: [number, number];
+  active: number;
+  total: number;
+}
+
+/**
+ * Per-metro headcount for the talent map. A dot is returned for any metro that
+ * has at least one pool member AND a known location on the map. `total` drives
+ * the dot size; `active` (active=true) is the dispatch-ready count shown in the
+ * popup. Metros with no coordinates (or none in METROS) are skipped — they'd
+ * have nowhere to plot — so the list view remains the source of truth for them.
+ */
+export async function metroCounts(): Promise<MetroCount[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.from('talent_pool').select('metro_area,active');
+  if (error) throw error;
+
+  const tally = new Map<string, { active: number; total: number }>();
+  for (const r of data ?? []) {
+    if (!r.metro_area) continue;
+    const t = tally.get(r.metro_area) ?? { active: 0, total: 0 };
+    t.total += 1;
+    if (r.active) t.active += 1;
+    tally.set(r.metro_area, t);
+  }
+
+  const out: MetroCount[] = [];
+  for (const m of METROS) {
+    const t = tally.get(m.metro);
+    if (!t) continue; // no one here → no dot
+    out.push({ metro: m.metro, coords: m.coords, active: t.active, total: t.total });
+  }
+  return out;
 }
 
 /** Distinct metros/states for the filter dropdowns, plus the pool size. */
