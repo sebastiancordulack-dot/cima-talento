@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
 import { JuliaActions } from '@/components/JuliaActions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
+import { MetroAssignControl } from '@/components/MetroAssignControl';
 import { getCandidateProfile } from '@/lib/candidates/queries';
+import { getMetros } from '@/lib/location/metros-store';
 import { getSessionUser, isAdminRole } from '@/lib/auth/session';
 import { STATUS_META } from '@/lib/candidates/status';
 import {
@@ -47,10 +49,15 @@ function readScore(data: Record<string, unknown>, key: string): number | null {
 }
 
 export default async function CandidateProfilePage({ params }: { params: { id: string } }) {
-  const [profile, user] = await Promise.all([getCandidateProfile(params.id), getSessionUser()]);
+  const [profile, user, metroRecords] = await Promise.all([
+    getCandidateProfile(params.id),
+    getSessionUser(),
+    getMetros(),
+  ]);
   if (!profile) notFound();
   const { candidate, history, emails } = profile;
   const isAdmin = isAdminRole(user?.hm?.role);
+  const metros = metroRecords.map((m) => m.metro).sort();
   const scorecard = candidate.scorecard_data as Record<string, unknown>;
   const hasScores = SCORED_QUESTIONS.some((q) => readScore(scorecard, q.key) !== null);
 
@@ -85,6 +92,12 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
             <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
           )}
           {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
+          <MetroAssignControl
+            candidateId={candidate.id}
+            current={candidate.metro_area}
+            metros={metros}
+            size="sm"
+          />
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { CandidateCard } from '@/components/CandidateCard';
 import { DashboardTabs } from '@/components/DashboardTabs';
 import { TalentPoolSection } from '@/components/talent/TalentPoolSection';
 import { listCandidatesForTab, tabCounts, type Candidate } from '@/lib/candidates/queries';
+import { getMetros } from '@/lib/location/metros-store';
 import { DASHBOARD_TABS, isDashboardTab, type DashboardTab } from '@/lib/candidates/status';
 
 export const dynamic = 'force-dynamic';
@@ -46,8 +47,9 @@ export default async function DashboardPage({
 }
 
 async function CandidateQueue({ tab }: { tab: DashboardTab }) {
-  const candidates = await listCandidatesForTab(tab);
+  const [candidates, metroRecords] = await Promise.all([listCandidatesForTab(tab), getMetros()]);
   const groups = groupByMetro(candidates);
+  const metros = metroRecords.map((m) => m.metro).sort();
 
   if (candidates.length === 0) {
     return <p className="mt-10 text-center text-sm text-gray-400">No hay candidatos en esta vista.</p>;
@@ -62,7 +64,7 @@ async function CandidateQueue({ tab }: { tab: DashboardTab }) {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((c) => (
-              <CandidateCard key={c.id} candidate={c} />
+              <CandidateCard key={c.id} candidate={c} metros={metros} />
             ))}
           </div>
         </section>

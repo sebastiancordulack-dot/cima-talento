@@ -11,6 +11,7 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { transitionCandidateStatus } from '@/lib/candidates/transitions';
+import { getMetros } from '@/lib/location/metros-store';
 import { assertCandidateAccess, assertAdmin } from '@/lib/auth/session';
 
 export interface ActionResult {
@@ -78,6 +79,46 @@ export async function doNotAdvanceCandidate(candidateId: string): Promise<Action
       patch: { julia_decision: 'not_approved', julia_call_at: new Date().toISOString() },
       actorId: user.hm?.id ?? null,
     });
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/**
+ * Manually assign (or change) a candidate's metro — needed for leads that
+ * arrive without a resolvable location, e.g. Meta Lead Ads (Brief §9). Any
+ * staff who can see the candidate may route it; unassigned candidates are
+ * visible to all HMs, so they can be picked up. The metro must be one from the
+ * catalog. Backfills `state` from the metro only when the candidate has none,
+ * and keeps an existing talent-pool row in sync.
+ */
+export async function assignMetro(candidateId: string, metro: string): Promise<ActionResult> {
+  try {
+    await assertCandidateAccess(candidateId);
+    const name = metro.trim();
+    if (!name) return { ok: false, error: 'Selecciona un metro.' };
+
+    const match = (await getMetros()).find((m) => m.metro === name);
+    if (!match) return { ok: false, error: 'Metro desconocido.' };
+
+    const supabase = createAdminClient();
+    const { data: cand } = await supabase
+      .from('candidates')
+      .select('state')
+      .eq('id', candidateId)
+      .maybeSingle();
+
+    const patch: { metro_area: string; state?: string } = { metro_area: name };
+    if (!cand?.state) patch.state = match.state;
+
+    const { error } = await supabase.from('candidates').update(patch).eq('id', candidateId);
+    if (error) throw error;
+
+    // Keep a talent-pool row (if any) pointed at the same metro.
+    await supabase.from('talent_pool').update({ metro_area: name }).eq('candidate_id', candidateId);
+
     revalidateCandidate(candidateId);
     return { ok: true };
   } catch (err) {

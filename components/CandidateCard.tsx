@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { StatusBadge } from '@/components/StatusBadge';
 import { markFit, markNotFit, saveNotes } from '@/lib/candidates/actions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
+import { MetroAssignControl } from '@/components/MetroAssignControl';
 import { formatDate, fullName } from '@/lib/format';
 import type { Candidate } from '@/lib/candidates/queries';
 
@@ -12,7 +13,7 @@ import type { Candidate } from '@/lib/candidates/queries';
 // vetting phase. Past that, the decision is Julia's (Step 6).
 const HM_ACTIONABLE = new Set(['new', 'scheduled', 'in_review']);
 
-export function CandidateCard({ candidate }: { candidate: Candidate }) {
+export function CandidateCard({ candidate, metros }: { candidate: Candidate; metros: string[] }) {
   const [pending, startTransition] = useTransition();
   const [notes, setNotes] = useState(candidate.notes ?? '');
   const [savedNote, setSavedNote] = useState(candidate.notes ?? '');
@@ -64,6 +65,17 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
         </div>
         <StatusBadge status={candidate.status} />
       </div>
+
+      {candidate.metro_area === null && (
+        <div className="mt-2">
+          <MetroAssignControl
+            candidateId={candidate.id}
+            current={candidate.metro_area}
+            metros={metros}
+            size="sm"
+          />
+        </div>
+      )}
 
       <dl className="mt-3 space-y-1 text-sm text-gray-600">
         <div className="flex gap-2">
