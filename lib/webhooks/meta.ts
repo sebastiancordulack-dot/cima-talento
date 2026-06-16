@@ -8,6 +8,7 @@
 // Security mirrors the Calendly webhook: HMAC over the raw body, fail closed.
 import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { normalizeText } from '@/lib/location/metro-data';
 import type { CandidateIntake } from '@/lib/candidates/ingest';
 
 const GRAPH_VERSION = process.env.META_GRAPH_VERSION ?? 'v21.0';
@@ -124,6 +125,43 @@ const FIELD_ALIASES: Record<keyof Omit<CandidateIntake, 'source_ad_location' | '
 
 const norm = (s: string) => s.trim().toLowerCase();
 
+// Clean a city captured in a field VALUE, e.g. "new_york,_ny" → "new york",
+// "área_metropolitana_de_new_orleans" → "new orleans". Drops the "_"→space
+// encoding, any trailing ", XX" state suffix, and a "metropolitan area of"
+// prefix. deriveLocation normalizes again before the metro lookup.
+function cleanCityValue(v: string): string {
+  const base = v.replace(/_/g, ' ').split(',')[0].trim();
+  const n = normalizeText(base); // accent/punctuation-free, lowercased
+  const prefix = 'area metropolitana de ';
+  return n.startsWith(prefix) ? n.slice(prefix.length) : n;
+}
+
+/**
+ * Recover the city from the two real form shapes when there's no standard
+ * `city` field (Meta forms here don't include one):
+ *   A. qualifier in the field NAME — "vives_en_<city>_y_cuentas_con_vehículo…"
+ *      (Sí/No). The city is in the name; only trust it when the answer is "sí".
+ *   B. city in the field VALUE — "¿en qué ciudad vives actualmente?" → the value.
+ * Returns null when neither is present (lead stays unassigned → manual routing).
+ */
+function extractCity(byName: Map<string, string>): string | null {
+  for (const [name, value] of Array.from(byName.entries())) {
+    const n = normalizeText(name);
+    // B: explicit city question — the value holds the city.
+    if (n.includes('en que ciudad vives') || n.includes('en que ciudad')) {
+      const c = cleanCityValue(value);
+      if (c) return c;
+    }
+    // A: "vives en <city> y cuentas …" — city is in the name, gated on "sí".
+    const m = n.match(/^vives en (.+?) y cuentas/);
+    if (m) {
+      const answer = normalizeText(value); // "sí" → "si"
+      if (answer === 'si' || answer === 'yes') return m[1].trim();
+    }
+  }
+  return null;
+}
+
 /**
  * Map a lead's field_data to a CandidateIntake. Returns null (caller skips) if
  * no email — email is the pipeline's dedup key and Email 1 recipient.
@@ -168,7 +206,7 @@ export function mapLeadToIntake(lead: LeadDetails): CandidateIntake | null {
     last_name,
     email,
     phone: get('phone') ?? null,
-    city: get('city') ?? null,
+    city: get('city') ?? extractCity(byName) ?? null,
     state: get('state') ?? null,
     zip_code: get('zip_code') ?? null,
     source_ad_location: 'Meta Lead Ad',

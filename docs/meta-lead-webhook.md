@@ -20,11 +20,25 @@ Spanish aliases are also accepted for custom questions.
 | `email`, `correo`, `correo_electronico` | `email` (**required** — dedup key) |
 | `first_name`/`last_name`, or `full_name` (auto-split), `nombre`/`apellido` | `first_name`, `last_name` |
 | `phone_number`, `phone`, `telefono`, `celular`, `whatsapp` | `phone` |
-| `city`, `ciudad` | `city` |
+| `city`, `ciudad`, **or** the extracted city below | `city` |
 | `state`, `province`, `estado` | `state` |
 | `zip_code`, `postal_code`, `cp` | `zip_code` |
 
-`metro_area` is derived from city/state/ZIP via the existing lookup. `source` is
+**City extraction** (these forms have no standard `city` field). When `city`
+isn't present, the mapper recovers it two ways:
+- **Qualifier in the field name** — `vives_en_<city>_y_cuentas_con_vehículo…`
+  (Sí/No): the city is the `<city>` in the name, used **only when the answer is
+  `sí`** (a `no` means they don't live there → left unassigned).
+- **City question in the value** — `¿en qué ciudad vives actualmente?`: the
+  answer (e.g. `new_york,_ny`, `área_metropolitana_de_new_orleans`) is cleaned to
+  a city name.
+
+The vehicle part of the qualifier is intentionally **not** captured — the hiring
+manager verifies hard filters during vetting.
+
+`metro_area` is derived from city/state/ZIP via the existing lookup. Cities not
+yet in the metro catalog (e.g. New Orleans, Indianapolis) stay unassigned until
+that metro is added (Agregar metro), then route automatically. `source` is
 set to `Meta Lead Ad`. A lead with **no email is skipped** (logged), since the
 pipeline keys on email. Unmapped field names are logged on the first run so the
 mapping can be confirmed against your real form.
