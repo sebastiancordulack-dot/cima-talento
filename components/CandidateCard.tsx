@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { StatusBadge } from '@/components/StatusBadge';
 import { markFit, markNotFit, saveNotes } from '@/lib/candidates/actions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
+import { ReactivateButton } from '@/components/ReactivateButton';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
 import { formatDate, fullName } from '@/lib/format';
 import type { Candidate } from '@/lib/candidates/queries';
@@ -150,6 +151,9 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
           </Link>
         )}
         {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
+        {candidate.status === 'archived' && (
+          <ReactivateButton candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
+        )}
         <Link
           href={`/dashboard/candidates/${candidate.id}`}
           className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"

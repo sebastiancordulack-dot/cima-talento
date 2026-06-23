@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
 import { JuliaActions } from '@/components/JuliaActions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
+import { ReactivateButton } from '@/components/ReactivateButton';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
 import { getCandidateProfile } from '@/lib/candidates/queries';
 import { getResumeSignedUrl } from '@/lib/candidates/resume';
@@ -94,6 +95,9 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
             <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
           )}
           {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
+          {candidate.status === 'archived' && (
+            <ReactivateButton candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
+          )}
           <MetroAssignControl
             candidateId={candidate.id}
             current={candidate.metro_area}

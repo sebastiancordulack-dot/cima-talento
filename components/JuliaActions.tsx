@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { approveCandidate, doNotAdvanceCandidate } from '@/lib/candidates/actions';
+import { approveCandidate, doNotAdvanceCandidate, archiveCandidate } from '@/lib/candidates/actions';
 
 export function JuliaActions({
   candidateId,
@@ -52,6 +52,18 @@ export function JuliaActions({
           className={`rounded-lg bg-rose-600 font-medium text-white hover:bg-rose-700 disabled:opacity-50 ${pad}`}
         >
           No avanzar
+        </button>
+        <button
+          onClick={() =>
+            run(
+              () => archiveCandidate(candidateId),
+              `¿Archivar a ${candidateName} para el futuro? Se enviará un correo amable y quedará en el Archivo para contactarlo/a si surge una oportunidad.`
+            )
+          }
+          disabled={pending}
+          className={`rounded-lg bg-sky-600 font-medium text-white hover:bg-sky-700 disabled:opacity-50 ${pad}`}
+        >
+          Archivar para después
         </button>
       </div>
       {error && <p className="mt-2 text-xs text-rose-600">{error}</p>}

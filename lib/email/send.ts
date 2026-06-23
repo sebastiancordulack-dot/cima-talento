@@ -33,6 +33,7 @@ export const STATUS_EMAIL: Partial<Record<CandidateStatus, EmailType>> = {
   advanced: 'schedule_julia',   // Email 3 — Agenda con Julia
   approved: 'welcome',          // Email 4 — Bienvenido/a
   rejected_julia: 'rejection_julia', // Email 5 — No avanza
+  archived: 'archived',         // Archivo — kept on file for the future
 };
 
 /** Render the dynamic vars an email type needs for a given candidate. */

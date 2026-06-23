@@ -176,12 +176,33 @@ ${SIGNATURE_CIMA}`
   );
 }
 
+// ---------------------------------------------------------------------------
+// Email — Archivo (en espera): kept on file for future opportunities
+// ---------------------------------------------------------------------------
+function archived(v: TemplateVars): RenderedEmail {
+  return build(
+    'Gracias por tu interés — te mantenemos en nuestro archivo',
+    `Hola ${v.firstName},
+
+Gracias por tomarte el tiempo de conocernos y por tu interés en CiMA Sales. Lo valoramos de verdad.
+
+Por ahora no contamos con una posición que se ajuste a tu perfil, pero nos gustó conocerte y queremos mantenerte en nuestro archivo de talento. Si surge una oportunidad que encaje contigo, serás de las primeras personas en saberlo y te contactaremos directamente.
+
+No necesitas hacer nada más por ahora — nosotros nos pondremos en contacto cuando haya una necesidad.
+
+Gracias nuevamente por tu interés. Esperamos seguir en contacto muy pronto.
+
+${SIGNATURE_CIMA}`
+  );
+}
+
 export const EMAIL_TEMPLATES: Record<EmailType, (v: TemplateVars) => RenderedEmail> = {
   availability,
   rejection_hm: rejectionHm,
   schedule_julia: scheduleJulia,
   welcome,
   rejection_julia: rejectionJulia,
+  archived,
 };
 
 export function renderEmail(type: EmailType, vars: TemplateVars): RenderedEmail {

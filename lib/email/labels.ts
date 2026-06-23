@@ -8,6 +8,7 @@ export const EMAIL_TYPE_LABELS: Record<EmailType, string> = {
   schedule_julia: 'Email 3 — Agenda con Julia',
   welcome: 'Email 4 — Bienvenido/a',
   rejection_julia: 'Email 5 — No avanza',
+  archived: 'Email — Archivo (en espera)',
 };
 
 export const EMAIL_STATUS_LABELS: Record<EmailStatus, string> = {

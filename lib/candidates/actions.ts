@@ -126,6 +126,37 @@ export async function assignMetro(candidateId: string, metro: string): Promise<A
   }
 }
 
+/** Julia archives the candidate for the future → status `archived`, sends the
+ *  warm "kept on file" email. A softer alternative to "No avanzar". */
+export async function archiveCandidate(candidateId: string): Promise<ActionResult> {
+  try {
+    const user = await assertAdmin();
+    await transitionCandidateStatus(candidateId, 'archived', {
+      patch: { julia_call_at: new Date().toISOString() },
+      actorId: user.hm?.id ?? null,
+    });
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** Reopen an archived candidate back into the active pipeline (→ `in_review`).
+ *  No email — it's an internal move; the normal flow resumes from there. */
+export async function reactivateCandidate(candidateId: string): Promise<ActionResult> {
+  try {
+    const user = await assertCandidateAccess(candidateId);
+    await transitionCandidateStatus(candidateId, 'in_review', {
+      actorId: user.hm?.id ?? null,
+    });
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 /** Save inline call notes — no status change, no email. */
 export async function saveNotes(candidateId: string, notes: string): Promise<ActionResult> {
   try {

@@ -20,6 +20,7 @@ export const STATUS_META: Record<CandidateStatus, StatusMeta> = {
   rejected_julia:  { label: 'No avanzó (Julia)',         badgeClass: 'bg-rose-100 text-rose-800 ring-rose-600/20' },
   no_show:         { label: 'No asistió',                badgeClass: 'bg-gray-100 text-gray-700 ring-gray-500/20' },
   removed:         { label: 'Retirado de la red',        badgeClass: 'bg-slate-100 text-slate-700 ring-slate-500/20' },
+  archived:        { label: 'Archivado — futuro',        badgeClass: 'bg-sky-100 text-sky-800 ring-sky-600/20' },
 };
 
 // The four dashboard tabs (Brief §5.1), each mapping to a set of statuses.
@@ -34,7 +35,7 @@ export const DASHBOARD_TABS: Record<DashboardTab, TabMeta> = {
   nuevos:  { label: 'Nuevos interesados', statuses: ['new', 'scheduled'] },
   proceso: { label: 'En proceso',         statuses: ['in_review', 'advanced', 'julia_scheduled'] },
   talento: { label: 'Red de talento',     statuses: ['approved'] },
-  archivo: { label: 'Archivo',            statuses: ['rejected_hm', 'rejected_julia', 'no_show', 'removed'] },
+  archivo: { label: 'Archivo',            statuses: ['rejected_hm', 'rejected_julia', 'no_show', 'removed', 'archived'] },
 };
 
 export const TAB_ORDER: DashboardTab[] = ['nuevos', 'proceso', 'talento', 'archivo'];

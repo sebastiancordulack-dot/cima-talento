@@ -11,7 +11,8 @@ export type CandidateStatus =
   | 'rejected_hm'
   | 'rejected_julia'
   | 'no_show'
-  | 'removed';
+  | 'removed'
+  | 'archived';
 
 export type UserRole = 'admin' | 'hiring_manager' | 'julia' | 'regional_manager';
 
@@ -24,7 +25,8 @@ export type EmailType =
   | 'rejection_hm'
   | 'schedule_julia'
   | 'welcome'
-  | 'rejection_julia';
+  | 'rejection_julia'
+  | 'archived';
 
 export type EmailStatus = 'queued' | 'sent' | 'delivered' | 'failed' | 'bounced';
 
