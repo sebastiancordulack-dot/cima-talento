@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CiMA Talento · Guía de la plataforma</title>
+<style>
+  :root{
+    /* CiMA brand palette — derived from the logo */
+    --navy:#38383a;       /* charcoal — headings + dark slides */
+    --navy-2:#4a4a4d;
+    --blue:#6aa329;       /* deep CiMA green — accents/links (legible on white) */
+    --blue-soft:#eef5e2;  /* pale green */
+    --lime:#8cc63e;       /* CiMA brand green */
+    --silver:#a7a9ac;     /* logo silver */
+    --green:#16a34a;      /* semantic "fit/approved" */
+    --rose:#e11d48;       /* semantic "rejected" */
+    --amber:#d97706;      /* semantic "in review" */
+    --violet:#7c3aed;     /* Julia / approval */
+    --ink:#1f2937;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --bg:#f8fafc;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#0b1220;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink)}
+  /* ---- Deck shell ---- */
+  .deck{max-width:1100px;margin:0 auto;padding:28px 16px 80px}
+  .slide{
+    position:relative;background:var(--bg);border-radius:18px;
+    box-shadow:0 18px 50px rgba(0,0,0,.35);
+    aspect-ratio:16/9;width:100%;margin:0 0 34px;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .slide .pad{padding:46px 56px;flex:1;display:flex;flex-direction:column;min-height:0}
+  .kicker{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+  h1{font-size:40px;line-height:1.1;margin:.15em 0 .25em;color:var(--navy);font-weight:800;letter-spacing:-.01em}
+  h2{font-size:30px;line-height:1.15;margin:.1em 0 .5em;color:var(--navy);font-weight:800;letter-spacing:-.01em}
+  h3{font-size:18px;margin:0 0 .4em;color:var(--navy);font-weight:700}
+  p{font-size:17px;line-height:1.5;margin:.3em 0}
+  .lead{font-size:19px;color:var(--ink)}
+  .muted{color:var(--muted)}
+  ul{margin:.3em 0;padding-left:1.1em}
+  li{font-size:16.5px;line-height:1.55;margin:.28em 0}
+  b,strong{color:var(--navy)}
+  .pagenum{position:absolute;right:22px;bottom:16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .brandfoot{position:absolute;left:24px;bottom:16px;font-size:12px;color:var(--muted);font-weight:600}
+  /* ---- Layout helpers ---- */
+  .grid{display:grid;gap:16px;flex:1;min-height:0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr 1fr}
+  .g2-13{grid-template-columns:1.3fr 1fr}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .card.tight{padding:14px 16px}
+  .scroll{overflow:auto}
+  .center{align-items:center;justify-content:center;text-align:center}
+  .row{display:flex;gap:10px;align-items:center}
+  .wrap{flex-wrap:wrap}
+  /* ---- Badges (match the app) ---- */
+  .badge{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:700;line-height:1.4;white-space:nowrap}
+  .b-blue{background:#dbeafe;color:#1e40af}
+  .b-indigo{background:#e0e7ff;color:#3730a3}
+  .b-amber{background:#fef3c7;color:#92400e}
+  .b-violet{background:#ede9fe;color:#5b21b6}
+  .b-purple{background:#f3e8ff;color:#6b21a8}
+  .b-green{background:#dcfce7;color:#166534}
+  .b-rose{background:#ffe4e6;color:#9f1239}
+  .b-gray{background:#f1f5f9;color:#475569}
+  /* ---- Pills / steps ---- */
+  .pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:15px}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:999px;background:var(--blue);color:#fff;font-weight:800;font-size:15px;flex:none}
+  .num.green{background:var(--green)} .num.rose{background:var(--rose)} .num.violet{background:var(--violet)} .num.amber{background:var(--amber)}
+  /* ---- Tables ---- */
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+  td b{font-weight:700}
+  .mono{font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;background:#eef5e2;color:#3f6a14;padding:1px 6px;border-radius:5px}
+  /* ---- Flow arrows ---- */
+  .flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+  .flow .step{flex:1;min-width:120px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:10px;padding:10px 12px}
+  .flow .step .t{font-weight:800;color:var(--navy);font-size:14px}
+  .flow .step .d{font-size:13px;color:var(--muted)}
+  .arrow{align-self:center;color:var(--blue);font-weight:900;font-size:20px}
+  /* ---- Title slide ---- */
+  .title{background:radial-gradient(1100px 520px at 85% -15%,rgba(140,198,62,.32) 0%,rgba(140,198,62,0) 46%),linear-gradient(160deg,#3a3a3c 0%,#242426 100%);color:#fff}
+  .title h1{color:#fff;font-size:54px}
+  .title .kicker{color:#aede6f}
+  .title .sub{color:#cbd5e1;font-size:20px;max-width:680px}
+  .logochip{display:inline-block;background:#fff;border-radius:16px;padding:16px 26px;box-shadow:0 12px 36px rgba(0,0,0,.35)}
+  .logochip img{height:62px;display:block}
+  .logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:20px;color:#fff}
+  .logo .tag{background:rgba(140,198,62,.22);color:#dcf0bd;font-size:12px;padding:4px 10px;border-radius:6px;font-weight:700;letter-spacing:.04em}
+  /* logo lockup in content-slide footer */
+  .brandfoot img{height:20px;display:block;opacity:.92}
+  .callout{background:#0b1220;color:#e5e7eb;border-radius:12px;padding:14px 16px;border:1px solid #233047}
+  .callout.note{background:#fffbeb;border:1px solid #fde68a;color:#7c5e10}
+  .callout.good{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d}
+  .key{display:inline-block;border:1px solid #cbd5e1;border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:13px;font-weight:700;color:#334155;background:#fff}
+  .hint{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;background:rgba(15,23,42,.9);color:#cbd5e1;font-size:12.5px;padding:7px 14px;border-radius:999px;z-index:50}
+  /* ---- Print: one slide per page ---- */
+  @media print{
+    @page{size:1280px 720px;margin:0}
+    html,body{background:#fff}
+    .deck{max-width:none;margin:0;padding:0}
+    .hint{display:none}
+    .slide{margin:0;border-radius:0;box-shadow:none;break-after:page;page-break-after:always;aspect-ratio:auto;height:720px;width:1280px}
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- 1 · Portada -->
+  <section class="slide title">
+    <div class="pad center" style="text-align:center;align-items:center">
+      <span class="logochip"><img src="cima-logo.png" alt="CiMA" /></span>
+      <div class="logo" style="margin-top:14px"><span class="tag">Talento · Pipeline</span></div>
+      <div class="kicker" style="margin-top:22px">Guía de onboarding del equipo</div>
+      <h1>Cómo funciona y cómo se usa la plataforma</h1>
+      <p class="sub">Una sola herramienta para reclutar mercaderistas: desde que llega un interesado hasta que entra a la Red de Talento. Esta guía es para el equipo interno de CiMA.</p>
+      <p style="color:#94a3b8;margin-top:24px;font-size:14px">CiMA Sales Strategies · talento@cimasales.com</p>
+    </div>
+    <div class="brandfoot" style="color:#94a3b8">CiMA Talento</div>
+    <div class="pagenum" style="color:#94a3b8">1</div>
+  </section>
+
+  <!-- 2 · Qué es -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">El panorama general</div>
+      <h2>¿Qué es la plataforma?</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>El problema que resuelve</h3>
+          <p>Antes el reclutamiento vivía en varias hojas de cálculo separadas. Los candidatos se perdían y nadie sabía en qué paso estaba cada quien.</p>
+          <p>Ahora todo vive en <b>un solo lugar</b>: cada candidato tiene un <b>estatus visible</b> en todo momento y los correos se envían <b>solos</b>.</p>
+        </div>
+        <div class="card">
+          <h3>Qué hace por ti</h3>
+          <ul>
+            <li>Recibe automáticamente a cada interesado de los anuncios.</li>
+            <li>Lo organiza por <b>área metropolitana</b> (metro).</li>
+            <li>Te da una cola de trabajo clara, como un CRM.</li>
+            <li>Envía los 5 correos en español <b>sin que tú los redactes</b>.</li>
+            <li>Guarda el scorecard, las notas y el historial de cada persona.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout note" style="margin-top:14px">Visión a futuro: esta misma base se convertirá en un <b>marketplace de personal</b> tipo Uber, donde las marcas pedirán mercaderistas de la Red de Talento. Por eso organizamos todo por metro y disponibilidad desde hoy.</div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">2</div>
+  </section>
+
+  <!-- 3 · Roles -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">Quién hace qué</div>
+      <h2>Los roles del equipo</h2>
+      <div class="grid g3">
+        <div class="card">
+          <h3>Hiring Manager <span class="badge b-blue">entrevistador</span></h3>
+          <p class="muted" style="margin-top:0">El trabajo diario.</p>
+          <ul>
+            <li>Ve <b>solo</b> a los candidatos de <b>sus metros</b> asignados.</li>
+            <li>Hace la llamada de evaluación y llena el <b>scorecard</b>.</li>
+            <li>Marca <b>fit</b> o <b>no fit</b>.</li>
+            <li><b>No</b> puede aprobar a la Red de Talento.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Admin / Julia <span class="badge b-violet">aprobación</span></h3>
+          <p class="muted" style="margin-top:0">La decisión final.</p>
+          <ul>
+            <li>Ve <b>a todos</b> los candidatos, en <b>todos</b> los metros.</li>
+            <li>Tiene su propia "<b>Vista de Julia</b>".</li>
+            <li><b>Aprueba</b> o <b>no avanza</b> a cada candidato.</li>
+            <li>Administra metros y la Red de Talento.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Regional Manager <span class="badge b-gray">futuro</span></h3>
+          <p class="muted" style="margin-top:0">Reservado para más adelante.</p>
+          <ul>
+            <li>Manejará una región con varios metros.</li>
+            <li>Permisos parecidos al Hiring Manager, pero por zona.</li>
+            <li>Llega con la fase del marketplace.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout good" style="margin-top:14px">El sistema cuida el acceso por sí solo: cada quien ve únicamente lo que le corresponde según su rol y sus metros.</div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">3</div>
+  </section>
+
+  <!-- 4 · Embudo completo -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">La foto completa</div>
+      <h2>El embudo, de principio a fin</h2>
+      <div class="flow" style="margin-top:6px">
+        <div class="step"><div class="t">1 · Llega el interesado</div><div class="d">Llena el formulario o un anuncio de Meta</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">2 · Entra solo</div><div class="d">Se asigna metro + Correo 1 automático</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">3 · Agenda llamada</div><div class="d">Con el Hiring Manager (Calendly)</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">4 · Evaluación</div><div class="d">HM llena el scorecard</div></div>
+      </div>
+      <div class="flow" style="margin-top:14px">
+        <div class="step" style="border-left-color:var(--green)"><div class="t">5 · Fit → Julia</div><div class="d">Correo 3 para agendar con Julia</div></div>
+        <div class="arrow">→</div>
+        <div class="step" style="border-left-color:var(--violet)"><div class="t">6 · Llamada con Julia</div><div class="d">Aprueba o no avanza</div></div>
+        <div class="arrow">→</div>
+        <div class="step" style="border-left-color:var(--green)"><div class="t">7 · Aprobado</div><div class="d">Correo 4 + entra a la Red de Talento</div></div>
+        <div class="arrow">→</div>
+        <div class="step" style="border-left-color:var(--blue)"><div class="t">8 · Onboarding</div><div class="d">Territorio, horario y app</div></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px;flex:none">
+        <div class="callout"><b style="color:#fca5a5">Si NO es fit</b> en la entrevista → Correo 2 y va al Archivo.</div>
+        <div class="callout"><b style="color:#fca5a5">Si Julia no avanza</b> → Correo 5 y va al Archivo.</div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">4</div>
+  </section>
+
+  <!-- 5 · Estatus -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">El idioma del sistema</div>
+      <h2>Los estatus del candidato</h2>
+      <p class="muted" style="margin-top:-4px">Cada persona siempre tiene <b>uno</b> de estos estatus. El color te dice de un vistazo dónde está.</p>
+      <div class="grid g2" style="margin-top:6px">
+        <div class="card tight scroll">
+          <table>
+            <tr><td><span class="badge b-blue">Nuevo</span></td><td>Llegó, ya recibió el Correo 1, falta que agende.</td></tr>
+            <tr><td><span class="badge b-indigo">Llamada agendada</span></td><td>Ya reservó su llamada con el HM.</td></tr>
+            <tr><td><span class="badge b-amber">En revisión</span></td><td>Ya tuvo la llamada; falta la decisión del HM.</td></tr>
+            <tr><td><span class="badge b-violet">Avanzó — pendiente Julia</span></td><td>El HM lo aprobó; espera la llamada con Julia.</td></tr>
+            <tr><td><span class="badge b-purple">Llamada con Julia agendada</span></td><td>Ya reservó con Julia.</td></tr>
+          </table>
+        </div>
+        <div class="card tight scroll">
+          <table>
+            <tr><td><span class="badge b-green">Aprobado</span></td><td>Julia lo aprobó; está en la Red de Talento.</td></tr>
+            <tr><td><span class="badge b-rose">No avanzó (entrevista)</span></td><td>El HM decidió no continuar.</td></tr>
+            <tr><td><span class="badge b-rose">No avanzó (Julia)</span></td><td>Julia decidió no continuar.</td></tr>
+            <tr><td><span class="badge b-gray">No asistió</span></td><td>No llegó a su llamada agendada.</td></tr>
+            <tr><td><span class="badge b-gray">Retirado de la red</span></td><td>Salió de la Red de Talento (se puede restaurar).</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="callout good" style="margin-top:12px;flex:none">Regla de oro: <b>ningún candidato se queda sin estatus</b>. Si lo ves, algo hay que hacer con él.</div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">5</div>
+  </section>
+
+  <!-- 6 · Cómo entran -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">El inicio del proceso</div>
+      <h2>¿Cómo entran los candidatos?</h2>
+      <div class="grid g2-13">
+        <div class="card">
+          <h3>Dos fuentes, un mismo camino</h3>
+          <ul>
+            <li><b>Formulario web (Jotform):</b> la persona llena nombre, ciudad, correo y teléfono.</li>
+            <li><b>Anuncios de Meta (Facebook/Instagram):</b> la persona deja sus datos en el anuncio.</li>
+          </ul>
+          <p>No importa de dónde venga: el sistema hace lo mismo de forma <b>automática</b>, en segundos. Tú no capturas nada a mano.</p>
+          <div class="callout note" style="margin-top:6px">De los anuncios de Meta, el sistema intenta deducir la <b>ciudad</b> de las respuestas para asignar el metro. Si no la reconoce, el candidato queda <b>sin metro</b> hasta que alguien lo asigne (ver más adelante).</div>
+        </div>
+        <div class="card">
+          <h3>Qué hace el sistema al recibirlo</h3>
+          <div class="row"><span class="num">1</span><p style="margin:0">Guarda al candidato (sin duplicar: la clave es el <b>correo</b>).</p></div>
+          <div class="row" style="margin-top:10px"><span class="num">2</span><p style="margin:0">Deduce su <b>metro</b> y <b>estado</b> a partir de la ciudad.</p></div>
+          <div class="row" style="margin-top:10px"><span class="num">3</span><p style="margin:0">Lo pone en estatus <span class="badge b-blue">Nuevo</span>.</p></div>
+          <div class="row" style="margin-top:10px"><span class="num">4</span><p style="margin:0">Le envía el <b>Correo 1</b> con el enlace para agendar.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">6</div>
+  </section>
+
+  <!-- 7 · Correos automáticos -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">Comunicación con el candidato</div>
+      <h2>Los 5 correos automáticos</h2>
+      <p class="muted" style="margin-top:-4px">Todos en español, desde <span class="mono">talento@cimasales.com</span>. Se envían <b>solos</b> cuando cambia el estatus — <b>nunca a mano</b>.</p>
+      <div class="card tight">
+        <table>
+          <thead><tr><th>#</th><th>Correo</th><th>Se dispara cuando…</th><th>Para qué</th></tr></thead>
+          <tbody>
+            <tr><td><b>1</b></td><td><b>Disponibilidad</b></td><td>El candidato entra como <span class="badge b-blue">Nuevo</span></td><td>Invitarlo a agendar su llamada con el HM</td></tr>
+            <tr><td><b>2</b></td><td><b>No es un fit</b></td><td>El HM marca <b>no fit</b></td><td>Cierre amable después de la entrevista</td></tr>
+            <tr><td><b>3</b></td><td><b>Agenda con Julia</b></td><td>El HM marca <b>fit</b></td><td>Invitarlo a agendar con Julia</td></tr>
+            <tr><td><b>4</b></td><td><b>Bienvenida</b></td><td>Julia <b>aprueba</b></td><td>Darle la bienvenida a la Red de Talento</td></tr>
+            <tr><td><b>5</b></td><td><b>No avanza</b></td><td>Julia <b>no avanza</b></td><td>Cierre amable después de la llamada con Julia</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout note" style="margin-top:12px;flex:none">Por eso tu trabajo es solo <b>tomar la decisión correcta</b> en la plataforma. El correto, el momento y las palabras ya están resueltos. Cada correo enviado queda registrado en el perfil del candidato.</div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">7</div>
+  </section>
+
+  <!-- 8 · Iniciar sesión -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">Primeros pasos</div>
+      <h2>Iniciar sesión y entrar</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Tu acceso</h3>
+          <ul>
+            <li>Entras con tu <b>correo y contraseña</b> en la pantalla de inicio de sesión.</li>
+            <li>El administrador te crea la cuenta y te comparte la contraseña la primera vez.</li>
+            <li>Sin sesión iniciada, el sistema te lleva siempre a <b>Iniciar sesión</b> — nada queda expuesto.</li>
+          </ul>
+          <div class="callout note" style="margin-top:6px">Guarda tu contraseña en un lugar seguro. Si la pierdes, pídele al administrador que te genere una nueva.</div>
+        </div>
+        <div class="card">
+          <h3>Lo que verás al entrar</h3>
+          <ul>
+            <li>Arriba: el logo <b>CiMA Talento · Pipeline</b> y tu nombre.</li>
+            <li>El <b>panel</b> con tus candidatos, organizados por metro.</li>
+            <li>Si eres admin, también el enlace <b style="color:#7c3aed">Vista de Julia</b>.</li>
+            <li>Botón para <b>cerrar sesión</b> cuando termines.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">8</div>
+  </section>
+
+  <!-- 9 · El panel -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">Tu pantalla principal</div>
+      <h2>El panel: cuatro pestañas</h2>
+      <p class="muted" style="margin-top:-4px">Cada pestaña es una etapa del embudo. Dentro, los candidatos se agrupan por <b>metro</b>.</p>
+      <div class="grid g2">
+        <div class="card">
+          <h3><span class="badge b-blue">Nuevos interesados</span></h3>
+          <p>Tu cola de acción. Candidatos <b>Nuevos</b> y con <b>llamada agendada</b>. Aquí empieza tu día.</p>
+        </div>
+        <div class="card">
+          <h3><span class="badge b-amber">En proceso</span></h3>
+          <p>Ya tuvieron su entrevista o van rumbo a Julia: <b>en revisión</b>, <b>avanzó</b> y <b>agendado con Julia</b>.</p>
+        </div>
+        <div class="card">
+          <h3><span class="badge b-green">Red de talento</span></h3>
+          <p>Los <b>aprobados</b>. Es el tablero de talento, con filtros, mapa y perfiles completos.</p>
+        </div>
+        <div class="card">
+          <h3><span class="badge b-gray">Archivo</span></h3>
+          <p>Quienes no avanzaron o no asistieron. Quedan guardados y buscables, fuera del flujo principal.</p>
+        </div>
+      </div>
+      <div class="callout good" style="margin-top:12px;flex:none">Cada pestaña muestra un <b>contador</b> de cuántos candidatos tiene, para que sepas dónde hay trabajo pendiente.</div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">9</div>
+  </section>
+
+  <!-- 10 · Tarjeta del candidato -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">El día a día del Hiring Manager</div>
+      <h2>La tarjeta del candidato</h2>
+      <div class="grid g2-13">
+        <div class="card">
+          <h3>Qué muestra cada tarjeta</h3>
+          <ul>
+            <li><b>Nombre</b>, metro/ciudad y <b>estatus</b> con color.</li>
+            <li><b>Correo</b>, <b>teléfono</b> y fecha en que se recibió.</li>
+            <li>Un campo de <b>notas</b> que puedes escribir y guardar al instante.</li>
+            <li>Si llegó <b>sin metro</b>, un menú para asignarlo ahí mismo.</li>
+          </ul>
+          <h3 style="margin-top:14px">Acciones rápidas</h3>
+          <div class="row wrap" style="gap:8px">
+            <span class="pill" style="border-color:#bbf7d0;color:#166534">Marcar como fit</span>
+            <span class="pill" style="border-color:#fecdd3;color:#9f1239">No es un fit</span>
+            <span class="pill">Scorecard</span>
+            <span class="pill">Ver perfil</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>El perfil completo</h3>
+          <p class="muted" style="margin-top:0">Al hacer clic en "Ver perfil" tienes todo en una sola página:</p>
+          <ul>
+            <li>Contacto y ubicación.</li>
+            <li>Resultado del <b>scorecard</b> (pregunta por pregunta + total).</li>
+            <li>Los <b>filtros obligatorios</b> y las señales adicionales.</li>
+            <li>Las <b>notas</b> de la llamada.</li>
+            <li><b>Historial de estatus</b> (la línea de tiempo).</li>
+            <li>Los <b>correos enviados</b> y cuándo.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">10</div>
+  </section>
+
+  <!-- 11 · Scorecard paso 1 -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">La evaluación · Paso 1</div>
+      <h2>Scorecard: filtros obligatorios</h2>
+      <p class="muted" style="margin-top:-4px">Durante o después de la llamada, abres el <b>scorecard</b>. Lo primero son 4 preguntas de <b>sí o no</b>. Si una es <b>No</b>, el candidato <b>no avanza</b>.</p>
+      <div class="card tight">
+        <table>
+          <thead><tr><th>#</th><th>Pregunta (filtro obligatorio)</th><th>Pasa si…</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>¿Tienes licencia válida y un vehículo personal confiable?</td><td><b>Sí</b></td></tr>
+            <tr><td>2</td><td>¿Estás autorizado/a para trabajar en EE. UU.? <span class="muted">(confirmación verbal)</span></td><td><b>Sí</b></td></tr>
+            <tr><td>3</td><td>¿Disponibilidad de lunes a viernes, tiempo completo (40 hrs)?</td><td><b>Sí</b></td></tr>
+            <tr><td>4</td><td>¿Cómodo/a trabajando solo/a y manejando tu propia ruta diaria?</td><td><b>Sí</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid g2" style="margin-top:12px;flex:none">
+        <div class="callout note">Si marcas <b>No</b> en cualquiera: aparece el botón para marcar <b>no fit</b>. La sección de puntaje <b>ni siquiera se abre</b>.</div>
+        <div class="callout">La autorización de trabajo se confirma <b>solo de palabra</b> en la llamada. Los documentos se revisan después, en el onboarding formal — no en la plataforma.</div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">11</div>
+  </section>
+
+  <!-- 12 · Scorecard paso 2 -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">La evaluación · Paso 2</div>
+      <h2>Scorecard: 7 preguntas con puntaje</h2>
+      <p class="muted" style="margin-top:-4px">Solo se abre si los 4 filtros pasaron. Calificas cada pregunta: <span class="badge b-gray">1 · Débil</span> <span class="badge b-gray">2 · Aceptable</span> <span class="badge b-blue">3 · Fuerte</span>. Máximo <b>21 puntos</b>.</p>
+      <div class="grid g2-13">
+        <div class="card tight scroll">
+          <table>
+            <tr><td>1</td><td><b>Autogestión y confiabilidad</b></td></tr>
+            <tr><td>2</td><td><b>Resolución de problemas</b></td></tr>
+            <tr><td>3</td><td><b>Orientación a personas y ventas</b></td></tr>
+            <tr><td>4</td><td><b>Adaptabilidad</b></td></tr>
+            <tr><td>5</td><td><b>Confiabilidad y compromiso</b></td></tr>
+            <tr><td>6</td><td><b>Iniciativa</b></td></tr>
+            <tr><td>7</td><td><b>Instinto de marca y merchandising</b></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>El veredicto (lo calcula solo)</h3>
+          <div class="row" style="margin-bottom:8px"><span class="badge b-green">17–21</span><p style="margin:0">Sí rotundo — avanzar con Julia.</p></div>
+          <div class="row" style="margin-bottom:8px"><span class="badge b-amber">12–16</span><p style="margin:0">En el límite — usa tu criterio.</p></div>
+          <div class="row"><span class="badge b-rose">menos de 12</span><p style="margin:0">No es un fit — no avanzar.</p></div>
+          <div class="callout" style="margin-top:12px">Cada pregunta trae una pista de "<b>Escucha por…</b>" para ayudarte a calificar de forma justa. Puedes agregar una <b>nota</b> por pregunta.</div>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">12</div>
+  </section>
+
+  <!-- 13 · Scorecard paso 3 + decisión -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">La evaluación · Paso 3 y decisión</div>
+      <h2>Señales adicionales y tu decisión</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Paso 3 · Señales adicionales</h3>
+          <p class="muted" style="margin-top:0">No suman puntos, pero ayudan en los casos del límite (12–16):</p>
+          <ul>
+            <li>Bilingüe inglés/español</li>
+            <li>Experiencia previa en merchandising/retail/CPG/rutas</li>
+            <li>Cómodo/a usando app móvil para reportes diarios</li>
+          </ul>
+          <p>También hay un campo de <b>notas generales</b> para resumir la llamada.</p>
+        </div>
+        <div class="card">
+          <h3>Cómo cierras el scorecard</h3>
+          <div class="row" style="margin-bottom:10px"><span class="num amber">≡</span><p style="margin:0"><b>Guardar borrador:</b> guarda sin enviar correo. Útil si quieres terminar después.</p></div>
+          <div class="row" style="margin-bottom:10px"><span class="num green">✓</span><p style="margin:0"><b>Avanzar con Julia (fit):</b> requiere las 7 preguntas. Dispara el <b>Correo 3</b>.</p></div>
+          <div class="row"><span class="num rose">✕</span><p style="margin:0"><b>No es un fit:</b> dispara el <b>Correo 2</b> y lo manda al Archivo.</p></div>
+          <div class="callout note" style="margin-top:12px">Antes de cada decisión el sistema te pide <b>confirmar</b>, porque enviará un correo al candidato.</div>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">13</div>
+  </section>
+
+  <!-- 14 · Vista de Julia -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">La aprobación final</div>
+      <h2>La Vista de Julia</h2>
+      <div class="grid g2-13">
+        <div class="card">
+          <h3>Solo para admin / Julia</h3>
+          <p>Una lista enfocada: <b>únicamente</b> los candidatos que el equipo de entrevistas ya aprobó y que esperan la decisión final.</p>
+          <p>De cada uno, Julia ve el <b>scorecard</b> completo, las <b>notas</b> del HM y todo su perfil — para llegar informada a la llamada.</p>
+        </div>
+        <div class="card">
+          <h3>Dos botones, dos caminos</h3>
+          <div class="row" style="margin-bottom:12px"><span class="pill" style="border-color:#bbf7d0;color:#166534">Aprobar</span>
+            <p style="margin:0">Envía el <b>Correo 4 (bienvenida)</b> y agrega a la persona a la <b>Red de Talento</b>.</p></div>
+          <div class="row"><span class="pill" style="border-color:#fecdd3;color:#9f1239">No avanzar</span>
+            <p style="margin:0">Envía el <b>Correo 5</b> y lo manda al Archivo.</p></div>
+          <div class="callout good" style="margin-top:14px">Con un clic de Julia, el candidato pasa de aspirante a <b>miembro de la Red de Talento</b>, listo para el onboarding.</div>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">14</div>
+  </section>
+
+  <!-- 15 · Red de Talento -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">El destino del embudo</div>
+      <h2>La Red de Talento</h2>
+      <div class="grid g2-13">
+        <div class="card">
+          <h3>El tablero de talento</h3>
+          <p>Todos los aprobados, organizados por metro, en una tabla con su contacto, disponibilidad y señales (bilingüe, experiencia). Arriba, un <b>mapa</b> muestra cuántos hay por zona.</p>
+          <h3 style="margin-top:14px">Filtros</h3>
+          <div class="row wrap" style="gap:6px">
+            <span class="pill">Metro</span><span class="pill">Estado</span><span class="pill">Activo</span>
+            <span class="pill">Bilingüe</span><span class="pill">Experiencia</span><span class="pill">Onboarding</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Qué puedes hacer aquí</h3>
+          <ul>
+            <li><b>Activar / desactivar</b> a un miembro (si está disponible o no para asignaciones).</li>
+            <li>Marcar su <b>onboarding completo</b>.</li>
+            <li><b>Retirar</b> a alguien de la red (y restaurarlo después si hace falta).</li>
+            <li><b>Agregar talento</b> manualmente o <b>agregar un metro</b> nuevo.</li>
+          </ul>
+          <div class="callout note" style="margin-top:8px">Estos campos —disponibilidad, activo, metro— son la base del <b>marketplace</b> futuro: con ellos se hará el match entre marcas y mercaderistas.</div>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">15</div>
+  </section>
+
+  <!-- 16 · Metro + Calendly -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">Dos automatismos clave</div>
+      <h2>Asignar metro y agendar (Calendly)</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Asignar metro</h3>
+          <p>Casi siempre el metro se asigna <b>solo</b>. Pero algunos leads de Meta llegan <b>sin metro</b> (ciudad no reconocida).</p>
+          <ul>
+            <li>Verás "<b>Sin metro asignado</b>" en la tarjeta o el perfil.</li>
+            <li>Eliges el metro en el menú y queda asignado al instante.</li>
+            <li>Si la ciudad aún no existe como metro, primero usa <b>Agregar metro</b>; después los leads de esa zona se enrutan solos.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Calendly: estatus automático</h3>
+          <p>Cuando el candidato <b>agenda</b> o <b>cancela</b> su llamada, el estatus se actualiza solo. No se envía ningún correo extra.</p>
+          <table style="margin-top:6px">
+            <tr><td>Agenda con HM</td><td><span class="badge b-blue">Nuevo</span> → <span class="badge b-indigo">Agendada</span></td></tr>
+            <tr><td>Agenda con Julia</td><td><span class="badge b-violet">Avanzó</span> → <span class="badge b-purple">Julia agendada</span></td></tr>
+            <tr><td>Cancela</td><td>regresa al estatus anterior</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">16</div>
+  </section>
+
+  <!-- 17 · Reglas de oro -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">No negociable</div>
+      <h2>Reglas de oro</h2>
+      <div class="grid g2">
+        <div class="card"><div class="row"><span class="num">1</span><h3 style="margin:0">Nadie sin estatus</h3></div>
+          <p>Cada candidato siempre tiene un estatus claro. Si alguien está en tu cola, hay una acción esperándote.</p></div>
+        <div class="card"><div class="row"><span class="num">2</span><h3 style="margin:0">Ningún correo a mano</h3></div>
+          <p>Los 5 correos se disparan solos con tus decisiones. No redactes ni envíes correos por fuera.</p></div>
+        <div class="card"><div class="row"><span class="num">3</span><h3 style="margin:0">Todo al candidato, en español</h3></div>
+          <p>Toda la comunicación con la persona es en español, con un tono cálido y profesional.</p></div>
+        <div class="card"><div class="row"><span class="num">4</span><h3 style="margin:0">Un filtro en "No" descalifica</h3></div>
+          <p>Si falla un filtro obligatorio, no se puede avanzar. El sistema te lo impide a propósito.</p></div>
+      </div>
+      <div class="callout good" style="margin-top:12px;flex:none">La autorización de trabajo se confirma <b>de palabra</b> en la llamada; los documentos (I-9) se revisan en el onboarding, nunca en la plataforma.</div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">17</div>
+  </section>
+
+  <!-- 18 · Flujo diario -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">Cómo se ve un buen día</div>
+      <h2>Tu rutina recomendada</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Hiring Manager</h3>
+          <div class="row" style="margin-bottom:8px"><span class="num">1</span><p style="margin:0">Abre <b>Nuevos interesados</b> y revisa tu cola por metro.</p></div>
+          <div class="row" style="margin-bottom:8px"><span class="num">2</span><p style="margin:0">Haz las <b>llamadas</b> agendadas del día.</p></div>
+          <div class="row" style="margin-bottom:8px"><span class="num">3</span><p style="margin:0">Llena el <b>scorecard</b> de cada llamada al terminar.</p></div>
+          <div class="row" style="margin-bottom:8px"><span class="num">4</span><p style="margin:0">Marca <b>fit</b> o <b>no fit</b> — los correos salen solos.</p></div>
+          <div class="row"><span class="num">5</span><p style="margin:0">Asigna metro a cualquier lead que llegó <b>sin metro</b>.</p></div>
+        </div>
+        <div class="card">
+          <h3>Julia / Admin</h3>
+          <div class="row" style="margin-bottom:8px"><span class="num violet">1</span><p style="margin:0">Abre la <b>Vista de Julia</b> y revisa quién espera aprobación.</p></div>
+          <div class="row" style="margin-bottom:8px"><span class="num violet">2</span><p style="margin:0">Lee el <b>scorecard</b> y las notas del HM antes de la llamada.</p></div>
+          <div class="row" style="margin-bottom:8px"><span class="num violet">3</span><p style="margin:0">Haz la llamada y <b>aprueba</b> o <b>no avances</b>.</p></div>
+          <div class="row"><span class="num violet">4</span><p style="margin:0">Da mantenimiento a la <b>Red de Talento</b> (activos, onboarding, metros).</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">18</div>
+  </section>
+
+  <!-- 19 · Glosario -->
+  <section class="slide">
+    <div class="pad">
+      <div class="kicker">Para recordar</div>
+      <h2>Glosario rápido</h2>
+      <div class="grid g2">
+        <div class="card tight scroll">
+          <table>
+            <tr><td><b>Metro</b></td><td>Área metropolitana. Todo se organiza por metro, no por ciudad o código postal.</td></tr>
+            <tr><td><b>Scorecard</b></td><td>La hoja de evaluación: 4 filtros + 7 preguntas con puntaje + señales.</td></tr>
+            <tr><td><b>Fit / No fit</b></td><td>La decisión del HM tras la entrevista.</td></tr>
+            <tr><td><b>Filtro obligatorio</b></td><td>Requisito de sí/no. Un "No" descalifica de inmediato.</td></tr>
+          </table>
+        </div>
+        <div class="card tight scroll">
+          <table>
+            <tr><td><b>Red de Talento</b></td><td>El grupo de mercaderistas aprobados, listos para asignaciones.</td></tr>
+            <tr><td><b>Activo</b></td><td>Un miembro disponible para recibir asignaciones.</td></tr>
+            <tr><td><b>Onboarding</b></td><td>La incorporación formal: documentos, territorio, horario y app.</td></tr>
+            <tr><td><b>Archivo</b></td><td>Candidatos que no avanzaron; guardados y buscables.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="brandfoot"><img src="cima-logo.png" alt="CiMA Talento" /></div><div class="pagenum">19</div>
+  </section>
+
+  <!-- 20 · Cierre -->
+  <section class="slide title">
+    <div class="pad center" style="text-align:center;align-items:center">
+      <span class="logochip" style="margin-bottom:24px"><img src="cima-logo.png" alt="CiMA" style="height:48px" /></span>
+      <div class="kicker" style="color:#aede6f">En una frase</div>
+      <h1 style="max-width:840px">Toma buenas decisiones en la plataforma; el sistema se encarga del resto.</h1>
+      <p class="sub">Cada candidato siempre con su estatus. Cada correo a tiempo y en español. Todo el equipo viendo la misma información.</p>
+      <p style="color:#cbd5e1;margin-top:18px;max-width:640px">"Las personas extraordinarias construyen marcas extraordinarias."</p>
+      <p style="color:#94a3b8;margin-top:22px;font-size:14px">¿Dudas? Escribe a talento@cimasales.com · CiMA Sales Strategies</p>
+    </div>
+    <div class="brandfoot" style="color:#94a3b8">CiMA Talento</div>
+    <div class="pagenum" style="color:#94a3b8">20</div>
+  </section>
+
+</div>
+
+<div class="hint" id="hint">Usa <span class="key">←</span> <span class="key">→</span> para navegar · <span class="key">P</span> presentación · <span class="key">Esc</span> salir · imprime a PDF para compartir</div>
+
+<script>
+  // Lightweight one-slide-at-a-time presentation mode.
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let idx = 0, presenting = false;
+
+  function layout(){
+    if(presenting){
+      slides.forEach((s,i)=>{ s.style.display = i===idx ? 'flex' : 'none'; });
+      document.querySelector('.deck').style.padding = '0';
+      document.querySelectorAll('.slide').forEach(s=>{
+        s.style.margin='0'; s.style.maxWidth='none';
+      });
+      fit();
+    } else {
+      slides.forEach(s=>{ s.style.display='flex'; s.style.transform=''; s.style.margin='0 0 34px'; });
+      document.querySelector('.deck').style.padding='28px 16px 80px';
+    }
+  }
+  function fit(){
+    // Scale the active slide to fill the viewport in presentation mode.
+    const s = slides[idx];
+    s.style.transform=''; s.style.transformOrigin='top left';
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const sw = s.offsetWidth, sh = s.offsetHeight;
+    const k = Math.min(vw/sw, vh/sh);
+    s.style.position='absolute';
+    s.style.left=((vw - sw*k)/2)+'px';
+    s.style.top=((vh - sh*k)/2)+'px';
+    s.style.transform='scale('+k+')';
+  }
+  function go(n){ idx = Math.max(0, Math.min(slides.length-1, n)); if(presenting) layout(); else slides[idx].scrollIntoView({behavior:'smooth',block:'center'}); }
+  function enter(){ presenting=true; document.body.style.background='#000'; layout(); document.getElementById('hint').style.display='none'; }
+  function exit(){ presenting=false; document.body.style.background='#0b1220'; slides.forEach(s=>{s.style.position='';s.style.left='';s.style.top='';s.style.transform='';}); layout(); document.getElementById('hint').style.display=''; }
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'){ go(idx+1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ go(idx-1); }
+    else if(e.key==='p'||e.key==='P'){ presenting?exit():enter(); }
+    else if(e.key==='Escape'){ if(presenting) exit(); }
+  });
+  window.addEventListener('resize', ()=>{ if(presenting) fit(); });
+  // Click right/left half to move when presenting.
+  document.addEventListener('click', (e)=>{ if(!presenting) return; if(e.target.closest('a')) return; (e.clientX > window.innerWidth/2) ? go(idx+1) : go(idx-1); });
+</script>
+</body>
+</html>
