@@ -3,7 +3,7 @@
 //   • Email 1 → the hiring manager who covers the candidate's metro; falls
 //     back to the default CiMA scheduling link (CALENDLY_HM_LINK) when no metro
 //     is mapped yet or no HM owns it.
-//   • Email 3 → Julia's link (CALENDLY_JULIA_LINK).
+//   • Email 3 → Julia's fixed scheduling link (see JULIA_LINK below).
 //
 // Full Calendly webhook auto-status-updates are Step 8; this only handles link
 // injection.
@@ -11,7 +11,8 @@ import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 const DEFAULT_HM_LINK = process.env.CALENDLY_HM_LINK ?? '';
-const JULIA_LINK = process.env.CALENDLY_JULIA_LINK ?? '';
+// Julia's scheduling link — a single fixed Calendly event (Email 3).
+const JULIA_LINK = 'https://calendly.com/julia-cimasales/cima-talento-llamada-con-julia';
 
 /** Hiring-manager scheduling link for a candidate's metro, with fallback. */
 export async function resolveHmCalendlyLink(metroArea: string | null): Promise<string> {
