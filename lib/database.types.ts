@@ -96,6 +96,10 @@ export interface Database {
           hm_call_at: string | null;
           julia_call_at: string | null;
           talent_pool_added_at: string | null;
+          resume_path: string | null;
+          resume_filename: string | null;
+          resume_uploaded_at: string | null;
+          upload_token: string;
         };
         Insert: {
           id?: string;
@@ -127,6 +131,10 @@ export interface Database {
           hm_call_at?: string | null;
           julia_call_at?: string | null;
           talent_pool_added_at?: string | null;
+          resume_path?: string | null;
+          resume_filename?: string | null;
+          resume_uploaded_at?: string | null;
+          upload_token?: string;
         };
         Update: Partial<Database['public']['Tables']['candidates']['Insert']>;
         Relationships: [];

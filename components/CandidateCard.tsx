@@ -62,6 +62,15 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
             {candidate.metro_area ?? candidate.city ?? 'Sin metro asignado'}
             {candidate.state ? ` · ${candidate.state}` : ''}
           </p>
+          <span
+            className={`mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+              candidate.resume_uploaded_at
+                ? 'bg-green-100 text-green-700'
+                : 'bg-amber-100 text-amber-700'
+            }`}
+          >
+            {candidate.resume_uploaded_at ? 'CV ✓' : 'CV pendiente'}
+          </span>
         </div>
         <StatusBadge status={candidate.status} />
       </div>

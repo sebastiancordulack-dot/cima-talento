@@ -9,7 +9,8 @@ import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getResend, FROM_EMAIL } from '@/lib/email/resend';
 import { renderEmail } from '@/lib/email/templates';
-import { resolveHmCalendlyLink, resolveJuliaCalendlyLink } from '@/lib/email/calendly';
+import { resolveJuliaCalendlyLink } from '@/lib/email/calendly';
+import { appUrl } from '@/lib/config';
 import type { Database, EmailType, CandidateStatus } from '@/lib/database.types';
 
 type Candidate = Database['public']['Tables']['candidates']['Row'];
@@ -38,7 +39,7 @@ export const STATUS_EMAIL: Partial<Record<CandidateStatus, EmailType>> = {
 async function buildVars(type: EmailType, candidate: Candidate) {
   const base = { firstName: candidate.first_name };
   if (type === 'availability') {
-    return { ...base, calendlyHmLink: await resolveHmCalendlyLink(candidate.metro_area) };
+    return { ...base, uploadUrl: `${appUrl()}/cv/${candidate.upload_token}` };
   }
   if (type === 'schedule_julia') {
     return { ...base, calendlyJuliaLink: resolveJuliaCalendlyLink() };

@@ -13,8 +13,8 @@ export interface RenderedEmail {
 
 export interface TemplateVars {
   firstName: string;
-  /** HM scheduling link — Email 1 only. */
-  calendlyHmLink?: string;
+  /** Resume-upload page link — Email 1 only (scheduling is gated behind it). */
+  uploadUrl?: string;
   /** Julia scheduling link — Email 3 only. */
   calendlyJuliaLink?: string;
   /** Approx. length of Julia's call, in minutes — Email 3. */
@@ -66,20 +66,18 @@ function build(subject: string, body: string): RenderedEmail {
 // Email 1 — Disponibilidad
 // ---------------------------------------------------------------------------
 function availability(v: TemplateVars): RenderedEmail {
-  const link = v.calendlyHmLink ?? '';
+  const link = v.uploadUrl ?? '';
   return build(
-    'Recibimos tu información — agenda tu llamada aquí',
+    'Recibimos tu información — sube tu CV y agenda tu llamada',
     `Hola ${v.firstName},
 
 Gracias por tu interés en unirte al equipo de CiMA Sales como Mercaderista. Nos da mucho gusto que hayas dado ese primer paso.
 
-Queremos conocerte. El siguiente paso es una llamada corta de 15 a 20 minutos con uno de nuestros representantes para platicar sobre ti y sobre lo que ofrecemos.
+El siguiente paso es una llamada corta de 15 a 20 minutos con uno de nuestros representantes. Para agendarla, primero sube tu currículum (CV) en el siguiente enlace — toma menos de un minuto, y desde ahí podrás reservar tu llamada:
 
-Agenda tu llamada directamente aquí — es rápido y sencillo:
+{{cta:Subir mi CV y agendar|${link}}}
 
-{{cta:Agendar mi llamada|${link}}}
-
-Si tienes alguna pregunta antes de la llamada, responde a este correo y te atendemos con gusto.
+Aceptamos archivos PDF o Word. Si tienes alguna pregunta antes de la llamada, responde a este correo y te atendemos con gusto.
 
 ¡Esperamos hablar contigo muy pronto!
 

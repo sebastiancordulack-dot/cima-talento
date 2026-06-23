@@ -5,6 +5,7 @@ import { JuliaActions } from '@/components/JuliaActions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
 import { getCandidateProfile } from '@/lib/candidates/queries';
+import { getResumeSignedUrl } from '@/lib/candidates/resume';
 import { getMetros } from '@/lib/location/metros-store';
 import { getSessionUser, isAdminRole } from '@/lib/auth/session';
 import { STATUS_META } from '@/lib/candidates/status';
@@ -58,6 +59,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
   const { candidate, history, emails } = profile;
   const isAdmin = isAdminRole(user?.hm?.role);
   const metros = metroRecords.map((m) => m.metro).sort();
+  const resumeUrl = await getResumeSignedUrl(candidate.resume_path);
   const scorecard = candidate.scorecard_data as Record<string, unknown>;
   const hasScores = SCORED_QUESTIONS.some((q) => readScore(scorecard, q.key) !== null);
 
@@ -128,6 +130,35 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           </ul>
         </Section>
       </div>
+
+      {/* Currículum */}
+      <Section title="Currículum">
+        {candidate.resume_uploaded_at ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            <div>
+              <span className="font-medium text-green-700">Recibido</span>
+              <span className="text-gray-400"> · {formatDate(candidate.resume_uploaded_at)}</span>
+              {candidate.resume_filename && (
+                <div className="text-xs text-gray-500">{candidate.resume_filename}</div>
+              )}
+            </div>
+            {resumeUrl && (
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Descargar / ver
+              </a>
+            )}
+          </div>
+        ) : (
+          <p className="text-sm text-amber-700">
+            Pendiente — el candidato aún no ha subido su currículum.
+          </p>
+        )}
+      </Section>
 
       {/* Scorecard */}
       <Section title="Scorecard de la entrevista">

@@ -1,4 +1,12 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  experimental: {
+    // Resume uploads go through a server action; the default cap is 1 MB, so
+    // raise it above the 10 MB file limit enforced in the upload action.
+    serverActions: {
+      bodySizeLimit: '12mb',
+    },
+  },
+};
 
 export default nextConfig;
