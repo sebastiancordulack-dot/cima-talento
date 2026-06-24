@@ -5,6 +5,7 @@ import { JuliaActions } from '@/components/JuliaActions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { ReactivateButton } from '@/components/ReactivateButton';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
+import { WhatsAppBumpButton } from '@/components/WhatsAppBumpButton';
 import { getCandidateProfile } from '@/lib/candidates/queries';
 import { getResumeSignedUrl } from '@/lib/candidates/resume';
 import { getMetros } from '@/lib/location/metros-store';
@@ -97,6 +98,16 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
           {candidate.status === 'archived' && (
             <ReactivateButton candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
+          )}
+          {!candidate.resume_uploaded_at && (
+            <WhatsAppBumpButton
+              candidateId={candidate.id}
+              firstName={candidate.first_name}
+              phone={candidate.phone}
+              uploadToken={candidate.upload_token}
+              lastBumpedAt={candidate.last_bumped_at}
+              size="sm"
+            />
           )}
           <MetroAssignControl
             candidateId={candidate.id}

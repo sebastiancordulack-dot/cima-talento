@@ -7,6 +7,7 @@ import { markFit, markNotFit, saveNotes } from '@/lib/candidates/actions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { ReactivateButton } from '@/components/ReactivateButton';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
+import { WhatsAppBumpButton } from '@/components/WhatsAppBumpButton';
 import { formatDate, fullName } from '@/lib/format';
 import type { Candidate } from '@/lib/candidates/queries';
 
@@ -153,6 +154,16 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
         {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
         {candidate.status === 'archived' && (
           <ReactivateButton candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
+        )}
+        {!candidate.resume_uploaded_at && (
+          <WhatsAppBumpButton
+            candidateId={candidate.id}
+            firstName={candidate.first_name}
+            phone={candidate.phone}
+            uploadToken={candidate.upload_token}
+            lastBumpedAt={candidate.last_bumped_at}
+            size="sm"
+          />
         )}
         <Link
           href={`/dashboard/candidates/${candidate.id}`}

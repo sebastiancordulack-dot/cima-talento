@@ -102,6 +102,7 @@ export interface Database {
           resume_filename: string | null;
           resume_uploaded_at: string | null;
           upload_token: string;
+          last_bumped_at: string | null;
         };
         Insert: {
           id?: string;
@@ -137,6 +138,7 @@ export interface Database {
           resume_filename?: string | null;
           resume_uploaded_at?: string | null;
           upload_token?: string;
+          last_bumped_at?: string | null;
         };
         Update: Partial<Database['public']['Tables']['candidates']['Insert']>;
         Relationships: [];
