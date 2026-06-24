@@ -157,6 +157,25 @@ export async function reactivateCandidate(candidateId: string): Promise<ActionRe
   }
 }
 
+/** Record that a WhatsApp bump was sent (Tier-1 click-to-chat). No status
+ *  change, no email, no server-side message — just stamps last_bumped_at so the
+ *  dashboard shows who has already been nudged and staff avoid double-texting. */
+export async function bumpCandidate(candidateId: string): Promise<ActionResult> {
+  try {
+    await assertCandidateAccess(candidateId);
+    const supabase = createAdminClient();
+    const { error } = await supabase
+      .from('candidates')
+      .update({ last_bumped_at: new Date().toISOString() })
+      .eq('id', candidateId);
+    if (error) throw error;
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 /** Save inline call notes — no status change, no email. */
 export async function saveNotes(candidateId: string, notes: string): Promise<ActionResult> {
   try {
