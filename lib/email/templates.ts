@@ -4,6 +4,7 @@
 // Each builder returns { subject, html, text }. Copy is kept verbatim from the
 // brief; only the dynamic bits ([Nombre], Calendly links) are interpolated.
 import type { EmailType } from '@/lib/database.types';
+import { appUrl } from '@/lib/config';
 
 export interface RenderedEmail {
   subject: string;
@@ -47,9 +48,18 @@ function renderHtml(body: string): string {
     return `<p style="margin:16px 0;line-height:1.6;color:#1f2937;">${html}</p>`;
   });
 
+  // Flush brand header: the banner spans the full card width and its top corners
+  // are clipped by the card's overflow:hidden, so it reads as a true email
+  // header. The message body keeps its 32px padding in the inner div. Outlook
+  // ignores border-radius (square corners there) — still a clean full-width
+  // header. The image is hosted on our domain so clients load it by URL.
+  const bannerUrl = `${appUrl()}/email-banner.jpg`;
   return `<!doctype html><html lang="es"><body style="margin:0;background:#f8fafc;padding:24px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-<div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;padding:32px;">
+<div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;">
+<img src="${bannerUrl}" alt="CiMA — Brand Matchmaker" width="560" style="display:block;width:100%;height:auto;border:0;">
+<div style="padding:32px;">
 ${blocks.join('\n')}
+</div>
 </div></body></html>`;
 }
 
