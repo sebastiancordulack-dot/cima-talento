@@ -1,8 +1,15 @@
 import { CandidateCard } from '@/components/CandidateCard';
 import { DashboardTabs } from '@/components/DashboardTabs';
+import { NuevosFilterBar } from '@/components/NuevosFilterBar';
 import { TalentPoolSection } from '@/components/talent/TalentPoolSection';
 import { listCandidatesForTab, tabCounts, type Candidate } from '@/lib/candidates/queries';
 import { getMetros } from '@/lib/location/metros-store';
+import {
+  applyNuevosFilters,
+  availableMetrosFrom,
+  isNuevosFilterActive,
+  parseNuevosFilters,
+} from '@/lib/candidates/nuevos-filters';
 import { DASHBOARD_TABS, isDashboardTab, type DashboardTab } from '@/lib/candidates/status';
 
 export const dynamic = 'force-dynamic';
@@ -39,8 +46,64 @@ export default async function DashboardPage({
       {/* Red de talento — the filterable dispatch board (Brief §5.3). */}
       {tab === 'talento' ? (
         <TalentPoolSection searchParams={searchParams} />
+      ) : tab === 'nuevos' ? (
+        <NuevosQueue searchParams={searchParams} />
       ) : (
         <CandidateQueue tab={tab} />
+      )}
+    </div>
+  );
+}
+
+/** Nuevos interesados — the metro-grouped queue with metro / CV / llamada
+ *  filters and a date sort (all URL-driven). */
+async function NuevosQueue({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
+}) {
+  const [candidates, metroRecords] = await Promise.all([
+    listCandidatesForTab('nuevos'),
+    getMetros(),
+  ]);
+  const metros = metroRecords.map((m) => m.metro).sort();
+
+  if (candidates.length === 0) {
+    return <p className="mt-10 text-center text-sm text-gray-400">No hay candidatos en esta vista.</p>;
+  }
+
+  const filters = parseNuevosFilters(searchParams);
+  const availableMetros = availableMetrosFrom(candidates);
+  const filtered = applyNuevosFilters(candidates, filters);
+  const groups = groupByMetro(filtered);
+
+  return (
+    <div className="mt-6 space-y-6">
+      <NuevosFilterBar
+        availableMetros={availableMetros}
+        filters={filters}
+        active={isNuevosFilterActive(filters)}
+      />
+
+      {filtered.length === 0 ? (
+        <p className="mt-10 text-center text-sm text-gray-400">
+          Ningún candidato coincide con los filtros.
+        </p>
+      ) : (
+        <div className="space-y-8">
+          {groups.map(([metro, list]) => (
+            <section key={metro}>
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                {metro} · {list.length}
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {list.map((c) => (
+                  <CandidateCard key={c.id} candidate={c} metros={metros} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       )}
     </div>
   );
