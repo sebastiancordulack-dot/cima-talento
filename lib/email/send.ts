@@ -36,6 +36,33 @@ export const STATUS_EMAIL: Partial<Record<CandidateStatus, EmailType>> = {
   archived: 'archived',         // Archivo — kept on file for the future
 };
 
+// Payments/onboarding contact — the welcome email directs new hires to send
+// their payment-setup info here (not a reply to Cima Talento), and Mary is CC'd.
+const MARY_EMAIL = 'mary@cimasales.com';
+
+interface EmailExtras {
+  cc?: string | string[];
+  replyTo?: string | string[];
+  attachments?: { filename: string; path: string }[];
+}
+
+/** Per-type extras (cc / reply-to / attachments). Only the welcome email needs
+ *  them: it attaches the W-9 + filled example (hosted in /public, fetched by
+ *  Resend) and routes replies + a copy to Mary for payment onboarding. */
+function emailExtras(type: EmailType): EmailExtras {
+  if (type === 'welcome') {
+    return {
+      cc: MARY_EMAIL,
+      replyTo: MARY_EMAIL,
+      attachments: [
+        { filename: 'W-9 (formulario en blanco).pdf', path: `${appUrl()}/cima-w9.pdf` },
+        { filename: 'W-9 (ejemplo de llenado).png', path: `${appUrl()}/cima-w9-ejemplo.png` },
+      ],
+    };
+  }
+  return {};
+}
+
 /** Render the dynamic vars an email type needs for a given candidate. */
 async function buildVars(type: EmailType, candidate: Candidate) {
   const base = { firstName: candidate.first_name };
@@ -56,6 +83,7 @@ export async function sendCandidateEmail(
   const supabase = createAdminClient();
   const vars = await buildVars(type, candidate);
   const { subject, html, text } = renderEmail(type, vars);
+  const extras = emailExtras(type);
 
   try {
     const { data, error } = await getResend().emails.send({
@@ -64,6 +92,9 @@ export async function sendCandidateEmail(
       subject,
       html,
       text,
+      ...(extras.cc ? { cc: extras.cc } : {}),
+      ...(extras.replyTo ? { replyTo: extras.replyTo } : {}),
+      ...(extras.attachments ? { attachments: extras.attachments } : {}),
     });
     if (error) throw new Error(error.message);
 

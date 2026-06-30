@@ -149,16 +149,28 @@ function welcome(v: TemplateVars): RenderedEmail {
     'Bienvenido/a a la Red de Talento de CiMA',
     `Hola ${v.firstName},
 
-Es un placer darte la bienvenida oficial a la Red de Talento de CiMA Sales.
+¡Bienvenido/a al equipo de CiMA Sales! Es un placer darte la bienvenida oficial a la Red de Talento.
 
 Has sido agregado/a a nuestro equipo de mercaderistas, y ahora formas parte de un grupo que representa algunas de las marcas más emocionantes en el mercado hispano independiente a nivel nacional.
 
-Esto es lo que viene:
-• Nuestro equipo se pondrá en contacto contigo pronto con los detalles de tu incorporación.
-• Recibirás información sobre tu territorio asignado, tu horario, y cómo configurar la aplicación móvil de CiMA.
-• Si tienes preguntas mientras tanto, responde a este correo y te atendemos rápidamente.
+Para darte de alta en nuestro sistema de pagos, necesitamos que envíes la siguiente información a Mary Badillo (mary@cimasales.com):
 
-En CiMA creemos en una sola cosa: que las personas extraordinarias construyen marcas extraordinarias. Nos alegra que seas parte de eso.
+1. Nombre completo
+2. Dirección de correspondencia
+3. Forma W-9 llenada, firmada, fechada y escaneada (solo la Hoja 1). Adjuntamos la forma en blanco y un ejemplo de cómo llenarla.
+4. Foto de la tarjeta o documento/carta donde venga tu NSS o ITIN.
+5. Foto de tu identificación (ID).
+6. Datos bancarios para depósito directo por ACH:
+• Nombre del banco
+• Número de cuenta
+• Número de routing para ACH
+• Foto de los datos bancarios (puede ser de la app de tu banco o de un cheque cancelado).
+
+Sobre los pagos: se realizan de forma quincenal mediante depósito directo, los días 15 y 30 ó 31 (o antes si caen en día inhábil). El corte se hace 5 días hábiles antes, por cuestiones del sistema y de procesamiento.
+
+Al ser Contratistas Independientes, en enero de cada año se te hará llegar la forma 1099, donde se indica el monto total de los pagos recibidos de CiMA durante el año anterior; te servirá para identificar tus ingresos al momento de elaborar tu declaración de impuestos personal.
+
+Por favor envía toda esta información directamente a Mary (mary@cimasales.com). Quedamos a tus órdenes para cualquier pregunta.
 
 ¡Bienvenido/a al equipo!
 
