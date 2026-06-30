@@ -53,7 +53,7 @@ function renderHtml(body: string): string {
   // normal email, with comfortable side padding for readability. White
   // background, no gray frame. The image is hosted on our domain so clients
   // load it by URL.
-  const bannerUrl = `${appUrl()}/email-banner.jpg`;
+  const bannerUrl = `${appUrl()}/email-banner-v2.jpg`;
   return `<!doctype html><html lang="es"><body style="margin:0;background:#ffffff;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2937;">
 <img src="${bannerUrl}" alt="CiMA — Brand Matchmaker" style="display:block;width:100%;height:auto;border:0;">
 <div style="padding:24px 28px 32px;">
