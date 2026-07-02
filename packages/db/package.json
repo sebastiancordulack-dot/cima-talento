@@ -1,0 +1,23 @@
+{
+  "name": "@cima/db",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/database.types.ts",
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./admin": "./src/admin.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.1",
+    "server-only": "^0.0.1"
+  },
+  "peerDependencies": {
+    "next": ">=14"
+  },
+  "devDependencies": {
+    "next": "14.2.35",
+    "typescript": "^5"
+  }
+}

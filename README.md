@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CiMA Platform
 
-## Getting Started
+Monorepo for CiMA Sales Strategies. Managed with **pnpm workspaces** + **Turborepo**.
+Both apps deploy independently on Vercel and share **one** Supabase instance.
 
-First, run the development server:
+## Layout
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+apps/
+  hub/        @cima/hub    — internal app "CiMA Hub" (Talento + Activaciones + future modules)
+  portal/     @cima/portal — client-facing "CiMA Client Portal" (separate Vercel deploy)
+packages/
+  db/         @cima/db     — Supabase clients (server/client/admin) + Database types (single source)
+  config/     @cima/config — shared tsconfig base
+supabase/     migrations + seed for the shared instance (single-sourced here)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Hub modules
+Each Hub module owns a route group `apps/hub/app/(<name>)/` and a logic folder
+`apps/hub/modules/<name>/`. Talento predates this convention and its logic still
+lives in `apps/hub/lib/`; it can migrate into `modules/talento/` incrementally.
+Cross-cutting DB access always comes from `@cima/db`, never from a module.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Develop
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+corepack enable                # first time: makes `pnpm` available
+pnpm install
+pnpm dev:hub                   # Hub on :3000
+pnpm dev:portal                # Portal on :3001
+pnpm build                     # build everything via Turborepo
+```
 
-## Learn More
+Copy each app's `.env.example` to `.env.local`. Both apps point at the same
+Supabase project (`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create **two** Vercel projects from this repo:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Project | Root Directory | Notes |
+|---|---|---|
+| CiMA Hub    | `apps/hub`    | existing project — change its Root Directory to this |
+| CiMA Portal | `apps/portal` | new project |
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Both use `pnpm` (auto-detected) and share the same Supabase env vars.
