@@ -1,0 +1,31 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "NEXT_PUBLIC_SITE_URL",
+    "RESEND_API_KEY",
+    "RESEND_FROM_EMAIL",
+    "CALENDLY_HM_LINK",
+    "CALENDLY_JULIA_LINK",
+    "CALENDLY_WEBHOOK_SIGNING_KEY",
+    "JOTFORM_WEBHOOK_TOKEN",
+    "JOTFORM_FORM_ID"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "start": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
