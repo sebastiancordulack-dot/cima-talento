@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ApproveQuoteButton } from '@/components/ApproveQuoteButton';
+import { ChangeResponseButtons } from '@/components/ChangeResponseButtons';
 import { StatusBadge } from '@/components/StatusBadge';
 import { getClientSolicitud, type ClientChange, type ClientStatusLog } from '@/lib/queries';
 import { CLIENT_STATUS_META } from '@/lib/status';
@@ -54,9 +56,19 @@ export default async function RequestDetailPage({
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold text-gray-900">{s.brand}</h1>
-        <StatusBadge status={s.status} />
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">{s.brand}</h1>
+          <StatusBadge status={s.status} />
+        </div>
+        {(s.status === 'submitted' || s.status === 'in_review') && (
+          <Link
+            href={`/requests/${s.id}/edit`}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Edit request
+          </Link>
+        )}
       </div>
       <p className="mt-1 text-sm text-gray-500">
         {place} · {formatSolicitudDates(s)}
@@ -65,12 +77,6 @@ export default async function RequestDetailPage({
       {/* Plain-English status explanation (§13.4). */}
       <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
         <p className="text-sm text-gray-700">{meta.explanation}</p>
-        {meta.actionNeeded && (
-          <p className="mt-1 text-xs text-violet-600">
-            Approve or decline directly from this page — coming to your portal shortly. Your CiMA
-            contact can also record your decision.
-          </p>
-        )}
       </div>
 
       {/* Quote — the view nulls these columns until the quote is actually sent. */}
@@ -107,6 +113,9 @@ export default async function RequestDetailPage({
             </div>
           )}
           {s.quote_notes && <p className="mt-3 text-xs text-gray-500">{s.quote_notes}</p>}
+          {s.status === 'quote_sent' && (
+            <ApproveQuoteButton solicitudId={s.id} locationCount={siblings.length + 1} />
+          )}
         </section>
       )}
 
@@ -127,13 +136,17 @@ export default async function RequestDetailPage({
                   <span className="font-semibold">{c.proposed_value}</span>
                 </p>
                 {c.reason && <p className="mt-1 text-xs text-gray-500">{c.reason}</p>}
-                <p className="mt-1 text-xs font-medium text-violet-700">
-                  {c.client_response === 'pending'
-                    ? 'Awaiting your response'
-                    : c.client_response === 'approved'
-                      ? 'You approved this change'
-                      : 'You declined this change'}
-                </p>
+                {c.client_response === 'pending' && s.status === 'changes_proposed' ? (
+                  <ChangeResponseButtons changeId={c.id} />
+                ) : (
+                  <p className="mt-1 text-xs font-medium text-violet-700">
+                    {c.client_response === 'pending'
+                      ? 'Awaiting your response'
+                      : c.client_response === 'approved'
+                        ? 'You approved this change'
+                        : 'You declined this change'}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
