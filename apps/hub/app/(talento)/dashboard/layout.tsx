@@ -17,7 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/activaciones" className="text-sm font-medium text-amber-700 hover:underline">
+            <Link href="/activaciones" className="text-sm font-medium text-green-700 hover:underline">
               Activaciones
             </Link>
             {isAdmin && (
