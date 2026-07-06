@@ -11,13 +11,13 @@ import { ReviewerControl, StatusControls } from '@/components/activaciones/Statu
 import { SubmissionPanel } from '@/components/activaciones/SubmissionPanel';
 import { TalentAssignPanel } from '@/components/activaciones/TalentAssignPanel';
 import { formatDateTime } from '@/lib/format';
-import { formatDaysSince, formatSolicitudDates } from '@/modules/activaciones/dates';
+import { formatDaysSince, formatSolicitudDates } from '@cima/activaciones/dates';
 import {
   getSolicitudDetail,
   type SolicitudChange,
   type StatusLogEntry,
 } from '@/modules/activaciones/queries';
-import { parseQuoteData, type QuoteData } from '@/modules/activaciones/quote';
+import { parseQuoteData, type QuoteData } from '@cima/activaciones/quote';
 import {
   CHANGE_RESPONSE_META,
   CHANGE_TYPE_LABELS,

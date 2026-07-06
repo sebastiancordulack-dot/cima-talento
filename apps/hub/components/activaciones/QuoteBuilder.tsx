@@ -8,7 +8,7 @@ import {
   quoteTotal,
   sectionSubtotal,
   type QuoteData,
-} from '@/modules/activaciones/quote';
+} from '@cima/activaciones/quote';
 import type { SolicitudStatus } from '@cima/db';
 
 const input =

@@ -4,7 +4,7 @@ import {
   SolicitudStatusBadge,
 } from '@/components/activaciones/SolicitudBadges';
 import { SolicitudesTabs } from '@/components/activaciones/SolicitudesTabs';
-import { formatDaysSince, formatSolicitudDates } from '@/modules/activaciones/dates';
+import { formatDaysSince, formatSolicitudDates } from '@cima/activaciones/dates';
 import {
   listSolicitudesForTab,
   queueCounts,

@@ -4,10 +4,10 @@
 // professionals); internal copy is Spanish. All render through the shared
 // CiMA-branded shell from lib/email/templates.
 import 'server-only';
-import { appUrl } from '@/lib/config';
-import { renderBrandedEmail, type RenderedEmail } from '@/lib/email/templates';
-import { parseDateRange } from '@/modules/activaciones/dates';
-import { formatMoney } from '@/modules/activaciones/quote';
+import { appUrl } from '@cima/email';
+import { renderBrandedEmail, type RenderedEmail } from '@cima/email';
+import { parseDateRange } from './dates';
+import { formatMoney } from './quote';
 import type { ActivacionesEmailType, Database } from '@cima/db';
 
 type Solicitud = Database['public']['Tables']['solicitudes']['Row'];

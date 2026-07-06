@@ -7,11 +7,11 @@
 // must persist even if the email provider hiccups.
 import 'server-only';
 import { createAdminClient } from '@cima/db/admin';
-import { getResend } from '@/lib/email/resend';
+import { getResend } from '@cima/email/resend';
 import {
   ACTIVACIONES_FROM_EMAIL,
   renderActivacionesEmail,
-} from '@/modules/activaciones/emails';
+} from './emails';
 import type { ActivacionesEmailType, Database, SolicitudActor, SolicitudStatus } from '@cima/db';
 
 type Solicitud = Database['public']['Tables']['solicitudes']['Row'];

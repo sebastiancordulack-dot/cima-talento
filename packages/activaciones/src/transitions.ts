@@ -4,8 +4,8 @@
 // nudge email fired. Mirrors lib/candidates/transitions.ts.
 import 'server-only';
 import { createAdminClient } from '@cima/db/admin';
-import { notifySolicitudStatus } from '@/modules/activaciones/notify';
-import { SOLICITUD_TRANSITIONS } from '@/modules/activaciones/status';
+import { notifySolicitudStatus } from './notify';
+import { SOLICITUD_TRANSITIONS } from './machine';
 import type { Database, SolicitudActor, SolicitudStatus } from '@cima/db';
 
 type Solicitud = Database['public']['Tables']['solicitudes']['Row'];

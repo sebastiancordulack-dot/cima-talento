@@ -75,25 +75,11 @@ export const CHANGE_RESPONSE_META: Record<string, SolicitudStatusMeta> = {
   rejected: { label: 'Rechazado por cliente', badgeClass: 'bg-rose-100 text-rose-800 ring-rose-600/20' },
 };
 
-// ---- Status transitions (Brief §8) -------------------------------------------
-// Single source of truth: transitions.ts validates server-side against this
-// map; StatusControls renders manual buttons from MANUAL_STATUS_ACTIONS (a
-// subset — quote_sent / changes_proposed are only reachable through their
-// dedicated flows, never a bare button). cancelled is allowed at any point
-// BEFORE confirmed (§8); after that the flow only moves forward.
-export const SOLICITUD_TRANSITIONS: Record<SolicitudStatus, SolicitudStatus[]> = {
-  submitted:        ['in_review', 'cancelled', 'rejected'],
-  in_review:        ['changes_proposed', 'quote_sent', 'cancelled', 'rejected'],
-  changes_proposed: ['client_approved', 'in_review', 'cancelled', 'rejected'],
-  quote_sent:       ['client_approved', 'in_review', 'cancelled', 'rejected'],
-  client_approved:  ['confirmed', 'cancelled'],
-  confirmed:        ['in_progress'],
-  in_progress:      ['completed'],
-  completed:        [],
-  cancelled:        [],
-  rejected:         [],
-};
-
+// ---- Manual status actions (Brief §8, §12.2) ----------------------------------
+// The §8 transition map itself lives in @cima/activaciones/machine (shared
+// with the Client Portal); transitions.ts validates against it server-side.
+// MANUAL_STATUS_ACTIONS is the Hub-UI subset — quote_sent / changes_proposed
+// are only reachable through their dedicated flows, never a bare button.
 export interface ManualStatusAction {
   to: SolicitudStatus;
   label: string;

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { formatPlainDate, formatSolicitudDates } from '@/modules/activaciones/dates';
+import { formatPlainDate, formatSolicitudDates } from '@cima/activaciones/dates';
 import type { BatchSibling, SolicitudListRow } from '@/modules/activaciones/queries';
 import { SolicitudStatusBadge } from '@/components/activaciones/SolicitudBadges';
 

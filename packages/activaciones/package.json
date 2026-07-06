@@ -1,0 +1,21 @@
+{
+  "name": "@cima/activaciones",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./dates": "./src/dates.ts",
+    "./quote": "./src/quote.ts",
+    "./machine": "./src/machine.ts",
+    "./transitions": "./src/transitions.ts",
+    "./emails": "./src/emails.ts",
+    "./notify": "./src/notify.ts"
+  },
+  "dependencies": {
+    "@cima/db": "workspace:*",
+    "@cima/email": "workspace:*",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

@@ -7,8 +7,8 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@cima/db/admin';
 import { assertUser, AuthError } from '@/lib/auth/session';
-import { quoteTotal, type QuoteData } from '@/modules/activaciones/quote';
-import { TransitionError, transitionSolicitud } from '@/modules/activaciones/transitions';
+import { quoteTotal, type QuoteData } from '@cima/activaciones/quote';
+import { TransitionError, transitionSolicitud } from '@cima/activaciones/transitions';
 import type { Database, SolicitudStatus } from '@cima/db';
 
 type SolicitudPatch = Database['public']['Tables']['solicitudes']['Update'];
