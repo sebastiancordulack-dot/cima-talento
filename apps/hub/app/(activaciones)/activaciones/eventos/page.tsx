@@ -7,24 +7,40 @@ import {
 import { fullName } from '@/lib/format';
 import { formatSolicitudDates } from '@cima/activaciones/dates';
 import {
+  addDays,
   addMonths,
   buildMonthGrid,
-  currentMonthKey,
+  dayLabel,
   eventDays,
-  isMonthKey,
+  isDateKey,
   monthLabel,
+  shortDayLabel,
   todayKey,
+  weekLabel,
+  weekOf,
 } from '@/modules/activaciones/calendar';
 import { listConfirmedEvents, type EventRow } from '@/modules/activaciones/queries';
 
 export const dynamic = 'force-dynamic';
 
+// Confirmed Events Tracker (Brief §12.3), Google-Calendar style: Día /
+// Semana / Mes views, «Hoy» + arrow navigation — all URL-driven so the page
+// stays a server component.
+
+type Vista = 'dia' | 'semana' | 'mes';
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+const href = (vista: Vista, fecha: string) => `/activaciones/eventos?vista=${vista}&fecha=${fecha}`;
 
 function eventTime(e: EventRow): string | null {
   const start = e.activation_type === 'in_store' ? e.time_start : e.activation_time_start;
   const end = e.activation_type === 'in_store' ? e.time_end : e.activation_time_end;
   return start && end ? `${start.slice(0, 5)} – ${end.slice(0, 5)}` : null;
+}
+
+function startTime(e: EventRow): string {
+  const t = e.activation_type === 'in_store' ? e.time_start : e.activation_time_start;
+  return t ? t.slice(0, 5) : '';
 }
 
 function talentNames(e: EventRow): string[] {
@@ -34,15 +50,20 @@ function talentNames(e: EventRow): string[] {
     .map((c) => fullName(c.first_name, c.last_name));
 }
 
-// Confirmed Events Tracker (Brief §12.3): month calendar + detail list of
-// confirmed and in-progress activations, with the quick forward action.
+function placeOf(e: EventRow): string | null {
+  return e.activation_type === 'in_store' ? e.store_name : e.event_name;
+}
+
 export default async function EventosPage({
   searchParams,
 }: {
-  searchParams: { mes?: string };
+  searchParams: { vista?: string; fecha?: string };
 }) {
-  const month = isMonthKey(searchParams.mes) ? searchParams.mes : currentMonthKey();
+  const vista: Vista = ['dia', 'semana', 'mes'].includes(searchParams.vista ?? '')
+    ? (searchParams.vista as Vista)
+    : 'mes';
   const today = todayKey();
+  const fecha = isDateKey(searchParams.fecha) ? searchParams.fecha : today;
   const events = await listConfirmedEvents();
 
   // day → events (multi-day field events occupy every day of their range).
@@ -53,7 +74,14 @@ export default async function EventosPage({
       byDay.get(day)!.push(e);
     }
   }
-  const weeks = buildMonthGrid(month);
+
+  const month = fecha.slice(0, 7);
+  const prevFecha =
+    vista === 'dia' ? addDays(fecha, -1) : vista === 'semana' ? addDays(fecha, -7) : `${addMonths(month, -1)}-01`;
+  const nextFecha =
+    vista === 'dia' ? addDays(fecha, 1) : vista === 'semana' ? addDays(fecha, 7) : `${addMonths(month, 1)}-01`;
+  const label =
+    vista === 'dia' ? dayLabel(fecha) : vista === 'semana' ? weekLabel(weekOf(fecha)) : monthLabel(month);
 
   return (
     <div>
@@ -64,145 +92,302 @@ export default async function EventosPage({
             Activaciones confirmadas y en ejecución, con su equipo asignado.
           </p>
         </div>
+      </div>
+
+      {/* ---- Toolbar: Hoy · ‹ › · label ······ view switcher ---- */}
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Link
-            href={`/activaciones/eventos?mes=${addMonths(month, -1)}`}
-            className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-            aria-label="Mes anterior"
+            href={href(vista, today)}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            ←
+            Hoy
           </Link>
-          <span className="min-w-36 text-center text-sm font-semibold text-gray-900">
-            {monthLabel(month)}
-          </span>
           <Link
-            href={`/activaciones/eventos?mes=${addMonths(month, 1)}`}
-            className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-            aria-label="Mes siguiente"
+            href={href(vista, prevFecha)}
+            aria-label="Anterior"
+            className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm text-gray-500 hover:bg-gray-50"
           >
-            →
+            ‹
           </Link>
+          <Link
+            href={href(vista, nextFecha)}
+            aria-label="Siguiente"
+            className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm text-gray-500 hover:bg-gray-50"
+          >
+            ›
+          </Link>
+          <span className="ml-1 text-base font-semibold text-gray-900">{label}</span>
         </div>
-      </div>
 
-      {/* ---- Calendar ---- */}
-      <div className="mt-5 overflow-x-auto rounded-lg border border-gray-200 bg-white">
-        <div className="min-w-[640px]">
-          <div className="grid grid-cols-7 border-b border-gray-100">
-            {WEEKDAYS.map((d) => (
-              <div key={d} className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-400">
-                {d}
-              </div>
-            ))}
-          </div>
-          {weeks.map((week, wi) => (
-            <div key={wi} className="grid grid-cols-7 border-b border-gray-100 last:border-b-0">
-              {week.map((day) => {
-                const dayEvents = byDay.get(day.date) ?? [];
-                return (
-                  <div
-                    key={day.date}
-                    className={`min-h-20 border-r border-gray-50 p-1.5 last:border-r-0 ${
-                      day.inMonth ? '' : 'bg-gray-50/60'
-                    }`}
-                  >
-                    <p
-                      className={`text-right text-xs ${
-                        day.date === today
-                          ? 'ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-green-600 font-semibold text-white'
-                          : day.inMonth
-                            ? 'text-gray-500'
-                            : 'text-gray-300'
-                      }`}
-                    >
-                      {Number(day.date.slice(8))}
-                    </p>
-                    <div className="mt-1 space-y-1">
-                      {dayEvents.slice(0, 3).map((e) => (
-                        <Link
-                          key={`${day.date}-${e.id}`}
-                          href={`/activaciones/solicitudes/${e.id}`}
-                          className={`block truncate rounded px-1.5 py-0.5 text-[11px] font-medium hover:opacity-80 ${
-                            e.status === 'in_progress'
-                              ? 'bg-green-600 text-white'
-                              : 'bg-green-100 text-green-800'
-                          }`}
-                          title={`${e.brand} — ${e.activation_type === 'in_store' ? e.store_name : e.event_name}`}
-                        >
-                          {e.brand}
-                        </Link>
-                      ))}
-                      {dayEvents.length > 3 && (
-                        <p className="px-1.5 text-[11px] text-gray-400">+{dayEvents.length - 3} más</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        <nav className="inline-flex rounded-lg bg-gray-100 p-0.5">
+          {(
+            [
+              ['dia', 'Día'],
+              ['semana', 'Semana'],
+              ['mes', 'Mes'],
+            ] as [Vista, string][]
+          ).map(([v, l]) => (
+            <Link
+              key={v}
+              href={href(v, fecha)}
+              className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                vista === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {l}
+            </Link>
           ))}
-        </div>
+        </nav>
       </div>
 
-      {/* ---- List ---- */}
-      {events.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
-          <p className="text-sm font-medium text-gray-900">Sin eventos confirmados</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
-            Cuando confirmes una solicitud aprobada por el cliente, aparecerá aquí y en el
-            calendario.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-6 space-y-3">
-          {events.map((e) => {
-            const names = talentNames(e);
-            const time = eventTime(e);
+      <div className="mt-4">
+        {vista === 'mes' && <MonthView month={month} byDay={byDay} today={today} />}
+        {vista === 'semana' && <WeekView days={weekOf(fecha)} byDay={byDay} today={today} />}
+        {vista === 'dia' && <DayView events={byDay.get(fecha) ?? []} />}
+      </div>
+
+      <UpcomingList events={events} today={today} />
+    </div>
+  );
+}
+
+// ---- Mes -----------------------------------------------------------------------
+
+function MonthView({
+  month,
+  byDay,
+  today,
+}: {
+  month: string;
+  byDay: Map<string, EventRow[]>;
+  today: string;
+}) {
+  const weeks = buildMonthGrid(month);
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50/60">
+        {WEEKDAYS.map((d) => (
+          <div
+            key={d}
+            className="px-2 py-2 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-400"
+          >
+            {d}
+          </div>
+        ))}
+      </div>
+      {weeks.map((week, wi) => (
+        <div key={wi} className="grid grid-cols-7 divide-x divide-gray-100 border-b border-gray-100 last:border-b-0">
+          {week.map((day) => {
+            const dayEvents = byDay.get(day.date) ?? [];
+            const isToday = day.date === today;
             return (
               <div
-                key={e.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white p-4"
+                key={day.date}
+                className={`min-h-28 p-1.5 ${day.inMonth ? 'bg-white' : 'bg-gray-50/50'}`}
               >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={`/activaciones/solicitudes/${e.id}`}
-                      className="font-medium text-gray-900 hover:underline"
-                    >
-                      {e.brand} — {e.activation_type === 'in_store' ? e.store_name : e.event_name}
-                    </Link>
-                    <ActivationTypeBadge type={e.activation_type} />
-                    <SolicitudStatusBadge status={e.status} />
-                  </div>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {formatSolicitudDates(e)}
-                    {time && <> · {time}</>}
-                    {' · '}
-                    {e.activation_type === 'in_store' ? e.store_address : e.event_address}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    {names.length > 0 ? (
-                      <>
-                        Equipo:{' '}
-                        <span className="text-gray-600">{names.join(', ')}</span>
-                        {e.num_brand_ambassadors != null && names.length < e.num_brand_ambassadors && (
-                          <span className="ml-1 text-amber-600">
-                            ({names.length}/{e.num_brand_ambassadors} asignados)
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-amber-600">Sin talento asignado todavía</span>
-                    )}
-                    {e.brand_clients && <> · {e.brand_clients.company_name}</>}
-                  </p>
+                <div className="flex justify-end">
+                  <Link
+                    href={href('dia', day.date)}
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs transition-colors ${
+                      isToday
+                        ? 'bg-green-600 font-semibold text-white'
+                        : day.inMonth
+                          ? 'text-gray-600 hover:bg-gray-100'
+                          : 'text-gray-300'
+                    }`}
+                  >
+                    {Number(day.date.slice(8))}
+                  </Link>
                 </div>
-                <EventQuickAction solicitudId={e.id} status={e.status} />
+                <div className="mt-0.5 space-y-1">
+                  {dayEvents.slice(0, 3).map((e) => (
+                    <EventChip key={`${day.date}-${e.id}`} event={e} />
+                  ))}
+                  {dayEvents.length > 3 && (
+                    <Link
+                      href={href('dia', day.date)}
+                      className="block px-1.5 text-[11px] font-medium text-gray-400 hover:text-gray-600"
+                    >
+                      +{dayEvents.length - 3} más
+                    </Link>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
-      )}
+      ))}
     </div>
+  );
+}
+
+// ---- Semana --------------------------------------------------------------------
+
+function WeekView({
+  days,
+  byDay,
+  today,
+}: {
+  days: string[];
+  byDay: Map<string, EventRow[]>;
+  today: string;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="grid grid-cols-7 divide-x divide-gray-100 border-b border-gray-200 bg-gray-50/60">
+        {days.map((day) => (
+          <Link
+            key={day}
+            href={href('dia', day)}
+            className="px-2 py-2 text-center text-xs font-medium text-gray-500 hover:bg-gray-100"
+          >
+            <span
+              className={
+                day === today
+                  ? 'rounded-full bg-green-600 px-2 py-0.5 font-semibold text-white'
+                  : ''
+              }
+            >
+              {shortDayLabel(day)}
+            </span>
+          </Link>
+        ))}
+      </div>
+      <div className="grid min-h-72 grid-cols-7 divide-x divide-gray-100">
+        {days.map((day) => {
+          const dayEvents = byDay.get(day) ?? [];
+          return (
+            <div key={day} className={`space-y-1.5 p-1.5 ${day === today ? 'bg-green-50/40' : ''}`}>
+              {dayEvents.map((e) => (
+                <Link
+                  key={`${day}-${e.id}`}
+                  href={`/activaciones/solicitudes/${e.id}`}
+                  className={`block rounded-md px-2 py-1.5 text-[11px] leading-tight transition-opacity hover:opacity-80 ${
+                    e.status === 'in_progress'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-green-100 text-green-900'
+                  }`}
+                >
+                  {startTime(e) && <span className="font-medium opacity-75">{startTime(e)}</span>}
+                  <span className="block truncate font-semibold">{e.brand}</span>
+                  <span className="block truncate opacity-75">{placeOf(e)}</span>
+                </Link>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ---- Día -----------------------------------------------------------------------
+
+function DayView({ events }: { events: EventRow[] }) {
+  if (events.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center">
+        <p className="text-sm text-gray-400">Sin eventos este día.</p>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {events.map((e) => (
+        <EventCard key={e.id} event={e} />
+      ))}
+    </div>
+  );
+}
+
+// ---- Shared pieces ---------------------------------------------------------------
+
+function EventChip({ event: e }: { event: EventRow }) {
+  return (
+    <Link
+      href={`/activaciones/solicitudes/${e.id}`}
+      title={`${e.brand} — ${placeOf(e) ?? ''}`}
+      className={`block truncate rounded-md px-1.5 py-0.5 text-[11px] font-medium transition-opacity hover:opacity-80 ${
+        e.status === 'in_progress' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-900'
+      }`}
+    >
+      {startTime(e) && <span className="mr-1 font-normal opacity-75">{startTime(e)}</span>}
+      {e.brand}
+    </Link>
+  );
+}
+
+function EventCard({ event: e }: { event: EventRow }) {
+  const names = talentNames(e);
+  const time = eventTime(e);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/activaciones/solicitudes/${e.id}`}
+            className="font-medium text-gray-900 hover:underline"
+          >
+            {e.brand} — {placeOf(e)}
+          </Link>
+          <ActivationTypeBadge type={e.activation_type} />
+          <SolicitudStatusBadge status={e.status} />
+        </div>
+        <p className="mt-1 text-sm text-gray-500">
+          {formatSolicitudDates(e)}
+          {time && <> · {time}</>}
+          {' · '}
+          {e.activation_type === 'in_store' ? e.store_address : e.event_address}
+        </p>
+        <p className="mt-1 text-xs text-gray-400">
+          {names.length > 0 ? (
+            <>
+              Equipo: <span className="text-gray-600">{names.join(', ')}</span>
+              {e.num_brand_ambassadors != null && names.length < e.num_brand_ambassadors && (
+                <span className="ml-1 text-amber-600">
+                  ({names.length}/{e.num_brand_ambassadors} asignados)
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="text-amber-600">Sin talento asignado todavía</span>
+          )}
+          {e.brand_clients && <> · {e.brand_clients.company_name}</>}
+        </p>
+      </div>
+      <EventQuickAction solicitudId={e.id} status={e.status} />
+    </div>
+  );
+}
+
+function UpcomingList({ events, today }: { events: EventRow[]; today: string }) {
+  // Operational list: everything current or upcoming (multi-day events still
+  // running today included), soonest first — with staffing + quick actions.
+  const upcoming = events.filter((e) => {
+    const days = eventDays(e);
+    return days.length === 0 || days[days.length - 1] >= today;
+  });
+  if (upcoming.length === 0) {
+    return (
+      <div className="mt-8 rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center">
+        <p className="text-sm font-medium text-gray-900">Sin eventos próximos</p>
+        <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
+          Cuando confirmes una solicitud aprobada por el cliente, aparecerá aquí y en el calendario.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <section className="mt-8">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+        Próximos eventos · {upcoming.length}
+      </h2>
+      <div className="space-y-3">
+        {upcoming.map((e) => (
+          <EventCard key={e.id} event={e} />
+        ))}
+      </div>
+    </section>
   );
 }
