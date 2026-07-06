@@ -226,8 +226,18 @@ export async function sendQuote(solicitudId: string): Promise<ActionResult> {
       return { ok: false, error: 'La solicitud debe estar en revisión para enviar la cotización.' };
     }
 
+    // The quote covers the whole batch, so the batch moves together: members
+    // still in `submitted` are carried through review → quote (two legal §8
+    // transitions, so the audit trail stays honest). Individually
+    // cancelled/rejected locations are left alone.
     for (const m of members ?? []) {
-      if (m.status !== 'in_review') continue;
+      if (m.status !== 'in_review' && m.status !== 'submitted') continue;
+      if (m.status === 'submitted') {
+        await transitionSolicitud(m.id, 'in_review', {
+          actorId: user.hm!.id,
+          actorType: 'cima_staff',
+        });
+      }
       await transitionSolicitud(m.id, 'quote_sent', {
         actorId: user.hm!.id,
         actorType: 'cima_staff',
