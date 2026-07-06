@@ -71,6 +71,36 @@ export async function getSolicitud(id: string): Promise<SolicitudListRow | null>
   return (data as unknown as SolicitudListRow) ?? null;
 }
 
+// ---- Confirmed events tracker (Brief §12.3) ------------------------------------
+
+export type EventRow = Solicitud & {
+  brand_clients: { company_name: string } | null;
+  solicitud_assignments: {
+    id: string;
+    talent: { candidates: { first_name: string; last_name: string | null } } | null;
+  }[];
+};
+
+/** Confirmed + in-progress events with their assigned talent, soonest first
+ *  (field events sort by their range start; rows without a date go last). */
+export async function listConfirmedEvents(): Promise<EventRow[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('solicitudes')
+    .select(
+      '*, brand_clients(company_name), solicitud_assignments(id, talent:talent_pool(candidates(first_name,last_name)))'
+    )
+    .in('status', ['confirmed', 'in_progress']);
+  if (error) throw error;
+
+  const rows = (data ?? []) as unknown as EventRow[];
+  const startOf = (e: EventRow): string =>
+    e.activation_type === 'in_store'
+      ? (e.date ?? '9999-12-31')
+      : (e.event_dates?.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? '9999-12-31');
+  return rows.sort((a, b) => startOf(a).localeCompare(startOf(b)));
+}
+
 // ---- Brand clients (Brief §14 "Clientes") --------------------------------------
 
 export type BrandClientRow = Database['public']['Tables']['brand_clients']['Row'] & {
