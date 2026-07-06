@@ -36,7 +36,7 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;');
 }
 
-function renderHtml(body: string): string {
+function renderHtml(body: string, lang: 'es' | 'en' = 'es'): string {
   const blocks = body.trim().split(/\n\n+/).map((block) => {
     const cta = block.match(/^\{\{cta:(.+?)\|(.+?)\}\}$/);
     if (cta) {
@@ -54,7 +54,7 @@ function renderHtml(body: string): string {
   // background, no gray frame. The image is hosted on our domain so clients
   // load it by URL.
   const bannerUrl = `${appUrl()}/email-banner-v2.jpg`;
-  return `<!doctype html><html lang="es"><body style="margin:0;background:#ffffff;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2937;">
+  return `<!doctype html><html lang="${lang}"><body style="margin:0;background:#ffffff;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2937;">
 <img src="${bannerUrl}" alt="CiMA — Brand Matchmaker" style="display:block;width:100%;height:auto;border:0;">
 <div style="padding:24px 28px 32px;">
 ${blocks.join('\n')}
@@ -68,6 +68,17 @@ function toText(body: string): string {
 
 function build(subject: string, body: string): RenderedEmail {
   return { subject, html: renderHtml(body), text: toText(body) };
+}
+
+/** The branded shell (banner + typography + {{cta:LABEL|URL}} buttons) for
+ *  other modules' emails — Activaciones renders its §11 nudges through this so
+ *  every CiMA email shares one visual identity. */
+export function renderBrandedEmail(
+  subject: string,
+  body: string,
+  lang: 'es' | 'en' = 'es'
+): RenderedEmail {
+  return { subject, html: renderHtml(body, lang), text: toText(body) };
 }
 
 // ---------------------------------------------------------------------------

@@ -21,6 +21,9 @@ export interface SolicitudTransitionOptions {
   note?: string | null;
   /** Extra fields written atomically with the status. */
   patch?: SolicitudPatch;
+  /** Skip the §11 email for this row — batch operations transition N rows but
+   *  must nudge the client exactly once. */
+  suppressNotify?: boolean;
 }
 
 /**
@@ -88,6 +91,10 @@ export async function transitionSolicitud(
       .is('note', null);
   }
 
-  await notifySolicitudStatus(updated, to);
+  await notifySolicitudStatus(updated, to, {
+    from: current.status,
+    actorType: options.actorType,
+    suppress: options.suppressNotify,
+  });
   return updated;
 }

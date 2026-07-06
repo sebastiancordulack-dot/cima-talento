@@ -211,11 +211,27 @@ export async function sendQuote(solicitudId: string): Promise<ActionResult> {
       return { ok: false, error: 'Guarda una cotización con monto antes de enviarla.' };
     }
 
+    // Send the whole batch, tolerating divergent rows (e.g. one location was
+    // individually cancelled): only in_review members transition. The client
+    // is nudged exactly once — from the row the staff member acted on.
     const ids = await quoteMemberIds(solicitudId);
-    for (const id of ids) {
-      await transitionSolicitud(id, 'quote_sent', {
+    const { data: members, error: mError } = await supabase
+      .from('solicitudes')
+      .select('id,status')
+      .in('id', ids);
+    if (mError) throw mError;
+
+    const target = (members ?? []).find((m) => m.id === solicitudId);
+    if (!target || target.status !== 'in_review') {
+      return { ok: false, error: 'La solicitud debe estar en revisión para enviar la cotización.' };
+    }
+
+    for (const m of members ?? []) {
+      if (m.status !== 'in_review') continue;
+      await transitionSolicitud(m.id, 'quote_sent', {
         actorId: user.hm!.id,
         actorType: 'cima_staff',
+        suppressNotify: m.id !== solicitudId,
       });
     }
 
