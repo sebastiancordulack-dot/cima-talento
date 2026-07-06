@@ -71,6 +71,28 @@ export async function getSolicitud(id: string): Promise<SolicitudListRow | null>
   return (data as unknown as SolicitudListRow) ?? null;
 }
 
+// ---- Brand clients (Brief §14 "Clientes") --------------------------------------
+
+export type BrandClientRow = Database['public']['Tables']['brand_clients']['Row'] & {
+  /** Total Solicitudes ever submitted by this client. */
+  solicitud_count: number;
+};
+
+export async function listBrandClients(): Promise<BrandClientRow[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('brand_clients')
+    .select('*, solicitudes(count)')
+    .order('company_name');
+  if (error) throw error;
+  return (data ?? []).map((row) => {
+    const { solicitudes, ...client } = row as typeof row & {
+      solicitudes: { count: number }[];
+    };
+    return { ...client, solicitud_count: solicitudes?.[0]?.count ?? 0 };
+  });
+}
+
 // ---- Detail workspace bundle (Brief §12.2) -----------------------------------
 
 export type SolicitudChange = Database['public']['Tables']['solicitud_changes']['Row'];
