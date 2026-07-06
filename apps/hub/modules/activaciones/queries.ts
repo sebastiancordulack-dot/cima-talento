@@ -6,8 +6,10 @@
 // name would otherwise be nulled out by hiring_managers' self-only RLS.
 import 'server-only';
 import { createAdminClient } from '@cima/db/admin';
+import { normalizeText } from '@/lib/location/metro-data';
+import { getMetroLookups } from '@/lib/location/metros-store';
 import { QUEUE_TABS, type QueueTab } from '@/modules/activaciones/status';
-import type { Database } from '@cima/db';
+import type { Availability, Database } from '@cima/db';
 
 export type Solicitud = Database['public']['Tables']['solicitudes']['Row'];
 
@@ -67,4 +69,159 @@ export async function getSolicitud(id: string): Promise<SolicitudListRow | null>
     .maybeSingle();
   if (error) throw error;
   return (data as unknown as SolicitudListRow) ?? null;
+}
+
+// ---- Detail workspace bundle (Brief §12.2) -----------------------------------
+
+export type SolicitudChange = Database['public']['Tables']['solicitud_changes']['Row'];
+
+export type StatusLogEntry = Database['public']['Tables']['solicitud_status_log']['Row'] & {
+  /** Resolved actor display name (staff or client company), if attributed. */
+  actor_name: string | null;
+};
+
+export interface AssignmentRow {
+  id: string;
+  assigned_at: string;
+  notes: string | null;
+  talent: {
+    id: string;
+    metro_area: string | null;
+    active: boolean;
+    availability: Availability;
+    candidates: { first_name: string; last_name: string | null; phone: string | null };
+  };
+}
+
+export interface TalentOption {
+  id: string; // talent_pool.id
+  metro_area: string | null;
+  availability: Availability;
+  candidates: { first_name: string; last_name: string | null };
+}
+
+export interface BatchSibling {
+  id: string;
+  store_name: string | null;
+  status: Database['public']['Tables']['solicitudes']['Row']['status'];
+}
+
+export interface SolicitudDetail {
+  solicitud: SolicitudListRow;
+  /** Other locations in the same multi-location batch. */
+  siblings: BatchSibling[];
+  changes: SolicitudChange[];
+  log: StatusLogEntry[];
+  assignments: AssignmentRow[];
+  /** Active talent pool, suggested-metro members first (Brief §16). */
+  talentOptions: TalentOption[];
+  /** Metro derived from the store/event address, when recognizable. */
+  suggestedMetro: string | null;
+}
+
+/** Best-effort metro from a free-text US address: try the ZIP (most reliable),
+ *  then known city names. Null when nothing matches — the assignment panel
+ *  then simply shows the whole pool unfiltered. */
+async function metroForAddress(address: string | null): Promise<string | null> {
+  if (!address) return null;
+  const { zip3, city } = await getMetroLookups();
+
+  const zips = address.match(/\b(\d{5})(?:-\d{4})?\b/g);
+  if (zips) {
+    const hit = zip3[zips[zips.length - 1].slice(0, 3)];
+    if (hit) return hit.metro;
+  }
+
+  const normalized = normalizeText(address);
+  for (const [cityName, meta] of Object.entries(city)) {
+    if (normalized.includes(cityName)) return meta.metro;
+  }
+  return null;
+}
+
+export async function getSolicitudDetail(id: string): Promise<SolicitudDetail | null> {
+  const solicitud = await getSolicitud(id);
+  if (!solicitud) return null;
+
+  const supabase = createAdminClient();
+  const address =
+    solicitud.activation_type === 'in_store' ? solicitud.store_address : solicitud.event_address;
+
+  const [siblingsRes, changesRes, logRes, assignmentsRes, talentRes, suggestedMetro] =
+    await Promise.all([
+      solicitud.batch_id
+        ? supabase
+            .from('solicitudes')
+            .select('id,store_name,status')
+            .eq('batch_id', solicitud.batch_id)
+            .neq('id', solicitud.id)
+            .order('store_name')
+        : Promise.resolve({ data: [], error: null }),
+      supabase
+        .from('solicitud_changes')
+        .select('*')
+        .eq('solicitud_id', solicitud.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('solicitud_status_log')
+        .select('*')
+        .eq('solicitud_id', solicitud.id)
+        .order('changed_at', { ascending: true }),
+      supabase
+        .from('solicitud_assignments')
+        .select(
+          'id,assigned_at,notes,talent:talent_pool(id,metro_area,active,availability,candidates(first_name,last_name,phone))'
+        )
+        .eq('solicitud_id', solicitud.id)
+        .order('assigned_at', { ascending: true }),
+      supabase
+        .from('talent_pool')
+        .select('id,metro_area,availability,candidates(first_name,last_name)')
+        .eq('active', true)
+        .order('metro_area', { ascending: true, nullsFirst: false }),
+      metroForAddress(address),
+    ]);
+
+  for (const res of [siblingsRes, changesRes, logRes, assignmentsRes, talentRes]) {
+    if (res.error) throw res.error;
+  }
+
+  // Resolve status-log actors: changed_by holds a hiring_managers.id or a
+  // brand_clients.id depending on actor_type (no FK — Brief §9).
+  const logRows = (logRes.data ?? []) as Database['public']['Tables']['solicitud_status_log']['Row'][];
+  const staffIds = logRows.filter((l) => l.actor_type !== 'client' && l.changed_by).map((l) => l.changed_by!);
+  const clientIds = logRows.filter((l) => l.actor_type === 'client' && l.changed_by).map((l) => l.changed_by!);
+  const names = new Map<string, string>();
+  if (staffIds.length > 0) {
+    const { data } = await supabase.from('hiring_managers').select('id,name').in('id', staffIds);
+    for (const r of data ?? []) names.set(r.id, r.name);
+  }
+  if (clientIds.length > 0) {
+    const { data } = await supabase.from('brand_clients').select('id,company_name').in('id', clientIds);
+    for (const r of data ?? []) names.set(r.id, r.company_name);
+  }
+  const log: StatusLogEntry[] = logRows.map((l) => ({
+    ...l,
+    actor_name: l.changed_by ? (names.get(l.changed_by) ?? null) : null,
+  }));
+
+  // Suggested-metro members first, then the rest (alphabetical by metro).
+  const options = (talentRes.data ?? []) as unknown as TalentOption[];
+  if (suggestedMetro) {
+    options.sort((a, b) => {
+      const aHit = a.metro_area === suggestedMetro ? 0 : 1;
+      const bHit = b.metro_area === suggestedMetro ? 0 : 1;
+      return aHit - bHit;
+    });
+  }
+
+  return {
+    solicitud,
+    siblings: (siblingsRes.data ?? []) as BatchSibling[],
+    changes: (changesRes.data ?? []) as SolicitudChange[],
+    log,
+    assignments: (assignmentsRes.data ?? []) as unknown as AssignmentRow[],
+    talentOptions: options,
+    suggestedMetro,
+  };
 }
