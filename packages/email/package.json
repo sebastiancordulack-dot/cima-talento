@@ -1,0 +1,16 @@
+{
+  "name": "@cima/email",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/shell.ts",
+    "./resend": "./src/resend.ts"
+  },
+  "dependencies": {
+    "resend": "^6.12.4",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

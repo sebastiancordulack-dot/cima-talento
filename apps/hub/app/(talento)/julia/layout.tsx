@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { SignOutButton } from '@/components/SignOutButton';
+import { requireUser } from '@/lib/auth/session';
 
 // Julia's simplified review area (Brief §5.2) — its own minimal shell, scoped
 // to candidates awaiting her approval. Distinct from the HM dashboard.
-export default function JuliaLayout({ children }: { children: React.ReactNode }) {
+export default async function JuliaLayout({ children }: { children: React.ReactNode }) {
+  await requireUser();
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white">

@@ -59,3 +59,69 @@ export const QUEUE_TAB_ORDER: QueueTab[] = [
 export function isQueueTab(value: string | undefined): value is QueueTab {
   return value !== undefined && value in QUEUE_TABS;
 }
+
+// ---- Change proposals (Brief §9 solicitud_changes) ----------------------------
+
+export const CHANGE_TYPE_LABELS: Record<string, string> = {
+  date_change: 'Cambio de fecha',
+  location_change: 'Cambio de ubicación',
+  time_change: 'Cambio de horario',
+  other: 'Otro cambio',
+};
+
+export const CHANGE_RESPONSE_META: Record<string, SolicitudStatusMeta> = {
+  pending:  { label: 'Esperando al cliente', badgeClass: 'bg-amber-100 text-amber-800 ring-amber-600/20' },
+  approved: { label: 'Aprobado por cliente', badgeClass: 'bg-green-100 text-green-800 ring-green-600/20' },
+  rejected: { label: 'Rechazado por cliente', badgeClass: 'bg-rose-100 text-rose-800 ring-rose-600/20' },
+};
+
+// ---- Manual status actions (Brief §8, §12.2) ----------------------------------
+// The §8 transition map itself lives in @cima/activaciones/machine (shared
+// with the Client Portal); transitions.ts validates against it server-side.
+// MANUAL_STATUS_ACTIONS is the Hub-UI subset — quote_sent / changes_proposed
+// are only reachable through their dedicated flows, never a bare button.
+export interface ManualStatusAction {
+  to: SolicitudStatus;
+  label: string;
+  /** Button emphasis: primary advances the flow, danger ends it. */
+  tone: 'primary' | 'neutral' | 'danger';
+  confirm: string;
+}
+
+// The client approves changes/quotes in the portal (Step 7); the staff-side
+// "Cliente aprobó" buttons exist so approvals received out-of-band (a call)
+// can still be recorded — the actor is logged as cima_staff either way.
+export const MANUAL_STATUS_ACTIONS: Record<SolicitudStatus, ManualStatusAction[]> = {
+  submitted: [
+    { to: 'in_review', label: 'Iniciar revisión', tone: 'primary', confirm: '¿Iniciar la revisión de esta solicitud?' },
+    { to: 'rejected', label: 'Rechazar', tone: 'danger', confirm: '¿Rechazar esta solicitud? El cliente será notificado.' },
+    { to: 'cancelled', label: 'Cancelar', tone: 'danger', confirm: '¿Cancelar esta solicitud?' },
+  ],
+  in_review: [
+    { to: 'rejected', label: 'Rechazar', tone: 'danger', confirm: '¿Rechazar esta solicitud? El cliente será notificado.' },
+    { to: 'cancelled', label: 'Cancelar', tone: 'danger', confirm: '¿Cancelar esta solicitud?' },
+  ],
+  changes_proposed: [
+    { to: 'client_approved', label: 'Cliente aprobó', tone: 'primary', confirm: '¿Registrar que el cliente aprobó el cambio propuesto?' },
+    { to: 'in_review', label: 'Reabrir revisión', tone: 'neutral', confirm: '¿Retirar la propuesta y volver a revisión?' },
+    { to: 'cancelled', label: 'Cancelar', tone: 'danger', confirm: '¿Cancelar esta solicitud?' },
+  ],
+  quote_sent: [
+    { to: 'client_approved', label: 'Cliente aprobó', tone: 'primary', confirm: '¿Registrar que el cliente aprobó la cotización?' },
+    { to: 'in_review', label: 'Reabrir revisión', tone: 'neutral', confirm: '¿Retirar la cotización y volver a revisión?' },
+    { to: 'cancelled', label: 'Cancelar', tone: 'danger', confirm: '¿Cancelar esta solicitud?' },
+  ],
+  client_approved: [
+    { to: 'confirmed', label: 'Confirmar evento', tone: 'primary', confirm: '¿Confirmar el evento? Queda agendado en firme.' },
+    { to: 'cancelled', label: 'Cancelar', tone: 'danger', confirm: '¿Cancelar esta solicitud?' },
+  ],
+  confirmed: [
+    { to: 'in_progress', label: 'Iniciar ejecución', tone: 'primary', confirm: '¿Marcar el evento como en curso?' },
+  ],
+  in_progress: [
+    { to: 'completed', label: 'Marcar completada', tone: 'primary', confirm: '¿Marcar la activación como completada?' },
+  ],
+  completed: [],
+  cancelled: [],
+  rejected: [],
+};

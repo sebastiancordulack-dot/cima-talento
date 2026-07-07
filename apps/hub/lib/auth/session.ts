@@ -54,9 +54,16 @@ export function canAccessMetro(user: SessionUser, metro: string | null): boolean
 
 // ---- Page guards (redirect) ------------------------------------------------
 
+/**
+ * Signed-in AND internal staff (has a hiring_managers row). Both apps share
+ * one Supabase Auth instance, so a brand-client login is a valid *user* — the
+ * hm check is what actually keeps portal accounts out of the Hub (Brief §10).
+ * Non-staff sessions land on /sin-acceso (not /login, which would loop).
+ */
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect('/login');
+  if (!user.hm) redirect('/sin-acceso');
   return user;
 }
 

@@ -4,9 +4,11 @@ import {
   SolicitudStatusBadge,
 } from '@/components/activaciones/SolicitudBadges';
 import { SolicitudesTabs } from '@/components/activaciones/SolicitudesTabs';
-import { formatDaysSince, formatSolicitudDates } from '@/modules/activaciones/dates';
+import { formatDaysSince, formatSolicitudDates } from '@cima/activaciones/dates';
+import { SolicitudesFilterBar } from '@/components/activaciones/SolicitudesFilterBar';
 import {
-  listSolicitudesForTab,
+  listBrandClients,
+  listSolicitudes,
   queueCounts,
   type SolicitudListRow,
 } from '@/modules/activaciones/queries';
@@ -26,22 +28,41 @@ const EMPTY_COPY: Record<QueueTab, string> = {
 export default async function SolicitudesPage({
   searchParams,
 }: {
-  searchParams: { tab?: string };
+  searchParams: { tab?: string; q?: string; cliente?: string };
 }) {
   const tab: QueueTab = isQueueTab(searchParams.tab) ? searchParams.tab : 'nuevas';
-  const [counts, solicitudes] = await Promise.all([queueCounts(), listSolicitudesForTab(tab)]);
+  const q = searchParams.q?.trim() || undefined;
+  const clientId = searchParams.cliente?.trim() || undefined;
+
+  const [counts, solicitudes, clients] = await Promise.all([
+    queueCounts(clientId),
+    listSolicitudes({ tab, q, clientId }),
+    listBrandClients(),
+  ]);
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold text-gray-900">Solicitudes</h1>
-      <SolicitudesTabs active={tab} counts={counts} />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-gray-900">Solicitudes</h1>
+        <SolicitudesFilterBar tab={tab} q={q} clientId={clientId} clients={clients} />
+      </div>
+      <SolicitudesTabs active={tab} counts={counts} clientId={clientId} />
+
+      {q && (
+        <p className="mt-4 text-sm text-gray-500">
+          {solicitudes.length} resultado{solicitudes.length === 1 ? '' : 's'} para{' '}
+          <span className="font-medium text-gray-800">“{q}”</span> en todos los estados
+        </p>
+      )}
 
       {solicitudes.length === 0 ? (
         <div className="mt-10 rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
           <p className="text-sm font-medium text-gray-900">
-            Nada en “{QUEUE_TABS[tab].label}”
+            {q ? `Sin resultados para “${q}”` : `Nada en “${QUEUE_TABS[tab].label}”`}
           </p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">{EMPTY_COPY[tab]}</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
+            {q ? 'Revisa la ortografía o busca por marca, tienda o evento.' : EMPTY_COPY[tab]}
+          </p>
         </div>
       ) : (
         <SolicitudesTable solicitudes={solicitudes} />
