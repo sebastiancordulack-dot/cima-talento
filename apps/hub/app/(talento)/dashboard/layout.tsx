@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { SignOutButton } from '@/components/SignOutButton';
-import { getSessionUser, isAdminRole } from '@/lib/auth/session';
+import { isAdminRole, requireUser } from '@/lib/auth/session';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user = await getSessionUser();
-  const isAdmin = isAdminRole(user?.hm?.role);
+  const user = await requireUser();
+  const isAdmin = isAdminRole(user.hm?.role);
 
   return (
     <div className="min-h-screen bg-gray-50">

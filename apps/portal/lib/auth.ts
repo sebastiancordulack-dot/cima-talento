@@ -25,10 +25,12 @@ export async function getBrandClient(): Promise<BrandClient | null> {
   return data ?? null;
 }
 
-/** Page guard: redirect to /login unless the caller is an active client. */
+/** Page guard: signed-in non-clients (staff logins, deactivated accounts) go
+ *  to /no-access — NOT /login, which the middleware redirects signed-in users
+ *  away from (that would loop). Signed-out users are bounced by middleware. */
 export async function requireBrandClient(): Promise<BrandClient> {
   const client = await getBrandClient();
-  if (!client) redirect('/login?error=noclient');
+  if (!client) redirect('/no-access');
   return client;
 }
 

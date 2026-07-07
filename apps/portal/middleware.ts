@@ -12,6 +12,9 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      ...(process.env.NEXT_PUBLIC_SUPABASE_COOKIE_NAME
+        ? { cookieOptions: { name: process.env.NEXT_PUBLIC_SUPABASE_COOKIE_NAME } }
+        : {}),
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -35,7 +38,9 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  if (!user && path !== '/login') {
+  // /no-access renders for signed-in non-clients (requireBrandClient's
+  // landing spot) — it must not bounce back into the app.
+  if (!user && path !== '/login' && path !== '/no-access') {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.search = '';

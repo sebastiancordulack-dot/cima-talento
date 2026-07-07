@@ -12,6 +12,12 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      // Distinct per app (hub vs portal) so two apps on one host — e.g. two
+      // localhost dev servers — never share a session. Set
+      // NEXT_PUBLIC_SUPABASE_COOKIE_NAME per app.
+      ...(process.env.NEXT_PUBLIC_SUPABASE_COOKIE_NAME
+        ? { cookieOptions: { name: process.env.NEXT_PUBLIC_SUPABASE_COOKIE_NAME } }
+        : {}),
       cookies: {
         getAll() {
           return cookieStore.getAll();
