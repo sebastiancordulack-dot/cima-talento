@@ -64,7 +64,8 @@ export type ActivacionesEmailType =
   | 'event_cancelled'
   | 'internal_new_solicitud'
   | 'internal_client_approved'
-  | 'internal_change_rejected';
+  | 'internal_change_rejected'
+  | 'internal_quote_question';
 
 // Slugs stored in solicitudes.budget_range (labels are a UI concern):
 // Under $5k / $5k–$10k / $10k–$20k / $20k+ / Not yet defined.

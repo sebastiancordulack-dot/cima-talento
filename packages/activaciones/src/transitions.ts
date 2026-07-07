@@ -95,6 +95,7 @@ export async function transitionSolicitud(
     from: current.status,
     actorType: options.actorType,
     suppress: options.suppressNotify,
+    note: options.note,
   });
   return updated;
 }

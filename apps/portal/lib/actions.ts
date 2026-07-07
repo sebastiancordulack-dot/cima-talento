@@ -355,6 +355,54 @@ export async function respondToChange(
   }
 }
 
+// ---- Quote question / pushback -----------------------------------------------------
+// Closes the in-platform loop: instead of replying to the nudge email, the
+// client sends the quote back to review with their question. The message is
+// recorded on the status log (visible in the Hub workspace) and the team gets
+// the internal_quote_question nudge.
+
+export async function questionQuote(solicitudId: string, message: string): Promise<ActionResult> {
+  try {
+    const client = await assertBrandClient();
+    const solicitud = await ownSolicitud(solicitudId, client);
+    if (!solicitud) return { ok: false, error: 'Request not found.' };
+    if (solicitud.status !== 'quote_sent') {
+      return { ok: false, error: 'There is no quote awaiting your response on this request.' };
+    }
+    const text = message.trim();
+    if (text.length < 5) return { ok: false, error: 'Please tell us a bit more so our team can help.' };
+    if (text.length > 1000) return { ok: false, error: 'Please keep your message under 1,000 characters.' };
+
+    // The quote covers the whole batch, so the whole batch returns to review;
+    // the note + internal nudge attach to the row the client acted on.
+    let ids = [solicitud.id];
+    if (solicitud.batch_id) {
+      const { data: members, error } = await createAdminClient()
+        .from('solicitudes')
+        .select('id,status')
+        .eq('batch_id', solicitud.batch_id);
+      if (error) throw error;
+      ids = (members ?? []).filter((m) => m.status === 'quote_sent').map((m) => m.id);
+    }
+
+    for (const id of ids) {
+      await transitionSolicitud(id, 'in_review', {
+        actorId: client.id,
+        actorType: 'client',
+        note: id === solicitud.id ? `Pregunta del cliente: ${text}` : null,
+        suppressNotify: id !== solicitud.id,
+      });
+    }
+
+    revalidatePath('/');
+    revalidatePath('/requests');
+    revalidatePath(`/requests/${solicitudId}`);
+    return { ok: true };
+  } catch (err) {
+    return failure(err);
+  }
+}
+
 // ---- Quote approval (Brief §8, §13.4) ------------------------------------------------
 
 export async function approveQuote(solicitudId: string): Promise<ActionResult> {

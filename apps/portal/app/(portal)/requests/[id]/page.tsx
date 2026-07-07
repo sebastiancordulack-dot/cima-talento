@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ApproveQuoteButton } from '@/components/ApproveQuoteButton';
 import { ChangeResponseButtons } from '@/components/ChangeResponseButtons';
+import { QuoteQuestionForm } from '@/components/QuoteQuestionForm';
 import { StatusBadge } from '@/components/StatusBadge';
 import { getClientSolicitud, type ClientChange, type ClientStatusLog } from '@/lib/queries';
 import { CLIENT_STATUS_META } from '@/lib/status';
@@ -114,7 +115,10 @@ export default async function RequestDetailPage({
           )}
           {s.quote_notes && <p className="mt-3 text-xs text-gray-500">{s.quote_notes}</p>}
           {s.status === 'quote_sent' && (
-            <ApproveQuoteButton solicitudId={s.id} locationCount={siblings.length + 1} />
+            <>
+              <ApproveQuoteButton solicitudId={s.id} locationCount={siblings.length + 1} />
+              <QuoteQuestionForm solicitudId={s.id} />
+            </>
           )}
         </section>
       )}

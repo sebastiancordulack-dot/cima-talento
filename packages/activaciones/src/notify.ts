@@ -23,12 +23,16 @@ export interface NotifyContext {
   actorType?: SolicitudActor;
   /** Skip emails for this row (batch operations notify once, not per row). */
   suppress?: boolean;
+  /** Free text attached to the transition (e.g. the client's quote question)
+   *  — surfaced inside the matching internal nudge. */
+  note?: string | null;
 }
 
 const INTERNAL_TYPES: ReadonlySet<ActivacionesEmailType> = new Set<ActivacionesEmailType>([
   'internal_new_solicitud',
   'internal_client_approved',
   'internal_change_rejected',
+  'internal_quote_question',
 ]);
 
 /** Emails triggered when a Solicitud ENTERS a status (§11 trigger map).
@@ -49,9 +53,10 @@ function emailsFor(to: SolicitudStatus, ctx: NotifyContext): ActivacionesEmailTy
     case 'client_approved':
       return ['internal_client_approved'];
     case 'in_review':
-      return ctx.from === 'changes_proposed' && ctx.actorType === 'client'
-        ? ['internal_change_rejected']
-        : [];
+      if (ctx.actorType !== 'client') return [];
+      if (ctx.from === 'changes_proposed') return ['internal_change_rejected'];
+      if (ctx.from === 'quote_sent') return ['internal_quote_question'];
+      return [];
     default:
       return [];
   }
@@ -81,12 +86,14 @@ interface EmailJob {
   contactName: string | null;
   companyName: string | null;
   batchCount: number;
+  note: string | null;
 }
 
 async function buildJob(
   solicitud: Solicitud,
   type: ActivacionesEmailType,
-  batchCount: number
+  batchCount: number,
+  note: string | null = null
 ): Promise<EmailJob | null> {
   const supabase = createAdminClient();
   const { data: client } = await supabase
@@ -98,7 +105,7 @@ async function buildJob(
   if (INTERNAL_TYPES.has(type)) {
     const to = await internalRecipients();
     if (to.length === 0) return null; // nobody to notify — skip silently
-    return { type, to, contactName: null, companyName: client?.company_name ?? null, batchCount };
+    return { type, to, contactName: null, companyName: client?.company_name ?? null, batchCount, note };
   }
 
   if (!client?.portal_email) return null;
@@ -108,6 +115,7 @@ async function buildJob(
     contactName: client.contact_name ?? null,
     companyName: client.company_name ?? null,
     batchCount,
+    note,
   };
 }
 
@@ -118,6 +126,7 @@ async function sendAndLog(solicitud: Solicitud, job: EmailJob): Promise<void> {
     contactName: job.contactName,
     companyName: job.companyName,
     batchCount: job.batchCount,
+    note: job.note,
   });
 
   try {
@@ -161,7 +170,7 @@ export async function notifySolicitudStatus(
 ): Promise<void> {
   if (ctx.suppress) return;
   for (const type of emailsFor(to, ctx)) {
-    const job = await buildJob(solicitud, type, 1);
+    const job = await buildJob(solicitud, type, 1, ctx.note ?? null);
     if (job) await sendAndLog(solicitud, job);
   }
 }

@@ -172,6 +172,8 @@ ${SIGNATURE_EN}`,
 export interface InternalEmailContext {
   companyName: string | null;
   batchCount: number;
+  /** Transition note (e.g. the client's quote question). */
+  note?: string | null;
 }
 
 function hubLink(s: Solicitud): string {
@@ -218,6 +220,22 @@ ${SIGNATURE_ES}`
   );
 }
 
+function internalQuoteQuestion(s: Solicitud, ctx: InternalEmailContext): RenderedEmail {
+  const question = ctx.note?.replace(/^Pregunta del cliente:\s*/i, '').trim();
+  return renderBrandedEmail(
+    `${ctx.companyName ?? s.brand} tiene una pregunta sobre la cotización`,
+    `El cliente respondió a la cotización de ${label(s)} sin aprobarla — la solicitud volvió a revisión.
+
+${question ? `Su mensaje:\n«${question}»` : 'Revisa su mensaje en el historial de la solicitud.'}
+
+Entra a CiMA Hub para dar seguimiento y reenviar la cotización.
+
+{{cta:Ver solicitud|${hubLink(s)}}}
+
+${SIGNATURE_ES}`
+  );
+}
+
 // ---- Registry ------------------------------------------------------------------------
 
 export function renderActivacionesEmail(
@@ -242,5 +260,7 @@ export function renderActivacionesEmail(
       return internalClientApproved(solicitud, ctx);
     case 'internal_change_rejected':
       return internalChangeRejected(solicitud, ctx);
+    case 'internal_quote_question':
+      return internalQuoteQuestion(solicitud, ctx);
   }
 }
