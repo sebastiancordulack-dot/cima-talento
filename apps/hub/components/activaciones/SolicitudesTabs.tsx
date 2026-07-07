@@ -4,10 +4,14 @@ import { QUEUE_TABS, QUEUE_TAB_ORDER, type QueueTab } from '@/modules/activacion
 export function SolicitudesTabs({
   active,
   counts,
+  clientId,
 }: {
   active: QueueTab;
   counts: Record<QueueTab, number>;
+  /** Preserved across tab switches; search (q) is intentionally dropped. */
+  clientId?: string;
 }) {
+  const suffix = clientId ? `&cliente=${clientId}` : '';
   return (
     <nav className="flex flex-wrap gap-1 border-b border-gray-200">
       {QUEUE_TAB_ORDER.map((tab) => {
@@ -15,7 +19,7 @@ export function SolicitudesTabs({
         return (
           <Link
             key={tab}
-            href={`/activaciones?tab=${tab}`}
+            href={`/activaciones?tab=${tab}${suffix}`}
             className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
               isActive
                 ? 'border-green-600 text-green-700'

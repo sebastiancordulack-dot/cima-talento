@@ -20,38 +20,62 @@ export interface SolicitudListRow extends Solicitud {
 
 const LIST_SELECT = '*, brand_clients(company_name), reviewer:hiring_managers(name)';
 
-/** Solicitudes for a queue tab. Nuevas/revisión/cliente surface the oldest
- *  first (longest waiting on top — Brief §12.1); confirmadas by soonest
- *  activation date; historial most recent first. */
-export async function listSolicitudesForTab(tab: QueueTab): Promise<SolicitudListRow[]> {
-  const supabase = createAdminClient();
-  let query = supabase.from('solicitudes').select(LIST_SELECT).in('status', QUEUE_TABS[tab].statuses);
+export interface QueueFilters {
+  tab: QueueTab;
+  /** Free-text search over brand / store / event. Searching looks across ALL
+   *  statuses — a request must be findable no matter which tab it moved to. */
+  q?: string;
+  clientId?: string;
+}
 
-  if (tab === 'confirmadas') {
+/** Strip characters that would break the PostgREST or() filter syntax. */
+function sanitizeSearch(q: string): string {
+  return q.replace(/[,()%\\]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Solicitudes for the queue. Without a search: tab-scoped, oldest-waiting
+ *  first (Brief §12.1), confirmadas by soonest date, historial most recent.
+ *  With a search: cross-status, newest first. */
+export async function listSolicitudes(filters: QueueFilters): Promise<SolicitudListRow[]> {
+  const supabase = createAdminClient();
+  let query = supabase.from('solicitudes').select(LIST_SELECT);
+
+  const q = filters.q ? sanitizeSearch(filters.q) : '';
+  if (q) {
     query = query
-      .order('date', { ascending: true, nullsFirst: false })
-      .order('created_at', { ascending: true });
-  } else if (tab === 'historial') {
-    query = query.order('updated_at', { ascending: false });
+      .or(`brand.ilike.%${q}%,store_name.ilike.%${q}%,event_name.ilike.%${q}%`)
+      .order('created_at', { ascending: false });
   } else {
-    query = query.order('created_at', { ascending: true });
+    query = query.in('status', QUEUE_TABS[filters.tab].statuses);
+    if (filters.tab === 'confirmadas') {
+      query = query
+        .order('date', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: true });
+    } else if (filters.tab === 'historial') {
+      query = query.order('updated_at', { ascending: false });
+    } else {
+      query = query.order('created_at', { ascending: true });
+    }
   }
+  if (filters.clientId) query = query.eq('client_id', filters.clientId);
 
   const { data, error } = await query;
   if (error) throw error;
   return (data ?? []) as unknown as SolicitudListRow[];
 }
 
-/** Per-tab counts for the queue tab badges. Tabs overlap by design
- *  ("cliente" ⊂ "revision"), so counts are computed per tab, not per status. */
-export async function queueCounts(): Promise<Record<QueueTab, number>> {
+/** Per-tab counts for the queue tab badges (scoped to the client filter when
+ *  one is active). Tabs overlap by design ("cliente" ⊂ "revision"). */
+export async function queueCounts(clientId?: string): Promise<Record<QueueTab, number>> {
   const supabase = createAdminClient();
   const entries = await Promise.all(
     (Object.keys(QUEUE_TABS) as QueueTab[]).map(async (tab) => {
-      const { count, error } = await supabase
+      let query = supabase
         .from('solicitudes')
         .select('*', { count: 'exact', head: true })
         .in('status', QUEUE_TABS[tab].statuses);
+      if (clientId) query = query.eq('client_id', clientId);
+      const { count, error } = await query;
       if (error) throw error;
       return [tab, count ?? 0] as const;
     })

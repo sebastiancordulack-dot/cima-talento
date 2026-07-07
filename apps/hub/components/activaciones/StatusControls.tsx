@@ -50,6 +50,11 @@ export function StatusControls({
           {a.label}
         </button>
       ))}
+      {status === 'in_review' && (
+        <span className="text-xs text-gray-400">
+          Para avanzar: envía la cotización o propone un cambio (más abajo).
+        </span>
+      )}
       {error && <span className="text-sm text-rose-600">{error}</span>}
     </div>
   );
