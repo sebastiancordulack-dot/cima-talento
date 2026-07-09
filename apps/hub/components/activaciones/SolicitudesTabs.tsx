@@ -1,5 +1,16 @@
 import Link from 'next/link';
-import { QUEUE_TABS, QUEUE_TAB_ORDER, type QueueTab } from '@/modules/activaciones/status';
+import { StatCard, TabCount, pillTabClasses } from '@cima/ui';
+import { QUEUE_TABS, type QueueTab } from '@/modules/activaciones/status';
+
+// The four working tabs as clickable KPI stat cards (spec §7.1) — the
+// headline numbers ARE the filter controls. Historial rides separately as a
+// quiet pill (HistorialTab) so closed work doesn't compete for attention.
+const CARD_TABS: { tab: QueueTab; dot: string }[] = [
+  { tab: 'nuevas', dot: 'bg-blue-500' },
+  { tab: 'revision', dot: 'bg-amber-500' },
+  { tab: 'cliente', dot: 'bg-violet-500' },
+  { tab: 'confirmadas', dot: 'bg-green-500' },
+];
 
 export function SolicitudesTabs({
   active,
@@ -13,30 +24,40 @@ export function SolicitudesTabs({
 }) {
   const suffix = clientId ? `&cliente=${clientId}` : '';
   return (
-    <nav className="flex flex-wrap gap-1 border-b border-gray-200">
-      {QUEUE_TAB_ORDER.map((tab) => {
-        const isActive = tab === active;
-        return (
-          <Link
-            key={tab}
-            href={`/activaciones?tab=${tab}${suffix}`}
-            className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
-              isActive
-                ? 'border-green-600 text-green-700'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-            }`}
-          >
-            {QUEUE_TABS[tab].label}
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-xs ${
-                isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-              }`}
-            >
-              {counts[tab]}
-            </span>
-          </Link>
-        );
-      })}
-    </nav>
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {CARD_TABS.map(({ tab, dot }) => (
+        <Link
+          key={tab}
+          href={`/activaciones?tab=${tab}${suffix}`}
+          className="rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+        >
+          <StatCard
+            label={QUEUE_TABS[tab].label}
+            value={counts[tab]}
+            dotClassName={dot}
+            active={tab === active}
+            interactive
+          />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+export function HistorialTab({
+  active,
+  count,
+  clientId,
+}: {
+  active: boolean;
+  count: number;
+  clientId?: string;
+}) {
+  const suffix = clientId ? `&cliente=${clientId}` : '';
+  return (
+    <Link href={`/activaciones?tab=historial${suffix}`} className={pillTabClasses(active)}>
+      Historial
+      <TabCount active={active}>{count}</TabCount>
+    </Link>
   );
 }

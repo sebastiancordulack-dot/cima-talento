@@ -2,12 +2,12 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { controlClasses } from '@cima/ui';
 import { proposeChange } from '@/modules/activaciones/actions';
 import { CHANGE_TYPE_LABELS } from '@/modules/activaciones/status';
 
-const input =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500';
-const label = 'mb-1 block text-xs font-medium uppercase tracking-wide text-gray-400';
+const input = controlClasses('w-full');
+const label = 'mb-1 block text-xs font-medium text-stone-600';
 
 // Propose a change to the client (Brief §12.2): transitions the Solicitud to
 // changes_proposed; the client approves/rejects inside the portal — never over
@@ -32,9 +32,9 @@ export function ProposeChangeForm({ solicitudId }: { solicitudId: string }) {
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="mb-1 text-sm font-semibold text-gray-900">Proponer un cambio</h2>
-      <p className="mb-3 text-xs text-gray-500">
+    <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+      <h2 className="mb-1 text-sm font-semibold text-stone-900">Proponer un cambio</h2>
+      <p className="mb-3 text-xs text-stone-500">
         El cliente lo aprueba o rechaza dentro del portal — sin hilos de correo.
       </p>
       <div className="space-y-3">
@@ -66,7 +66,7 @@ export function ProposeChangeForm({ solicitudId }: { solicitudId: string }) {
         </div>
         <div className="flex items-center gap-3">
           <button onClick={submit} disabled={pending}
-            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-50">
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-medium text-white transition-colors hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 disabled:pointer-events-none disabled:opacity-50">
             Enviar al cliente
           </button>
           {error && <span className="text-sm text-rose-600">{error}</span>}

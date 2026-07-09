@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Badge, Card, CardHeader, type BadgeTone } from '@cima/ui';
 import {
   ActivationTypeBadge,
   SolicitudStatusBadge,
@@ -28,7 +29,8 @@ export const dynamic = 'force-dynamic';
 
 // Solicitud detail workspace (Brief §12.2): client submission on the left,
 // CiMA tooling (internal fields, quote, changes, talent, status) on the right,
-// status history at the bottom.
+// status history at the bottom. Sticky summary card keeps brand/status/actions
+// in view while working (spec §7.1).
 export default async function SolicitudDetailPage({ params }: { params: { id: string } }) {
   const detail = await getSolicitudDetail(params.id);
   if (!detail) notFound();
@@ -54,34 +56,40 @@ export default async function SolicitudDetailPage({ params }: { params: { id: st
   const talentEnabled = solicitud.status === 'confirmed' || solicitud.status === 'in_progress';
 
   return (
-    <div>
-      <Link href="/activaciones" className="text-sm text-gray-400 hover:text-gray-600">
+    <div className="space-y-5">
+      <Link href="/activaciones" className="text-sm text-stone-400 hover:text-stone-600">
         ← Solicitudes
       </Link>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">{solicitud.brand}</h1>
-          <ActivationTypeBadge type={solicitud.activation_type} />
-          <SolicitudStatusBadge status={solicitud.status} />
+      <Card className="sticky top-4 z-10">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-semibold tracking-tight text-stone-900">
+              {solicitud.brand}
+            </h1>
+            <ActivationTypeBadge type={solicitud.activation_type} />
+            <SolicitudStatusBadge status={solicitud.status} />
+          </div>
+          <ReviewerControl
+            solicitudId={solicitud.id}
+            reviewerName={solicitud.reviewer?.name ?? null}
+          />
         </div>
-        <ReviewerControl solicitudId={solicitud.id} reviewerName={solicitud.reviewer?.name ?? null} />
-      </div>
-      <p className="mt-1 text-sm text-gray-500">
-        {title} · {formatSolicitudDates(solicitud)}
-        {solicitud.brand_clients && <> · {solicitud.brand_clients.company_name}</>}
-        {' · '}enviada {formatDaysSince(solicitud.created_at)}
-      </p>
+        <p className="mt-1 text-sm text-stone-500">
+          {title} · {formatSolicitudDates(solicitud)}
+          {solicitud.brand_clients && <> · {solicitud.brand_clients.company_name}</>}
+          {' · '}enviada {formatDaysSince(solicitud.created_at)}
+        </p>
+        <div className="mt-4">
+          <StatusControls solicitudId={solicitud.id} status={solicitud.status} />
+        </div>
+      </Card>
 
-      <div className="mt-4">
-        <StatusControls solicitudId={solicitud.id} status={solicitud.status} />
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-5">
+      <div className="grid gap-5 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <SubmissionPanel solicitud={solicitud} siblings={siblings} />
         </div>
-        <div className="space-y-4 lg:col-span-3">
+        <div className="space-y-5 lg:col-span-3">
           <InternalFieldsForm solicitud={solicitud} />
           <QuoteBuilder
             solicitudId={solicitud.id}
@@ -107,26 +115,30 @@ export default async function SolicitudDetailPage({ params }: { params: { id: st
   );
 }
 
+const RESPONSE_TONES: Record<string, BadgeTone> = {
+  pending: 'amber',
+  approved: 'green',
+  rejected: 'rose',
+};
+
 function ChangesList({ changes }: { changes: SolicitudChange[] }) {
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="mb-3 text-sm font-semibold text-gray-900">Cambios propuestos</h2>
+    <Card>
+      <CardHeader title="Cambios propuestos" />
       <ul className="space-y-3">
         {changes.map((c) => {
           const response = CHANGE_RESPONSE_META[c.client_response];
           return (
-            <li key={c.id} className="rounded-lg border border-gray-100 p-3">
+            <li key={c.id} className="rounded-xl border border-stone-100 bg-stone-50/50 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-stone-900">
                   {CHANGE_TYPE_LABELS[c.change_type] ?? c.change_type}
                 </p>
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${response.badgeClass}`}
-                >
+                <Badge tone={RESPONSE_TONES[c.client_response] ?? 'gray'} dot>
                   {response.label}
-                </span>
+                </Badge>
               </div>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-stone-600">
                 {c.original_value && (
                   <>
                     <span className="line-through">{c.original_value}</span>
@@ -135,8 +147,8 @@ function ChangesList({ changes }: { changes: SolicitudChange[] }) {
                 )}
                 <span className="font-medium">{c.proposed_value}</span>
               </p>
-              {c.reason && <p className="mt-1 text-xs text-gray-500">{c.reason}</p>}
-              <p className="mt-1 text-xs text-gray-400">
+              {c.reason && <p className="mt-1 text-xs text-stone-500">{c.reason}</p>}
+              <p className="mt-1 text-xs text-stone-400">
                 {formatDateTime(c.created_at)}
                 {c.client_responded_at && <> · respondido {formatDateTime(c.client_responded_at)}</>}
               </p>
@@ -144,35 +156,37 @@ function ChangesList({ changes }: { changes: SolicitudChange[] }) {
           );
         })}
       </ul>
-    </section>
+    </Card>
   );
 }
 
 function StatusHistory({ log }: { log: StatusLogEntry[] }) {
   return (
-    <section className="mt-6 rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="mb-3 text-sm font-semibold text-gray-900">Historial de estados</h2>
+    <Card>
+      <CardHeader title="Historial de estados" />
       {log.length === 0 ? (
-        <p className="text-sm text-gray-400">Sin movimientos registrados.</p>
+        <p className="text-sm text-stone-400">Sin movimientos registrados.</p>
       ) : (
         <ul className="space-y-2">
           {log.map((entry) => (
             <li key={entry.id} className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="w-36 shrink-0 text-xs text-gray-400">
+              <span className="w-36 shrink-0 text-xs tabular-nums text-stone-400">
                 {formatDateTime(entry.changed_at)}
               </span>
               {entry.from_status && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-stone-400">
                   {SOLICITUD_STATUS_META[entry.from_status].label} →
                 </span>
               )}
               <SolicitudStatusBadge status={entry.to_status} />
-              {entry.actor_name && <span className="text-xs text-gray-500">por {entry.actor_name}</span>}
-              {entry.note && <span className="text-xs text-gray-400">· {entry.note}</span>}
+              {entry.actor_name && (
+                <span className="text-xs text-stone-500">por {entry.actor_name}</span>
+              )}
+              {entry.note && <span className="text-xs text-stone-400">· {entry.note}</span>}
             </li>
           ))}
         </ul>
       )}
-    </section>
+    </Card>
   );
 }

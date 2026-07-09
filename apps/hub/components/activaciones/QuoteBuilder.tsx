@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, controlClasses } from '@cima/ui';
 import { saveQuoteDraft, sendQuote } from '@/modules/activaciones/actions';
 import {
   formatMoney,
@@ -11,8 +12,7 @@ import {
 } from '@cima/activaciones/quote';
 import type { SolicitudStatus } from '@cima/db';
 
-const input =
-  'rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500';
+const input = controlClasses();
 
 // Manual quote builder (Brief §12.2). For batches: one section per location,
 // subtotal per store, grand total — the same quote is stored on every batch
@@ -99,10 +99,12 @@ export function QuoteBuilder({
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
+    <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-900">Cotización</h2>
-        <span className="text-sm font-semibold text-gray-900">{formatMoney(total)}</span>
+        <h2 className="text-sm font-semibold text-stone-900">Cotización</h2>
+        <span className="text-base font-semibold tabular-nums text-stone-900">
+          {formatMoney(total)}
+        </span>
       </div>
 
       {!editable && (
@@ -116,10 +118,12 @@ export function QuoteBuilder({
           <div key={section.solicitud_id}>
             {isBatch && (
               <div className="mb-1.5 flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-stone-400">
                   {section.label}
                 </p>
-                <span className="text-xs text-gray-500">{formatMoney(sectionSubtotal(section))}</span>
+                <span className="text-xs tabular-nums text-stone-500">
+                  {formatMoney(sectionSubtotal(section))}
+                </span>
               </div>
             )}
             <div className="space-y-1.5">
@@ -143,7 +147,7 @@ export function QuoteBuilder({
                   {editable && (
                     <button
                       onClick={() => removeItem(si, ii)}
-                      className="text-gray-300 hover:text-rose-500"
+                      className="text-stone-300 transition-colors hover:text-rose-500"
                       aria-label="Quitar concepto"
                     >
                       ✕
@@ -154,7 +158,7 @@ export function QuoteBuilder({
               {editable && (
                 <button
                   onClick={() => addItem(si)}
-                  className="text-xs font-medium text-green-700 hover:underline"
+                  className="text-xs font-medium text-brand-700 hover:underline"
                 >
                   + Agregar concepto
                 </button>
@@ -164,7 +168,7 @@ export function QuoteBuilder({
         ))}
 
         <div>
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-400">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Notas de la cotización (visibles para el cliente al enviarla)
           </label>
           <textarea
@@ -181,22 +185,17 @@ export function QuoteBuilder({
 
         {editable && (
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => save(false)}
-              disabled={pending}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
+            <Button variant="secondary" onClick={() => save(false)} disabled={pending}>
               Guardar borrador
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => save(true)}
               disabled={pending || !canSend || total <= 0}
               title={!canSend ? 'Disponible cuando la solicitud está en revisión' : undefined}
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
             >
               Enviar cotización
-            </button>
-            {saved && <span className="text-sm text-green-700">Guardado ✓</span>}
+            </Button>
+            {saved && <span className="text-sm font-medium text-brand-700">Guardado ✓</span>}
             {error && <span className="text-sm text-rose-600">{error}</span>}
           </div>
         )}

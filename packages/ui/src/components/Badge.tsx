@@ -8,7 +8,9 @@ export type BadgeTone =
   | 'green'
   | 'lime'
   | 'blue'
+  | 'sky'
   | 'cyan'
+  | 'teal'
   | 'indigo'
   | 'violet'
   | 'amber'
@@ -20,7 +22,9 @@ const TONES: Record<BadgeTone, string> = {
   green: 'bg-green-50 text-green-700',
   lime: 'bg-lime-50 text-lime-700',
   blue: 'bg-blue-50 text-blue-700',
+  sky: 'bg-sky-50 text-sky-700',
   cyan: 'bg-cyan-50 text-cyan-700',
+  teal: 'bg-teal-50 text-teal-700',
   indigo: 'bg-indigo-50 text-indigo-700',
   violet: 'bg-violet-50 text-violet-700',
   amber: 'bg-amber-50 text-amber-700',
