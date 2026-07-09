@@ -23,6 +23,9 @@ importers:
       '@cima/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@cima/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@supabase/ssr':
         specifier: ^0.12.0
         version: 0.12.0(@supabase/supabase-js@2.110.0)
@@ -90,6 +93,9 @@ importers:
       '@cima/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@cima/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@supabase/ssr':
         specifier: ^0.12.0
         version: 0.12.0(@supabase/supabase-js@2.110.0)
@@ -177,6 +183,21 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
     devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/ui:
+    devDependencies:
+      '@types/react':
+        specifier: ^18
+        version: 18.3.31
+      react:
+        specifier: ^18
+        version: 18.3.1
+      tailwindcss:
+        specifier: ^3.4.1
+        version: 3.4.19
       typescript:
         specifier: ^5
         version: 5.9.3
