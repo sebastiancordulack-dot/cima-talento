@@ -41,7 +41,7 @@ export function EventQuickAction({
       <button
         onClick={run}
         disabled={pending}
-        className="rounded-lg border border-green-600 px-2.5 py-1 text-xs font-medium text-green-700 hover:bg-green-50 disabled:opacity-50"
+        className="rounded-lg border border-brand-300 px-2.5 py-1 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-50 disabled:opacity-50"
       >
         {action.label}
       </button>

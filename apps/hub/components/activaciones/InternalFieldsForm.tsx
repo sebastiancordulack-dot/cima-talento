@@ -2,14 +2,15 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, controlClasses } from '@cima/ui';
 import { updateInternalFields, type InternalFieldsInput } from '@/modules/activaciones/actions';
 import type { Database } from '@cima/db';
 
 type Solicitud = Database['public']['Tables']['solicitudes']['Row'];
 
-const input =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500';
-const label = 'mb-1 block text-xs font-medium uppercase tracking-wide text-gray-400';
+const input = controlClasses('w-full');
+const label = 'mb-1 block text-xs font-medium text-stone-600';
+const checkbox = 'size-4 rounded accent-brand-600';
 
 // CiMA workspace fields (Brief §7 / §12.2) — never client-visible.
 export function InternalFieldsForm({ solicitud }: { solicitud: Solicitud }) {
@@ -84,8 +85,8 @@ export function InternalFieldsForm({ solicitud }: { solicitud: Solicitud }) {
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="mb-3 text-sm font-semibold text-gray-900">Trabajo interno CiMA</h2>
+    <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+      <h2 className="mb-3 text-sm font-semibold text-stone-900">Trabajo interno CiMA</h2>
       <div className="space-y-3">
         <div>
           <label className={label}>Notas internas</label>
@@ -116,9 +117,9 @@ export function InternalFieldsForm({ solicitud }: { solicitud: Solicitud }) {
         ) : (
           <>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-2 rounded-lg bg-gray-50 p-3">
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" checked={f.coi_required}
+              <div className="space-y-2 rounded-xl bg-stone-50 p-3">
+                <label className="flex items-center gap-2 text-sm text-stone-700">
+                  <input type="checkbox" className={checkbox} checked={f.coi_required}
                     onChange={(e) => set('coi_required', e.target.checked)} />
                   Requiere COI (seguro)
                 </label>
@@ -136,16 +137,16 @@ export function InternalFieldsForm({ solicitud }: { solicitud: Solicitud }) {
                   </>
                 )}
               </div>
-              <div className="space-y-2 rounded-lg bg-gray-50 p-3">
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" checked={f.participation_agreement_required}
+              <div className="space-y-2 rounded-xl bg-stone-50 p-3">
+                <label className="flex items-center gap-2 text-sm text-stone-700">
+                  <input type="checkbox" className={checkbox} checked={f.participation_agreement_required}
                     onChange={(e) => set('participation_agreement_required', e.target.checked)} />
                   Acuerdo de participación
                 </label>
                 {f.participation_agreement_required && (
                   <>
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                      <input type="checkbox" checked={f.participation_agreement_payment}
+                    <label className="flex items-center gap-2 text-sm text-stone-700">
+                      <input type="checkbox" className={checkbox} checked={f.participation_agreement_payment}
                         onChange={(e) => set('participation_agreement_payment', e.target.checked)} />
                       CiMA gestiona el pago
                     </label>
@@ -187,11 +188,10 @@ export function InternalFieldsForm({ solicitud }: { solicitud: Solicitud }) {
         )}
 
         <div className="flex items-center gap-3 pt-1">
-          <button onClick={submit} disabled={pending}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50">
+          <Button onClick={submit} loading={pending}>
             {pending ? 'Guardando…' : 'Guardar'}
-          </button>
-          {saved && <span className="text-sm text-green-700">Guardado ✓</span>}
+          </Button>
+          {saved && <span className="text-sm font-medium text-brand-700">Guardado ✓</span>}
           {error && <span className="text-sm text-rose-600">{error}</span>}
         </div>
       </div>

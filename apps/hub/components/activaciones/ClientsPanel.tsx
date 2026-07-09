@@ -5,6 +5,7 @@
 // access. Generated passwords display ONCE in the credentials box.
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Badge, Button, buttonClasses, controlClasses } from '@cima/ui';
 import {
   createBrandClient,
   resetClientPassword,
@@ -14,9 +15,8 @@ import {
 } from '@/modules/activaciones/client-actions';
 import type { BrandClientRow } from '@/modules/activaciones/queries';
 
-const input =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500';
-const label = 'mb-1 block text-xs font-medium uppercase tracking-wide text-gray-400';
+const input = controlClasses('w-full');
+const label = 'mb-1 block text-xs font-medium text-stone-600';
 
 interface FormState {
   company_name: string;
@@ -88,19 +88,12 @@ function ClientForm({
           onChange={(e) => set('contact_phone', e.target.value)} />
       </div>
       <div className="flex items-center gap-2 sm:col-span-2">
-        <button
-          onClick={() => onSubmit(f)}
-          disabled={pending}
-          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-        >
+        <Button onClick={() => onSubmit(f)} loading={pending}>
           {submitLabel}
-        </button>
-        <button
-          onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
+        </Button>
+        <Button variant="secondary" onClick={onCancel}>
           Cancelar
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -155,11 +148,11 @@ export function ClientsPanel({ clients }: { clients: BrandClientRow[] }) {
   return (
     <div className="space-y-4">
       {credentials && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-4">
           <p className="text-sm font-semibold text-green-900">
             Credenciales del portal — cópialas ahora, no se volverán a mostrar
           </p>
-          <div className="mt-2 rounded-lg bg-white p-3 font-mono text-sm text-gray-800">
+          <div className="mt-2 rounded-xl bg-white p-3 font-mono text-sm text-stone-800">
             <p>{credentials.email}</p>
             <p className="mt-1 font-semibold">{credentials.password}</p>
           </div>
@@ -175,8 +168,8 @@ export function ClientsPanel({ clients }: { clients: BrandClientRow[] }) {
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
       {showAdd ? (
-        <section className="rounded-lg border border-gray-200 bg-white p-5">
-          <h2 className="mb-3 text-sm font-semibold text-gray-900">Nuevo cliente</h2>
+        <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+          <h2 className="mb-3 text-sm font-semibold text-stone-900">Nuevo cliente</h2>
           <ClientForm
             initial={EMPTY}
             submitLabel={pending ? 'Creando…' : 'Crear cuenta'}
@@ -186,27 +179,24 @@ export function ClientsPanel({ clients }: { clients: BrandClientRow[] }) {
           />
         </section>
       ) : (
-        <button
-          onClick={() => setShowAdd(true)}
-          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-        >
+        <button onClick={() => setShowAdd(true)} className={buttonClasses('primary')}>
           + Agregar cliente
         </button>
       )}
 
       {clients.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
-          <p className="text-sm font-medium text-gray-900">Sin clientes aún</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
+        <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center">
+          <p className="text-sm font-medium text-stone-900">Sin clientes aún</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-stone-500">
             Crea la primera cuenta para que un cliente de marca pueda entrar al portal y enviar
             solicitudes.
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
+        <div className="overflow-x-auto rounded-2xl border border-stone-200/70 bg-white shadow-card">
+          <table className="min-w-full divide-y divide-stone-100 text-sm">
             <thead>
-              <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-400">
+              <tr className="text-left text-[11px] font-medium uppercase tracking-wider text-stone-400">
                 <th className="px-4 py-3">Empresa</th>
                 <th className="px-4 py-3">Acceso</th>
                 <th className="px-4 py-3">Marcas</th>
@@ -216,7 +206,7 @@ export function ClientsPanel({ clients }: { clients: BrandClientRow[] }) {
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-stone-100">
               {clients.map((c) => (
                 <ClientRow
                   key={c.id}
@@ -271,7 +261,7 @@ function ClientRow({
   if (editing) {
     return (
       <tr>
-        <td colSpan={7} className="bg-gray-50/60 px-4 py-4">
+        <td colSpan={7} className="bg-stone-50/60 px-4 py-4">
           <ClientForm
             initial={{
               company_name: c.company_name,
@@ -292,40 +282,34 @@ function ClientRow({
 
   return (
     <tr className={c.active ? '' : 'opacity-60'}>
-      <td className="px-4 py-3 font-medium text-gray-900">{c.company_name}</td>
-      <td className="px-4 py-3 text-gray-600">{c.portal_email}</td>
+      <td className="px-4 py-3 font-medium text-stone-900">{c.company_name}</td>
+      <td className="px-4 py-3 text-stone-600">{c.portal_email}</td>
       <td className="px-4 py-3">
         <span className="flex flex-wrap gap-1">
           {c.brands.map((b) => (
-            <span key={b} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
+            <span key={b} className="rounded bg-stone-100 px-1.5 py-0.5 text-xs text-stone-600">
               {b}
             </span>
           ))}
         </span>
       </td>
-      <td className="px-4 py-3 text-gray-600">
+      <td className="px-4 py-3 text-stone-600">
         {[c.contact_name, c.contact_phone].filter(Boolean).join(' · ') || '—'}
       </td>
-      <td className="px-4 py-3 text-gray-600">{c.solicitud_count}</td>
+      <td className="px-4 py-3 tabular-nums text-stone-600">{c.solicitud_count}</td>
       <td className="px-4 py-3">
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
-            c.active
-              ? 'bg-green-100 text-green-800 ring-green-600/20'
-              : 'bg-gray-100 text-gray-600 ring-gray-500/20'
-          }`}
-        >
+        <Badge tone={c.active ? 'green' : 'gray'} dot>
           {c.active ? 'Activo' : 'Inactivo'}
-        </span>
+        </Badge>
       </td>
       <td className="whitespace-nowrap px-4 py-3 text-right text-xs">
-        <button onClick={onEdit} disabled={pending} className="font-medium text-green-700 hover:underline disabled:opacity-50">
+        <button onClick={onEdit} disabled={pending} className="font-medium text-brand-700 hover:underline disabled:opacity-50">
           Editar
         </button>
-        <button onClick={onReset} disabled={pending} className="ml-3 font-medium text-gray-500 hover:underline disabled:opacity-50">
+        <button onClick={onReset} disabled={pending} className="ml-3 font-medium text-stone-500 hover:underline disabled:opacity-50">
           Nueva contraseña
         </button>
-        <button onClick={onToggle} disabled={pending} className="ml-3 font-medium text-gray-500 hover:underline disabled:opacity-50">
+        <button onClick={onToggle} disabled={pending} className="ml-3 font-medium text-stone-500 hover:underline disabled:opacity-50">
           {c.active ? 'Desactivar' : 'Reactivar'}
         </button>
       </td>

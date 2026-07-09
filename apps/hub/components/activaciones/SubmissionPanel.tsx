@@ -21,17 +21,17 @@ function formatTime(t: string | null): string {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="grid grid-cols-3 gap-2 py-1.5">
-      <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</dt>
-      <dd className="col-span-2 text-sm text-gray-800">{value ?? '—'}</dd>
+      <dt className="text-[11px] font-medium uppercase tracking-wider text-stone-400">{label}</dt>
+      <dd className="col-span-2 text-sm text-stone-700">{value ?? '—'}</dd>
     </div>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="mb-2 text-sm font-semibold text-gray-900">{title}</h2>
-      <dl className="divide-y divide-gray-50">{children}</dl>
+    <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+      <h2 className="mb-2 text-sm font-semibold text-stone-900">{title}</h2>
+      <dl className="divide-y divide-stone-100/70">{children}</dl>
     </section>
   );
 }
@@ -87,7 +87,7 @@ export function SubmissionPanel({
                     {s.activation_needs.map((n) => (
                       <span
                         key={n}
-                        className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600"
+                        className="rounded bg-stone-100 px-1.5 py-0.5 text-xs text-stone-600"
                       >
                         {n}
                       </span>
@@ -106,14 +106,14 @@ export function SubmissionPanel({
 
       {s.batch_id && (
         <Section title={`Lote — ${siblings.length + 1} ubicaciones`}>
-          <p className="pb-2 text-xs text-gray-500">
+          <p className="pb-2 text-xs text-stone-500">
             Envío multi-ubicación: una sola cotización cubre todas las tiendas (§6A).
           </p>
           {siblings.map((sib) => (
             <div key={sib.id} className="flex items-center justify-between gap-2 py-1.5">
               <Link
                 href={`/activaciones/solicitudes/${sib.id}`}
-                className="text-sm text-green-700 hover:underline"
+                className="text-sm font-medium text-brand-700 hover:underline"
               >
                 {sib.store_name ?? 'Ubicación'}
               </Link>

@@ -2,14 +2,20 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { buttonClasses } from '@cima/ui';
 import { setReviewer, setSolicitudStatus } from '@/modules/activaciones/actions';
 import { MANUAL_STATUS_ACTIONS } from '@/modules/activaciones/status';
 import type { SolicitudStatus } from '@cima/db';
 
+// Soft danger stays custom: most statuses offer 1 advance + 2 destructive
+// actions, and a row of solid red would shout (spec §4.1).
+const DANGER_CLASS =
+  'inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/30 disabled:pointer-events-none disabled:opacity-50';
+
 const TONE_CLASS = {
-  primary: 'bg-green-600 text-white hover:bg-green-700',
-  neutral: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
-  danger: 'border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100',
+  primary: buttonClasses('primary'),
+  neutral: buttonClasses('secondary'),
+  danger: DANGER_CLASS,
 } as const;
 
 // Manual status progression with confirmation prompts (Brief §12.2). Only the
@@ -45,13 +51,13 @@ export function StatusControls({
           key={a.to}
           onClick={() => run(a.to, a.confirm)}
           disabled={pending}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${TONE_CLASS[a.tone]}`}
+          className={TONE_CLASS[a.tone]}
         >
           {a.label}
         </button>
       ))}
       {status === 'in_review' && (
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-stone-400">
           Para avanzar: envía la cotización o propone un cambio (más abajo).
         </span>
       )}
@@ -79,22 +85,18 @@ export function ReviewerControl({
   }
 
   return reviewerName ? (
-    <span className="inline-flex items-center gap-2 text-sm text-gray-500">
-      Gestiona: <span className="font-medium text-gray-800">{reviewerName}</span>
+    <span className="inline-flex items-center gap-2 text-sm text-stone-500">
+      Gestiona: <span className="font-medium text-stone-800">{reviewerName}</span>
       <button
         onClick={() => toggle(false)}
         disabled={pending}
-        className="text-xs text-gray-400 underline hover:text-gray-600 disabled:opacity-50"
+        className="text-xs text-stone-400 underline hover:text-stone-600 disabled:opacity-50"
       >
         soltar
       </button>
     </span>
   ) : (
-    <button
-      onClick={() => toggle(true)}
-      disabled={pending}
-      className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-    >
+    <button onClick={() => toggle(true)} disabled={pending} className={buttonClasses('secondary')}>
       Tomar solicitud
     </button>
   );
