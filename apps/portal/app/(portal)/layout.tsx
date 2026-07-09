@@ -9,7 +9,7 @@ export default async function PortalLayout({ children }: { children: React.React
   const client = await requireBrandClient();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
           <Link href="/" className="flex items-center gap-2">

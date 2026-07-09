@@ -8,7 +8,7 @@ export default async function ActivacionesLayout({ children }: { children: React
   const isAdmin = isAdminRole(user.hm?.role);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Link href="/activaciones" className="flex items-center gap-2">

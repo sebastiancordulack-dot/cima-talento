@@ -7,7 +7,7 @@ import { requireUser } from '@/lib/auth/session';
 export default async function JuliaLayout({ children }: { children: React.ReactNode }) {
   await requireUser();
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
           <Link href="/julia" className="flex items-center gap-2">
