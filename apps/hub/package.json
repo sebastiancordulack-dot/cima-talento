@@ -15,6 +15,7 @@
     "@cima/ui": "workspace:*",
     "@supabase/ssr": "^0.12.0",
     "d3-geo": "^3.1.1",
+    "lucide-react": "^1.24.0",
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
