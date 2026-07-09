@@ -4,7 +4,15 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@cima/db/client';
 
-export function SignOutButton() {
+export function SignOutButton({
+  className,
+  title,
+  children,
+}: {
+  className?: string;
+  title?: string;
+  children?: React.ReactNode;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -20,9 +28,10 @@ export function SignOutButton() {
     <button
       onClick={signOut}
       disabled={pending}
-      className="text-sm text-gray-400 hover:text-gray-600 disabled:opacity-50"
+      title={title}
+      className={className ?? 'text-sm text-stone-400 hover:text-stone-600 disabled:opacity-50'}
     >
-      Cerrar sesión
+      {children ?? 'Cerrar sesión'}
     </button>
   );
 }

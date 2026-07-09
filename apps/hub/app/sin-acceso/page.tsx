@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { SignOutButton } from '@/components/SignOutButton';
 
 // Landing spot for authenticated sessions that are NOT internal staff (e.g. a
@@ -5,15 +6,20 @@ import { SignOutButton } from '@/components/SignOutButton';
 // protected prefixes on purpose, so the requireUser redirect can't loop.
 export default function SinAccesoPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-        <p className="text-lg font-semibold text-gray-900">Sin acceso a CiMA Hub</p>
-        <p className="mt-2 text-sm text-gray-500">
-          Esta cuenta no pertenece al equipo interno. Si eres cliente, entra por el Client Portal;
-          si eres del equipo, pide acceso a un administrador.
-        </p>
-        <div className="mt-4">
-          <SignOutButton />
+    <main className="flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex justify-center">
+          <Image src="/cima-logo.png" alt="CiMA" width={148} height={48} />
+        </div>
+        <div className="rounded-2xl border border-stone-200/70 bg-white p-8 text-center shadow-card">
+          <p className="text-lg font-semibold text-stone-900">Sin acceso a CiMA Hub</p>
+          <p className="mt-2 text-sm text-stone-500">
+            Esta cuenta no pertenece al equipo interno. Si eres cliente, entra por el Client Portal;
+            si eres del equipo, pide acceso a un administrador.
+          </p>
+          <div className="mt-4">
+            <SignOutButton />
+          </div>
         </div>
       </div>
     </main>
