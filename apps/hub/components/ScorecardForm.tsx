@@ -72,17 +72,17 @@ export function ScorecardForm({
   return (
     <div className="space-y-5">
       {/* Step 1 — Hard filters */}
-      <section className="rounded-xl border border-gray-200 bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+      <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+        <h2 className="text-sm font-semibold text-stone-900">
           Paso 1 · Filtros obligatorios
         </h2>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-stone-500">
           Si alguno es «No», el candidato no avanza y se envía el correo de rechazo.
         </p>
         <ul className="mt-3 space-y-3">
           {HARD_FILTERS.map((f) => (
             <li key={f.key} className="flex items-start justify-between gap-4">
-              <span className="text-sm text-gray-700">{f.question}</span>
+              <span className="text-sm text-stone-700">{f.question}</span>
               <div className="flex shrink-0 gap-1">
                 <ToggleButton
                   active={p.hardFilters[f.field] === true}
@@ -106,7 +106,7 @@ export function ScorecardForm({
 
       {/* Hard filter failure → disqualify */}
       {hardFail && (
-        <section className="rounded-xl border border-rose-200 bg-rose-50 p-5">
+        <section className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
           <p className="text-sm font-medium text-rose-800">
             {candidateName} no cumple un filtro obligatorio. La sección de puntaje no aplica.
           </p>
@@ -118,7 +118,7 @@ export function ScorecardForm({
               )
             }
             disabled={pending}
-            className="mt-3 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            className="mt-3 rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-500 disabled:opacity-50"
           >
             Marcar como no fit y enviar correo
           </button>
@@ -127,7 +127,7 @@ export function ScorecardForm({
 
       {/* Hint while hard filters incomplete and none failed */}
       {!hardPass && !hardFail && (
-        <p className="rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-500">
+        <p className="rounded-xl bg-stone-100 px-4 py-3 text-sm text-stone-600">
           Responde los cuatro filtros obligatorios con «Sí» para acceder al puntaje.
         </p>
       )}
@@ -135,16 +135,16 @@ export function ScorecardForm({
       {/* Step 2 — Scored questions (gated behind passing hard filters) */}
       {hardPass && (
         <>
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+              <h2 className="text-sm font-semibold text-stone-900">
                 Paso 2 · Preguntas con puntaje
               </h2>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Total</span>
-                <span className="text-lg font-bold text-gray-900">
+                <span className="text-sm text-stone-500">Total</span>
+                <span className="text-lg font-semibold tabular-nums text-stone-900">
                   {total}
-                  <span className="text-sm font-normal text-gray-400"> / {MAX_SCORE}</span>
+                  <span className="text-sm font-normal text-stone-400"> / {MAX_SCORE}</span>
                 </span>
                 {complete && (
                   <span
@@ -158,18 +158,18 @@ export function ScorecardForm({
 
             <ul className="mt-4 space-y-5">
               {SCORED_QUESTIONS.map((q, i) => (
-                <li key={q.key} className="border-t border-gray-100 pt-4 first:border-t-0 first:pt-0">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <li key={q.key} className="border-t border-stone-100 pt-4 first:border-t-0 first:pt-0">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-stone-400">
                     {i + 1}. {q.category}
                   </p>
-                  <p className="mt-0.5 text-sm text-gray-700">{q.question}</p>
-                  <p className="mt-1 text-xs italic text-gray-400">Escucha por: {q.listenFor}</p>
+                  <p className="mt-0.5 text-sm text-stone-700">{q.question}</p>
+                  <p className="mt-1 text-xs italic text-stone-400">Escucha por: {q.listenFor}</p>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {SCORE_OPTIONS.map((opt) => (
                       <ToggleButton
                         key={opt.value}
                         active={p.scores[q.key] === opt.value}
-                        activeClass="bg-blue-600 text-white"
+                        activeClass="bg-stone-900 text-white"
                         onClick={() => setScore(q.key, opt.value)}
                       >
                         {opt.label}
@@ -180,7 +180,7 @@ export function ScorecardForm({
                     value={p.notes[q.key] ?? ''}
                     onChange={(e) => setNote(q.key, e.target.value)}
                     placeholder="Nota (opcional)"
-                    className="mt-2 w-full rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    className="mt-2 w-full rounded-xl border border-stone-200 px-3 py-2 text-sm placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   />
                 </li>
               ))}
@@ -188,22 +188,22 @@ export function ScorecardForm({
           </section>
 
           {/* Step 3 — Bonus signals */}
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="text-sm font-semibold text-stone-900">
               Paso 3 · Señales adicionales
             </h2>
-            <p className="mt-1 text-xs text-gray-400">No suman puntaje; ayudan en casos límite.</p>
+            <p className="mt-1 text-xs text-stone-500">No suman puntaje; ayudan en casos límite.</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               {BONUS_SIGNALS.map((b) => (
                 <label
                   key={b.key}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-700"
+                  className="flex cursor-pointer items-center gap-2 rounded-xl bg-stone-50 px-3 py-2 text-sm text-stone-700"
                 >
                   <input
                     type="checkbox"
                     checked={p.bonus[b.field]}
                     onChange={() => toggleBonus(b.field)}
-                    className="h-4 w-4 rounded border-gray-300"
+                    className="size-4 rounded accent-brand-600"
                   />
                   {b.label}
                 </label>
@@ -214,25 +214,25 @@ export function ScorecardForm({
       )}
 
       {/* General notes */}
-      <section className="rounded-xl border border-gray-200 bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Notas generales</h2>
+      <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+        <h2 className="text-sm font-semibold text-stone-900">Notas generales</h2>
         <textarea
           value={p.generalNotes}
           onChange={(e) => setP((prev) => ({ ...prev, generalNotes: e.target.value }))}
           rows={3}
           placeholder="Resumen de la llamada…"
-          className="mt-2 w-full resize-y rounded-lg border border-gray-200 p-2.5 text-sm placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="mt-2 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
         />
       </section>
 
       {error && <p className="text-sm text-rose-600">{error}</p>}
 
       {/* Decision actions */}
-      <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-gray-200 bg-gray-50 py-4">
+      <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-stone-200 bg-canvas py-4">
         <button
           onClick={() => submit('draft')}
           disabled={pending}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-card transition-colors hover:bg-stone-50 disabled:opacity-50"
         >
           Guardar borrador
         </button>
@@ -247,7 +247,7 @@ export function ScorecardForm({
               }
               disabled={pending || !complete}
               title={!complete ? 'Completa las 7 preguntas' : undefined}
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 disabled:opacity-50"
             >
               Avanzar con Julia (fit)
             </button>
@@ -259,7 +259,7 @@ export function ScorecardForm({
                 )
               }
               disabled={pending || !complete}
-              className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+              className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-500 disabled:opacity-50"
             >
               No es un fit
             </button>
@@ -285,8 +285,8 @@ function ToggleButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-        active ? activeClass : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+      className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
+        active ? activeClass : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
       }`}
     >
       {children}

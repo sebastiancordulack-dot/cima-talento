@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { buttonClasses, controlClasses } from '@cima/ui';
 import { ResetFiltersButton } from '@/components/talent/ResetFiltersButton';
 
 export function TalentFilters({ metros, states }: { metros: string[]; states: string[] }) {
@@ -19,11 +20,10 @@ export function TalentFilters({ metros, states }: { metros: string[]; states: st
     setParam(key, checked ? 'true' : '');
   }
 
-  const selectClass =
-    'rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-700 focus:border-blue-400 focus:outline-none';
+  const selectClass = controlClasses();
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white p-3">
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200/70 bg-white p-3 shadow-card">
       <select
         value={params.get('metro') ?? ''}
         onChange={(e) => setParam('metro', e.target.value)}
@@ -66,27 +66,27 @@ export function TalentFilters({ metros, states }: { metros: string[]; states: st
         <option value="false">Onboarding pendiente</option>
       </select>
 
-      <label className="flex items-center gap-1.5 text-sm text-gray-600">
+      <label className="flex items-center gap-1.5 text-sm text-stone-600">
         <input
           type="checkbox"
           checked={params.get('bilingual') === 'true'}
           onChange={(e) => toggleBool('bilingual', e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300"
+          className="size-4 rounded accent-brand-600"
         />
         Bilingüe
       </label>
 
-      <label className="flex items-center gap-1.5 text-sm text-gray-600">
+      <label className="flex items-center gap-1.5 text-sm text-stone-600">
         <input
           type="checkbox"
           checked={params.get('experience') === 'true'}
           onChange={(e) => toggleBool('experience', e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300"
+          className="size-4 rounded accent-brand-600"
         />
         Con experiencia
       </label>
 
-      <ResetFiltersButton className="ml-auto inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50" />
+      <ResetFiltersButton className={buttonClasses('secondary', 'md', 'ml-auto')} />
     </div>
   );
 }

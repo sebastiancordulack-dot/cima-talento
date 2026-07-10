@@ -21,12 +21,12 @@ export function RestoreTalentControl({
     <>
       <button
         onClick={() => setOpen(true)}
-        className={`rounded-lg bg-green-600 font-medium text-white hover:bg-green-700 ${pad}`}
+        className={`rounded-xl bg-green-600 font-medium text-white transition-colors hover:bg-green-500 ${pad}`}
       >
         Restaurar a la red
       </button>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-stone-950/40 p-4">
           <div className="mt-10 w-full max-w-xl">
             <AddTalentForm
               initial={prefill}

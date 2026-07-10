@@ -56,12 +56,12 @@ export default async function ScorecardPage({ params }: { params: { id: string }
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <Link href={`/dashboard/candidates/${candidate.id}`} className="text-sm text-blue-700 hover:underline">
+      <Link href={`/dashboard/candidates/${candidate.id}`} className="text-sm text-stone-400 hover:text-stone-600">
         ← Volver al perfil
       </Link>
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Scorecard · {name}</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-stone-900">Scorecard · {name}</h1>
+        <p className="mt-1 text-sm text-stone-500">
           {candidate.metro_area ?? candidate.city ?? 'Sin metro asignado'}
         </p>
       </div>

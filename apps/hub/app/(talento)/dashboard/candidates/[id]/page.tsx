@@ -28,13 +28,13 @@ export const dynamic = 'force-dynamic';
 function TriState({ value }: { value: boolean | null }) {
   if (value === true) return <span className="font-medium text-green-700">Sí</span>;
   if (value === false) return <span className="font-medium text-rose-700">No</span>;
-  return <span className="text-gray-400">Sin capturar</span>;
+  return <span className="text-stone-400">Sin capturar</span>;
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">{title}</h2>
+    <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+      <h2 className="mb-3 text-sm font-semibold text-stone-900">{title}</h2>
       {children}
     </section>
   );
@@ -67,17 +67,17 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
 
   return (
     <div className="space-y-5">
-      <Link href="/dashboard" className="text-sm text-blue-700 hover:underline">
+      <Link href="/dashboard" className="text-sm text-stone-400 hover:text-stone-600">
         ← Volver al panel
       </Link>
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-gray-200 bg-white p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-stone-900">
             {fullName(candidate.first_name, candidate.last_name)}
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-stone-500">
             {candidate.metro_area ?? candidate.city ?? 'Sin metro asignado'}
             {candidate.state ? ` · ${candidate.state}` : ''}
           </p>
@@ -87,7 +87,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           {['new', 'scheduled', 'in_review'].includes(candidate.status) && (
             <Link
               href={`/dashboard/candidates/${candidate.id}/scorecard`}
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+              className="inline-flex h-9 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-medium text-white transition-colors hover:bg-stone-700"
             >
               Completar scorecard
             </Link>
@@ -138,7 +138,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           <ul className="space-y-2 text-sm">
             {HARD_FILTERS.map((f) => (
               <li key={f.key} className="flex items-start justify-between gap-3">
-                <span className="text-gray-600">{f.question}</span>
+                <span className="text-stone-600">{f.question}</span>
                 <TriState value={candidate[f.field]} />
               </li>
             ))}
@@ -152,9 +152,9 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
             <div>
               <span className="font-medium text-green-700">Recibido</span>
-              <span className="text-gray-400"> · {formatDate(candidate.resume_uploaded_at)}</span>
+              <span className="text-stone-400"> · {formatDate(candidate.resume_uploaded_at)}</span>
               {candidate.resume_filename && (
-                <div className="text-xs text-gray-500">{candidate.resume_filename}</div>
+                <div className="text-xs text-stone-500">{candidate.resume_filename}</div>
               )}
             </div>
             {resumeUrl && (
@@ -162,7 +162,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
                 href={resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                className="inline-flex h-9 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-medium text-white transition-colors hover:bg-stone-700"
               >
                 Descargar / ver
               </a>
@@ -178,10 +178,10 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
       {/* Scorecard */}
       <Section title="Scorecard de la entrevista">
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <span className="text-sm text-gray-500">Puntaje total</span>
-          <span className="text-lg font-bold text-gray-900">
+          <span className="text-sm text-stone-500">Puntaje total</span>
+          <span className="text-lg font-semibold tabular-nums text-stone-900">
             {candidate.score_total ?? '—'}
-            <span className="text-sm font-normal text-gray-400"> / {MAX_SCORE}</span>
+            <span className="text-sm font-normal text-stone-400"> / {MAX_SCORE}</span>
           </span>
           {candidate.score_total !== null && (
             <span
@@ -194,33 +194,33 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           )}
         </div>
         {hasScores ? (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-stone-100">
             {SCORED_QUESTIONS.map((q) => {
               const score = readScore(scorecard, q.key);
               return (
                 <li key={q.key} className="flex items-start justify-between gap-4 py-2.5">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-stone-400">
                       {q.category}
                     </p>
-                    <p className="text-sm text-gray-700">{q.question}</p>
+                    <p className="text-sm text-stone-700">{q.question}</p>
                   </div>
-                  <span className="shrink-0 text-sm font-bold text-gray-900">
-                    {score ?? '—'}<span className="font-normal text-gray-400"> / 3</span>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums text-stone-900">
+                    {score ?? '—'}<span className="font-normal text-stone-400"> / 3</span>
                   </span>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-stone-400">
             Aún no se ha completado el scorecard. (La captura llega en el Paso 5.)
           </p>
         )}
         <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
           {BONUS_SIGNALS.map((b) => (
-            <div key={b.key} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-sm">
-              <span className="text-gray-600">{b.label}</span>
+            <div key={b.key} className="flex items-center justify-between rounded-xl bg-stone-50 px-3 py-2 text-sm">
+              <span className="text-stone-600">{b.label}</span>
               <TriState value={candidate[b.field]} />
             </div>
           ))}
@@ -230,9 +230,9 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
       {/* Notes */}
       <Section title="Notas de la llamada">
         {candidate.notes ? (
-          <p className="whitespace-pre-wrap text-sm text-gray-700">{candidate.notes}</p>
+          <p className="whitespace-pre-wrap text-sm text-stone-700">{candidate.notes}</p>
         ) : (
-          <p className="text-sm text-gray-400">Sin notas.</p>
+          <p className="text-sm text-stone-400">Sin notas.</p>
         )}
       </Section>
 
@@ -242,8 +242,8 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           <ol className="space-y-3">
             {history.map((h) => (
               <li key={h.id} className="flex items-center gap-3 text-sm">
-                <span className="w-32 shrink-0 text-gray-400">{formatDateTime(h.created_at)}</span>
-                <span className="text-gray-700">
+                <span className="w-32 shrink-0 text-stone-400">{formatDateTime(h.created_at)}</span>
+                <span className="text-stone-700">
                   {h.from_status ? `${STATUS_META[h.from_status].label} → ` : ''}
                   <span className="font-medium">{STATUS_META[h.to_status].label}</span>
                 </span>
@@ -255,19 +255,19 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
         {/* Email log */}
         <Section title="Correos enviados">
           {emails.length === 0 ? (
-            <p className="text-sm text-gray-400">No se han enviado correos.</p>
+            <p className="text-sm text-stone-400">No se han enviado correos.</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {emails.map((e) => (
                 <li key={e.id} className="flex items-center justify-between gap-3">
-                  <span className="text-gray-700">{EMAIL_TYPE_LABELS[e.email_type]}</span>
-                  <span className="flex items-center gap-2 text-gray-400">
+                  <span className="text-stone-700">{EMAIL_TYPE_LABELS[e.email_type]}</span>
+                  <span className="flex items-center gap-2 text-stone-400">
                     {formatDateTime(e.sent_at)}
                     <span
                       className={`rounded px-1.5 py-0.5 text-xs ${
                         e.status === 'failed'
-                          ? 'bg-rose-100 text-rose-700'
-                          : 'bg-gray-100 text-gray-600'
+                          ? 'bg-rose-50 text-rose-700'
+                          : 'bg-stone-100 text-stone-600'
                       }`}
                     >
                       {EMAIL_STATUS_LABELS[e.status]}
@@ -286,8 +286,8 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="text-gray-400">{label}</dt>
-      <dd className="text-right text-gray-800">{value}</dd>
+      <dt className="text-stone-400">{label}</dt>
+      <dd className="text-right text-stone-700">{value}</dd>
     </div>
   );
 }

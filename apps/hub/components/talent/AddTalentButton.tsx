@@ -11,7 +11,7 @@ export function AddTalentButton() {
   return (
     <button
       onClick={() => setOpen(true)}
-      className="rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
+      className="rounded-xl bg-stone-900 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-700"
     >
       + Agregar a la red
     </button>

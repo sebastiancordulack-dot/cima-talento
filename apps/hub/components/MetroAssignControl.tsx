@@ -21,7 +21,7 @@ export function MetroAssignControl({
   const [error, setError] = useState<string | null>(null);
 
   const pad = size === 'sm' ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-sm';
-  const select = `rounded-lg border border-gray-300 bg-white text-gray-700 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 disabled:opacity-50 ${pad}`;
+  const select = `rounded-lg border border-stone-200 bg-white text-stone-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 disabled:opacity-50 ${pad}`;
 
   function onPick(value: string) {
     if (!value || value === current) return;

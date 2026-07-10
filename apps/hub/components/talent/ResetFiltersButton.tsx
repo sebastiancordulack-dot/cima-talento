@@ -28,7 +28,7 @@ export function ResetFiltersButton({ className }: { className?: string }) {
       onClick={reset}
       className={
         className ??
-        'inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50'
+        'inline-flex items-center gap-1 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-600 shadow-card transition-colors hover:bg-stone-50'
       }
     >
       <span aria-hidden>×</span> Limpiar filtros

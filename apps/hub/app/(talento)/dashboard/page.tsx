@@ -40,7 +40,9 @@ export default async function DashboardPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold text-gray-900">{DASHBOARD_TABS[tab].label}</h1>
+      <h1 className="mb-4 text-2xl font-semibold tracking-tight text-stone-900">
+        {DASHBOARD_TABS[tab].label}
+      </h1>
       <DashboardTabs active={tab} counts={counts} />
 
       {/* Red de talento — the filterable dispatch board (Brief §5.3). */}
@@ -69,7 +71,7 @@ async function NuevosQueue({
   const metros = metroRecords.map((m) => m.metro).sort();
 
   if (candidates.length === 0) {
-    return <p className="mt-10 text-center text-sm text-gray-400">No hay candidatos en esta vista.</p>;
+    return <p className="mt-10 text-center text-sm text-stone-400">No hay candidatos en esta vista.</p>;
   }
 
   const filters = parseNuevosFilters(searchParams);
@@ -86,14 +88,14 @@ async function NuevosQueue({
       />
 
       {filtered.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-gray-400">
+        <p className="mt-10 text-center text-sm text-stone-400">
           Ningún candidato coincide con los filtros.
         </p>
       ) : (
         <div className="space-y-8">
           {groups.map(([metro, list]) => (
             <section key={metro}>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+              <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-stone-400">
                 {metro} · {list.length}
               </h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -115,14 +117,14 @@ async function CandidateQueue({ tab }: { tab: DashboardTab }) {
   const metros = metroRecords.map((m) => m.metro).sort();
 
   if (candidates.length === 0) {
-    return <p className="mt-10 text-center text-sm text-gray-400">No hay candidatos en esta vista.</p>;
+    return <p className="mt-10 text-center text-sm text-stone-400">No hay candidatos en esta vista.</p>;
   }
 
   return (
     <div className="mt-6 space-y-8">
       {groups.map(([metro, list]) => (
         <section key={metro}>
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-stone-400">
             {metro} · {list.length}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
