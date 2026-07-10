@@ -59,11 +59,11 @@ export function ResumeUpload({
   if (done) {
     return (
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-3xl text-brand-700">
           ✓
         </div>
-        <h1 className="text-xl font-bold text-gray-900">¡Listo, {firstName}!</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-xl font-semibold text-stone-900">¡Listo, {firstName}!</h1>
+        <p className="mt-2 text-sm text-stone-600">
           Recibimos tu currículum{savedName ? <> (<span className="font-medium">{savedName}</span>)</> : ''}.
           El último paso es agendar tu llamada.
         </p>
@@ -73,12 +73,12 @@ export function ResumeUpload({
             href={calendlyLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 block w-full rounded-xl bg-gray-900 px-5 py-3.5 text-center text-base font-semibold text-white hover:bg-gray-800"
+            className="mt-6 block w-full rounded-xl bg-stone-900 px-5 py-3.5 text-center text-base font-semibold text-white transition-colors hover:bg-stone-700"
           >
             Agendar mi llamada
           </a>
         ) : (
-          <p className="mt-6 text-sm text-gray-500">Nuestro equipo te contactará pronto para agendar tu llamada.</p>
+          <p className="mt-6 text-sm text-stone-500">Nuestro equipo te contactará pronto para agendar tu llamada.</p>
         )}
 
         <button
@@ -86,7 +86,7 @@ export function ResumeUpload({
             setDone(false);
             setTimeout(() => inputRef.current?.click(), 0);
           }}
-          className="mt-4 text-xs font-medium text-blue-700 hover:underline"
+          className="mt-4 text-xs font-medium text-brand-700 hover:underline"
         >
           Subir otro archivo
         </button>
@@ -97,8 +97,8 @@ export function ResumeUpload({
   // ---- Upload step ----------------------------------------------------------
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-900">Hola {firstName} 👋</h1>
-      <p className="mt-2 text-sm text-gray-600">
+      <h1 className="text-xl font-semibold text-stone-900">Hola {firstName} 👋</h1>
+      <p className="mt-2 text-sm text-stone-600">
         Antes de tu llamada, sube tu currículum (CV). Aceptamos PDF o Word. Toma menos de un minuto y
         enseguida podrás agendar tu llamada.
       </p>
@@ -114,10 +114,10 @@ export function ResumeUpload({
       <button
         onClick={() => inputRef.current?.click()}
         disabled={pending}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-5 py-8 text-center text-sm font-medium text-gray-600 hover:border-blue-400 hover:bg-blue-50/40"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-300 px-5 py-8 text-center text-sm font-medium text-stone-600 transition-colors hover:border-brand-400 hover:bg-brand-50/40"
       >
         {picked ? (
-          <span className="text-gray-900">📄 {picked.name}</span>
+          <span className="text-stone-900">📄 {picked.name}</span>
         ) : (
           <span>Toca aquí para elegir tu archivo</span>
         )}
@@ -128,12 +128,12 @@ export function ResumeUpload({
       <button
         onClick={submit}
         disabled={!picked || pending}
-        className="mt-4 w-full rounded-xl bg-gray-900 px-5 py-3.5 text-base font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+        className="mt-4 w-full rounded-xl bg-stone-900 px-5 py-3.5 text-base font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
       >
         {pending ? 'Subiendo…' : 'Subir currículum'}
       </button>
 
-      <p className="mt-3 text-center text-xs text-gray-400">Tamaño máximo: 10 MB · PDF o Word</p>
+      <p className="mt-3 text-center text-xs text-stone-400">Tamaño máximo: 10 MB · PDF o Word</p>
     </div>
   );
 }

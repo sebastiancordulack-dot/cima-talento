@@ -37,7 +37,7 @@ export function JuliaActions({
             )
           }
           disabled={pending}
-          className={`rounded-lg bg-green-600 font-medium text-white hover:bg-green-700 disabled:opacity-50 ${pad}`}
+          className={`rounded-xl bg-green-600 font-medium text-white transition-colors hover:bg-green-500 disabled:opacity-50 ${pad}`}
         >
           Aprobar
         </button>
@@ -49,7 +49,7 @@ export function JuliaActions({
             )
           }
           disabled={pending}
-          className={`rounded-lg bg-rose-600 font-medium text-white hover:bg-rose-700 disabled:opacity-50 ${pad}`}
+          className={`rounded-xl bg-rose-600 font-medium text-white transition-colors hover:bg-rose-500 disabled:opacity-50 ${pad}`}
         >
           No avanzar
         </button>
@@ -61,7 +61,7 @@ export function JuliaActions({
             )
           }
           disabled={pending}
-          className={`rounded-lg bg-sky-600 font-medium text-white hover:bg-sky-700 disabled:opacity-50 ${pad}`}
+          className={`rounded-xl bg-sky-600 font-medium text-white transition-colors hover:bg-sky-500 disabled:opacity-50 ${pad}`}
         >
           Archivar para después
         </button>

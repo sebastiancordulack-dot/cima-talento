@@ -39,7 +39,7 @@ export function WhatsAppBumpButton({
   if (!waUrl) {
     return (
       <span
-        className={`inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg bg-gray-100 font-medium text-gray-400 ${pad}`}
+        className={`inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl bg-stone-100 font-medium text-stone-400 ${pad}`}
         title="Sin teléfono válido"
       >
         {icon} Recordatorio
@@ -62,13 +62,13 @@ export function WhatsAppBumpButton({
       <button
         onClick={onClick}
         disabled={pending}
-        className={`inline-flex items-center gap-1.5 rounded-lg border border-black bg-sky-100 font-medium text-gray-900 hover:bg-sky-200 disabled:opacity-50 ${pad}`}
+        className={`inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white font-medium text-stone-700 shadow-card transition-colors hover:bg-stone-50 disabled:opacity-50 ${pad}`}
       >
-        {icon}
+        <span className="text-green-600">{icon}</span>
         {pending ? 'Abriendo…' : 'Recordatorio'}
       </button>
       {lastBumpedAt && (
-        <span className="text-xs text-gray-400">Último: {formatDate(lastBumpedAt)}</span>
+        <span className="text-xs text-stone-400">Último: {formatDate(lastBumpedAt)}</span>
       )}
     </span>
   );

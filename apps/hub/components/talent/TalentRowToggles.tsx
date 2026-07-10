@@ -10,7 +10,7 @@ export function ActiveToggle({ talentId, active }: { talentId: string; active: b
       onClick={() => start(() => setTalentActive(talentId, !active).then(() => undefined))}
       disabled={pending}
       className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 ${
-        active ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+        active ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
       }`}
       title="Cambiar disponibilidad para asignaciones"
     >
@@ -26,7 +26,7 @@ export function OnboardingToggle({ talentId, complete }: { talentId: string; com
       onClick={() => start(() => setOnboardingComplete(talentId, !complete).then(() => undefined))}
       disabled={pending}
       className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 ${
-        complete ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
+        complete ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
       }`}
       title="Cambiar estado de onboarding"
     >

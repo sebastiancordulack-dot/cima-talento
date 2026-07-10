@@ -22,7 +22,7 @@ function parseFilters(sp: Record<string, string | undefined>): Filters {
 }
 
 function Yes({ value }: { value: boolean | null }) {
-  return value ? <span className="text-green-700">Sí</span> : <span className="text-gray-300">—</span>;
+  return value ? <span className="text-green-700">Sí</span> : <span className="text-stone-300">—</span>;
 }
 
 // Group rows by metro for the org-by-metro layout (Brief §5.3).
@@ -56,7 +56,7 @@ export async function TalentPoolSection({
       <TalentMap metros={mapMetros} activeMetro={filters.metro} />
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-stone-500">
           {rows.length} de {facets.total} en la Red de Talento
         </p>
         <div className="flex items-center gap-2">
@@ -68,20 +68,20 @@ export async function TalentPoolSection({
       <TalentFilters metros={facets.metros} states={facets.states} />
 
       {rows.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-gray-400">
+        <p className="mt-10 text-center text-sm text-stone-400">
           Ningún miembro coincide con estos filtros.
         </p>
       ) : (
         <div className="space-y-8">
           {groups.map(([metro, list]) => (
             <section key={metro}>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+              <h3 className="mb-2 text-[11px] font-medium uppercase tracking-wider text-stone-400">
                 {metro} · {list.length}
               </h3>
-              <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+              <div className="overflow-x-auto rounded-2xl border border-stone-200/70 bg-white shadow-card">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wide text-gray-400">
+                    <tr className="border-b border-stone-100 text-left text-[11px] uppercase tracking-wider text-stone-400">
                       <th className="px-4 py-2 font-medium">Nombre</th>
                       <th className="px-4 py-2 font-medium">Estado</th>
                       <th className="px-4 py-2 font-medium">Contacto</th>
@@ -91,23 +91,23 @@ export async function TalentPoolSection({
                       <th className="px-4 py-2 font-medium">Estatus</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-stone-100/70">
                     {list.map((r) => (
-                      <tr key={r.id} className="hover:bg-gray-50">
+                      <tr key={r.id} className="transition-colors hover:bg-stone-50/70">
                         <td className="px-4 py-2.5">
                           <Link
                             href={`/dashboard/candidates/${r.candidate_id}`}
-                            className="font-medium text-gray-900 hover:text-blue-700 hover:underline"
+                            className="font-medium text-stone-900 hover:text-brand-700 hover:underline"
                           >
                             {fullName(r.candidates.first_name, r.candidates.last_name)}
                           </Link>
                         </td>
-                        <td className="px-4 py-2.5 text-gray-500">{r.state ?? '—'}</td>
-                        <td className="px-4 py-2.5 text-gray-500">
+                        <td className="px-4 py-2.5 text-stone-500">{r.state ?? '—'}</td>
+                        <td className="px-4 py-2.5 text-stone-500">
                           <div>{r.candidates.email}</div>
-                          <div className="text-xs text-gray-400">{r.candidates.phone ?? '—'}</div>
+                          <div className="text-xs text-stone-400">{r.candidates.phone ?? '—'}</div>
                         </td>
-                        <td className="px-4 py-2.5 text-gray-500">{formatAvailability(r.availability)}</td>
+                        <td className="px-4 py-2.5 text-stone-500">{formatAvailability(r.availability)}</td>
                         <td className="px-4 py-2.5 text-center"><Yes value={r.candidates.bilingual} /></td>
                         <td className="px-4 py-2.5 text-center"><Yes value={r.candidates.prior_experience} /></td>
                         <td className="px-4 py-2.5">

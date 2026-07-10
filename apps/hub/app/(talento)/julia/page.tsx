@@ -11,14 +11,14 @@ export default async function JuliaPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Candidatos para tu aprobación</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-stone-900">Candidatos para tu aprobación</h1>
+        <p className="mt-1 text-sm text-stone-500">
           Aprobados por el equipo de entrevistas, esperando tu llamada y decisión final.
         </p>
       </div>
 
       {candidates.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-gray-400">
+        <p className="mt-10 text-center text-sm text-stone-400">
           No hay candidatos esperando aprobación en este momento.
         </p>
       ) : (

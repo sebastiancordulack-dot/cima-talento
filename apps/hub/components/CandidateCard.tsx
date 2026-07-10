@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
+import { buttonClasses, controlClasses } from '@cima/ui';
 import { StatusBadge } from '@/components/StatusBadge';
 import { markFit, markNotFit, saveNotes } from '@/lib/candidates/actions';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
@@ -51,24 +52,24 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-stone-200/70 bg-white p-4 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Link
             href={`/dashboard/candidates/${candidate.id}`}
-            className="font-semibold text-gray-900 hover:text-blue-700 hover:underline"
+            className="font-semibold text-stone-900 hover:text-brand-700 hover:underline"
           >
             {fullName(candidate.first_name, candidate.last_name)}
           </Link>
-          <p className="mt-0.5 text-sm text-gray-500">
+          <p className="mt-0.5 text-sm text-stone-500">
             {candidate.metro_area ?? candidate.city ?? 'Sin metro asignado'}
             {candidate.state ? ` · ${candidate.state}` : ''}
           </p>
           <span
             className={`mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
               candidate.resume_uploaded_at
-                ? 'bg-green-100 text-green-700'
-                : 'bg-amber-100 text-amber-700'
+                ? 'bg-green-50 text-green-700'
+                : 'bg-amber-50 text-amber-700'
             }`}
           >
             {candidate.resume_uploaded_at ? 'CV ✓' : 'CV pendiente'}
@@ -88,17 +89,17 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
         </div>
       )}
 
-      <dl className="mt-3 space-y-1 text-sm text-gray-600">
+      <dl className="mt-3 space-y-1 text-sm text-stone-600">
         <div className="flex gap-2">
-          <dt className="text-gray-400">Email</dt>
+          <dt className="text-stone-400">Email</dt>
           <dd className="truncate">{candidate.email}</dd>
         </div>
         <div className="flex gap-2">
-          <dt className="text-gray-400">Teléfono</dt>
+          <dt className="text-stone-400">Teléfono</dt>
           <dd>{candidate.phone ?? '—'}</dd>
         </div>
         <div className="flex gap-2">
-          <dt className="text-gray-400">Recibido</dt>
+          <dt className="text-stone-400">Recibido</dt>
           <dd>{formatDate(candidate.created_at)}</dd>
         </div>
       </dl>
@@ -109,13 +110,13 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notas de la llamada…"
           rows={2}
-          className="w-full resize-y rounded-lg border border-gray-200 p-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className={controlClasses('w-full resize-y')}
         />
         {notesDirty && (
           <button
             onClick={onSaveNotes}
             disabled={pending}
-            className="mt-1 text-xs font-medium text-blue-700 hover:underline disabled:opacity-50"
+            className="mt-1 text-xs font-medium text-brand-700 hover:underline disabled:opacity-50"
           >
             Guardar notas
           </button>
@@ -130,14 +131,14 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
             <button
               onClick={onMarkFit}
               disabled={pending}
-              className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              className="rounded-xl bg-green-600 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 disabled:opacity-50"
             >
               Marcar como fit
             </button>
             <button
               onClick={onMarkNotFit}
               disabled={pending}
-              className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+              className="rounded-xl bg-rose-600 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-500 disabled:opacity-50"
             >
               No es un fit
             </button>
@@ -146,7 +147,7 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
         {showHmActions && (
           <Link
             href={`/dashboard/candidates/${candidate.id}/scorecard`}
-            className="rounded-lg border border-blue-300 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-50"
+            className={buttonClasses('secondary')}
           >
             Scorecard
           </Link>
@@ -167,7 +168,7 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
         )}
         <Link
           href={`/dashboard/candidates/${candidate.id}`}
-          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className={buttonClasses('ghost')}
         >
           Ver perfil
         </Link>

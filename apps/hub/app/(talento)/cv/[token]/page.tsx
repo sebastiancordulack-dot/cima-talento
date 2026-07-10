@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { ResumeUpload } from '@/components/cv/ResumeUpload';
 import { getCandidateByUploadToken } from '@/lib/candidates/resume';
 import { resolveHmCalendlyLink } from '@/lib/email/calendly';
@@ -12,10 +13,12 @@ export const metadata: Metadata = {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <p className="mb-4 text-center text-sm font-semibold tracking-wide text-gray-400">CiMA TALENTO</p>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">{children}</div>
+        <div className="mb-5 flex justify-center">
+          <Image src="/cima-logo.png" alt="CiMA" width={130} height={42} priority />
+        </div>
+        <div className="rounded-2xl border border-stone-200/70 bg-white p-6 shadow-card">{children}</div>
       </div>
     </main>
   );
@@ -27,8 +30,8 @@ export default async function CvUploadPage({ params }: { params: { token: string
   if (!candidate) {
     return (
       <Shell>
-        <h1 className="text-lg font-bold text-gray-900">Enlace no válido</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-lg font-semibold text-stone-900">Enlace no válido</h1>
+        <p className="mt-2 text-sm text-stone-600">
           Este enlace no es válido o ya expiró. Si crees que es un error, responde al correo que
           recibiste de CiMA Talento y te ayudamos.
         </p>

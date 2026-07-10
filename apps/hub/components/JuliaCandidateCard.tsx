@@ -7,16 +7,16 @@ import type { Candidate } from '@/lib/candidates/queries';
 
 export function JuliaCandidateCard({ candidate }: { candidate: Candidate }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Link
             href={`/dashboard/candidates/${candidate.id}`}
-            className="text-lg font-semibold text-gray-900 hover:text-blue-700 hover:underline"
+            className="text-lg font-semibold text-stone-900 hover:text-brand-700 hover:underline"
           >
             {fullName(candidate.first_name, candidate.last_name)}
           </Link>
-          <p className="mt-0.5 text-sm text-gray-500">
+          <p className="mt-0.5 text-sm text-stone-500">
             {candidate.metro_area ?? candidate.city ?? 'Sin metro asignado'}
             {candidate.state ? ` · ${candidate.state}` : ''} · {candidate.email}
           </p>
@@ -26,10 +26,10 @@ export function JuliaCandidateCard({ candidate }: { candidate: Candidate }) {
 
       {/* HM scorecard outcome */}
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <span className="text-sm text-gray-500">Puntaje de la entrevista</span>
-        <span className="text-base font-bold text-gray-900">
+        <span className="text-sm text-stone-500">Puntaje de la entrevista</span>
+        <span className="text-base font-semibold tabular-nums text-stone-900">
           {candidate.score_total ?? '—'}
-          <span className="text-sm font-normal text-gray-400"> / {MAX_SCORE}</span>
+          <span className="text-sm font-normal text-stone-400"> / {MAX_SCORE}</span>
         </span>
         {candidate.score_total !== null && (
           <span
@@ -40,13 +40,13 @@ export function JuliaCandidateCard({ candidate }: { candidate: Candidate }) {
             {VERDICT_META[verdictForScore(candidate.score_total)].label}
           </span>
         )}
-        <span className="text-xs text-gray-400">Recibido {formatDate(candidate.created_at)}</span>
+        <span className="text-xs text-stone-400">Recibido {formatDate(candidate.created_at)}</span>
       </div>
 
       {/* HM notes */}
-      <div className="mt-3 rounded-lg bg-gray-50 p-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Notas del entrevistador</p>
-        <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700">
+      <div className="mt-3 rounded-xl bg-stone-50 p-3">
+        <p className="text-[11px] font-medium uppercase tracking-wider text-stone-400">Notas del entrevistador</p>
+        <p className="mt-1 whitespace-pre-wrap text-sm text-stone-700">
           {candidate.notes ?? 'Sin notas.'}
         </p>
       </div>
@@ -55,7 +55,7 @@ export function JuliaCandidateCard({ candidate }: { candidate: Candidate }) {
         <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
         <Link
           href={`/dashboard/candidates/${candidate.id}`}
-          className="shrink-0 text-sm font-medium text-blue-700 hover:underline"
+          className="shrink-0 text-sm font-medium text-brand-700 hover:underline"
         >
           Ver perfil completo →
         </Link>

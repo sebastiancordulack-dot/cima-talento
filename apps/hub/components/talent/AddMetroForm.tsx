@@ -29,7 +29,7 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
   });
   const set = (k: string, v: string) => setF((p) => ({ ...p, [k]: v }));
   const input =
-    'w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400';
+    'w-full rounded-xl border border-stone-200 px-3 py-2 text-sm placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30';
 
   function submit() {
     setError(null);
@@ -64,15 +64,15 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <h3 className="mb-1 text-sm font-semibold text-gray-700">Agregar un metro</h3>
-      <p className="mb-3 text-xs text-gray-400">
+    <div className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card-hover">
+      <h3 className="mb-1 text-sm font-semibold text-stone-900">Agregar un metro</h3>
+      <p className="mb-3 text-xs text-stone-500">
         La ubicación en el mapa se detecta automáticamente a partir del nombre y el estado.
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs text-gray-500">Nombre del metro *</label>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Nombre del metro *</label>
           <input
             className={input}
             value={f.metro}
@@ -81,7 +81,7 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-gray-500">Estado *</label>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Estado *</label>
           <input
             className={input}
             value={f.state}
@@ -90,7 +90,7 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs text-gray-500">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Ciudades (opcional — separa con comas)
           </label>
           <input
@@ -99,12 +99,12 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
             onChange={(e) => set('cities', e.target.value)}
             placeholder="denver, aurora, lakewood, boulder"
           />
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-stone-400">
             Permite asignar automáticamente nuevas solicitudes de estas ciudades a este metro.
           </p>
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs text-gray-500">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Códigos postales (opcional — primeros 3 dígitos, separa con comas)
           </label>
           <input
@@ -120,14 +120,14 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
       <button
         type="button"
         onClick={() => setShowCoords((s) => !s)}
-        className="mt-3 text-xs font-medium text-blue-700 hover:underline"
+        className="mt-3 text-xs font-medium text-brand-700 hover:underline"
       >
         {showCoords ? 'Ocultar' : 'Ingresar'} coordenadas manualmente (opcional)
       </button>
       {showCoords && (
         <div className="mt-2 grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-xs text-gray-500">Latitud</label>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Latitud</label>
             <input
               className={input}
               value={f.lat}
@@ -136,7 +136,7 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-gray-500">Longitud</label>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Longitud</label>
             <input
               className={input}
               value={f.lng}
@@ -144,27 +144,27 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
               placeholder="-104.99"
             />
           </div>
-          <p className="col-span-2 text-xs text-gray-400">
+          <p className="col-span-2 text-xs text-stone-400">
             Busca «[ciudad] lat long» en Google. Latitud primero, longitud (negativa en EE. UU.) después.
           </p>
         </div>
       )}
 
       {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
-      {done && <p className="mt-3 text-sm text-green-700">{done}</p>}
+      {done && <p className="mt-3 text-sm font-medium text-brand-700">{done}</p>}
 
       <div className="mt-4 flex gap-2">
         <button
           onClick={submit}
           disabled={pending}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+          className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
         >
           {pending ? 'Agregando…' : 'Agregar metro'}
         </button>
         <button
           onClick={onDone}
           disabled={pending}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-card transition-colors hover:bg-stone-50"
         >
           {done ? 'Cerrar' : 'Cancelar'}
         </button>

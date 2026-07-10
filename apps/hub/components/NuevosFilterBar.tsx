@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { buttonClasses, controlClasses } from '@cima/ui';
 import type { NuevosFilters } from '@/lib/candidates/nuevos-filters';
 
 // Filter bar for the "Nuevos interesados" tab: a multi-select metro dropdown +
@@ -55,21 +56,22 @@ export function NuevosFilterBar({
         ? filters.metros[0]
         : `${filters.metros.length} metros`;
 
-  const selectCls =
-    'rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400';
+  const selectCls = controlClasses();
 
   return (
-    <div className={`rounded-xl border border-gray-200 bg-white p-4 ${pending ? 'opacity-60' : ''}`}>
+    <div
+      className={`rounded-2xl border border-stone-200/70 bg-white p-4 shadow-card ${pending ? 'opacity-60' : ''}`}
+    >
       <div className="flex flex-wrap items-center gap-3">
         {/* Metros — multi-select dropdown */}
-        <label className="flex items-center gap-1.5 text-sm text-gray-600">
+        <label className="flex items-center gap-1.5 text-sm text-stone-600">
           Metros
           <div className="relative" ref={metroRef}>
             <button
               type="button"
               onClick={() => setMetroOpen((o) => !o)}
               className={`flex items-center gap-2 ${selectCls} ${
-                filters.metros.length ? 'font-medium text-blue-700' : ''
+                filters.metros.length ? 'font-medium text-brand-700' : ''
               }`}
             >
               <span>{metroSummary}</span>
@@ -78,17 +80,17 @@ export function NuevosFilterBar({
               </svg>
             </button>
             {metroOpen && (
-              <div className="absolute left-0 z-20 mt-1 max-h-72 w-60 overflow-auto rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+              <div className="absolute left-0 z-20 mt-1 max-h-72 w-60 overflow-auto rounded-xl border border-stone-200 bg-white p-1 shadow-card-hover">
                 {availableMetros.map((metro) => (
                   <label
                     key={metro}
-                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-stone-700 hover:bg-stone-50"
                   >
                     <input
                       type="checkbox"
                       checked={filters.metros.includes(metro)}
                       onChange={() => toggleMetro(metro)}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-400"
+                      className="size-4 rounded accent-brand-600"
                     />
                     {metro}
                   </label>
@@ -97,7 +99,7 @@ export function NuevosFilterBar({
                   <button
                     type="button"
                     onClick={() => navigate({ ...filters, metros: [] })}
-                    className="mt-1 w-full rounded px-2 py-1.5 text-left text-xs font-medium text-gray-500 hover:bg-gray-50"
+                    className="mt-1 w-full rounded-lg px-2 py-1.5 text-left text-xs font-medium text-stone-500 hover:bg-stone-50"
                   >
                     Limpiar metros
                   </button>
@@ -108,7 +110,7 @@ export function NuevosFilterBar({
         </label>
 
         {/* CV */}
-        <label className="flex items-center gap-1.5 text-sm text-gray-600">
+        <label className="flex items-center gap-1.5 text-sm text-stone-600">
           CV
           <select
             value={filters.cv ?? ''}
@@ -122,7 +124,7 @@ export function NuevosFilterBar({
         </label>
 
         {/* Llamada */}
-        <label className="flex items-center gap-1.5 text-sm text-gray-600">
+        <label className="flex items-center gap-1.5 text-sm text-stone-600">
           Llamada
           <select
             value={filters.llamada ?? ''}
@@ -138,7 +140,7 @@ export function NuevosFilterBar({
         </label>
 
         {/* Orden */}
-        <label className="flex items-center gap-1.5 text-sm text-gray-600">
+        <label className="flex items-center gap-1.5 text-sm text-stone-600">
           Orden
           <select
             value={filters.sort}
@@ -153,7 +155,7 @@ export function NuevosFilterBar({
         {active && (
           <button
             onClick={() => start(() => router.push('/dashboard?tab=nuevos'))}
-            className="ml-auto rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            className={buttonClasses('secondary', 'md', 'ml-auto')}
           >
             Limpiar filtros
           </button>

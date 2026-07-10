@@ -33,7 +33,7 @@ export function ReactivateButton({
       <button
         onClick={onClick}
         disabled={pending}
-        className={`rounded-lg bg-sky-600 font-medium text-white hover:bg-sky-700 disabled:opacity-50 ${pad}`}
+        className={`rounded-xl bg-sky-600 font-medium text-white transition-colors hover:bg-sky-500 disabled:opacity-50 ${pad}`}
       >
         {pending ? 'Reactivando…' : 'Reactivar'}
       </button>

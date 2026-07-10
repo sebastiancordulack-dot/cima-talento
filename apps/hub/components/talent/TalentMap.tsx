@@ -57,12 +57,12 @@ export function TalentMap({
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
+    <div className="rounded-2xl border border-stone-200/70 bg-white p-4 shadow-card">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold text-gray-700">Mapa de la Red de Talento</h3>
+        <h3 className="text-sm font-semibold text-stone-900">Mapa de la Red de Talento</h3>
         <div className="flex items-center gap-3">
-          <ResetFiltersButton className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50" />
-          <p className="hidden text-xs text-gray-400 sm:block">
+          <ResetFiltersButton className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-600 shadow-card transition-colors hover:bg-stone-50" />
+          <p className="hidden text-xs text-stone-400 sm:block">
             Clic en un punto para ver el conteo · clic de nuevo para abrir la red
           </p>
         </div>
@@ -85,12 +85,12 @@ export function TalentMap({
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill="#f1f5f9"
-                  stroke="#cbd5e1"
+                  fill="#f5f5f4"
+                  stroke="#d6d3d1"
                   strokeWidth={0.5}
                   style={{
                     default: { outline: 'none' },
-                    hover: { outline: 'none', fill: '#e2e8f0' },
+                    hover: { outline: 'none', fill: '#e7e5e4' },
                     pressed: { outline: 'none' },
                   }}
                 />
@@ -119,7 +119,7 @@ export function TalentMap({
                   }}
                   aria-label={`${m.metro}: ${m.active} activos de ${m.total}`}
                   className={`pointer-events-auto block rounded-full ring-2 ring-white transition-transform hover:scale-110 ${
-                    isActive || isOpen ? 'bg-blue-600' : 'bg-blue-500/80'
+                    isActive || isOpen ? 'bg-brand-600' : 'bg-brand-500/85'
                   }`}
                   style={{ width: r * 2, height: r * 2 }}
                 />
@@ -127,12 +127,12 @@ export function TalentMap({
                 {/* Popup */}
                 {isOpen && (
                   <div
-                    className="pointer-events-auto absolute left-1/2 z-10 w-44 -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-2.5 text-left shadow-lg"
+                    className="pointer-events-auto absolute left-1/2 z-10 w-44 -translate-x-1/2 rounded-xl border border-stone-200 bg-white p-2.5 text-left shadow-card-hover"
                     style={{ bottom: r * 2 + 8 }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <p className="text-sm font-semibold text-gray-900">{m.metro}</p>
-                    <p className="mt-0.5 text-xs text-gray-600">
+                    <p className="text-sm font-semibold text-stone-900">{m.metro}</p>
+                    <p className="mt-0.5 text-xs text-stone-600">
                       <span className="font-semibold text-green-700">{m.active} activos</span>
                       {' / '}
                       {m.total} en total
@@ -144,7 +144,7 @@ export function TalentMap({
                           `/dashboard?tab=talento&metro=${encodeURIComponent(m.metro)}`
                         )
                       }
-                      className="mt-2 w-full rounded-md bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700"
+                      className="mt-2 w-full rounded-lg bg-stone-900 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-stone-700"
                     >
                       Ver la red aquí →
                     </button>
@@ -157,7 +157,7 @@ export function TalentMap({
       </div>
 
       {plotted.length === 0 && (
-        <p className="mt-3 text-center text-sm text-gray-400">
+        <p className="mt-3 text-center text-sm text-stone-400">
           Aún no hay personas con metro asignado para mostrar en el mapa.
         </p>
       )}
