@@ -54,7 +54,7 @@ export function TalentAssignPanel({
       <div className="mb-1 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-stone-900">Talento asignado</h2>
         {suggestedMetro && (
-          <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">
+          <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800">
             Metro sugerido: {suggestedMetro}
           </span>
         )}
@@ -119,7 +119,7 @@ export function TalentAssignPanel({
                   <p className="text-sm text-stone-800">
                     {fullName(o.candidates.first_name, o.candidates.last_name)}
                     {suggestedMetro && o.metro_area === suggestedMetro && (
-                      <span className="ml-1.5 rounded-full bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
+                      <span className="ml-1.5 rounded-full bg-brand-100 px-1.5 py-0.5 text-[10px] font-medium text-brand-800">
                         {suggestedMetro}
                       </span>
                     )}

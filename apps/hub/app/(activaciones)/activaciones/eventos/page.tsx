@@ -184,7 +184,7 @@ function MonthView({
                     href={href('dia', day.date)}
                     className={`flex h-6 w-6 items-center justify-center rounded-full text-xs transition-colors ${
                       isToday
-                        ? 'bg-stone-900 font-semibold text-white'
+                        ? 'bg-brand-700 font-semibold text-white'
                         : day.inMonth
                           ? 'text-stone-600 hover:bg-stone-100'
                           : 'text-stone-300'
@@ -238,7 +238,7 @@ function WeekView({
             <span
               className={
                 day === today
-                  ? 'rounded-full bg-stone-900 px-2 py-0.5 font-semibold text-white'
+                  ? 'rounded-full bg-brand-700 px-2 py-0.5 font-semibold text-white'
                   : ''
               }
             >

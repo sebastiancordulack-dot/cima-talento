@@ -1,6 +1,6 @@
 /* CiMA design tokens — shared by Hub and Portal (docs/ui-overhaul-spec.md §4). */
 :root {
-  --cima-canvas: #f7f6f4;
+  --cima-canvas: #f0f2e7;
   --cima-ink: #1c1917;
   --cima-brand: #8fb72a;
 }

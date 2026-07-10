@@ -87,7 +87,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           {['new', 'scheduled', 'in_review'].includes(candidate.status) && (
             <Link
               href={`/dashboard/candidates/${candidate.id}/scorecard`}
-              className="inline-flex h-9 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-medium text-white transition-colors hover:bg-stone-700"
+              className="inline-flex h-9 items-center justify-center rounded-xl bg-brand-700 px-4 text-sm font-medium text-white transition-colors hover:bg-brand-800"
             >
               Completar scorecard
             </Link>
@@ -162,7 +162,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
                 href={resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-medium text-white transition-colors hover:bg-stone-700"
+                className="inline-flex h-9 items-center justify-center rounded-xl bg-brand-700 px-4 text-sm font-medium text-white transition-colors hover:bg-brand-800"
               >
                 Descargar / ver
               </a>

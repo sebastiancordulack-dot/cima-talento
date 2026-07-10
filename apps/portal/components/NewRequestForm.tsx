@@ -5,6 +5,7 @@
 // supports multi-location batches via repeatable location blocks.
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, controlClasses } from '@cima/ui';
 import {
   submitSolicitud,
   type LocationInput,
@@ -13,9 +14,8 @@ import {
 import { ACTIVATION_NEEDS, BUDGET_OPTIONS, STORE_TYPES } from '@/lib/status';
 import type { ActivationType } from '@cima/db';
 
-const input =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500';
-const label = 'mb-1 block text-xs font-medium uppercase tracking-wide text-gray-400';
+const input = controlClasses('w-full');
+const label = 'mb-1 block text-xs font-medium text-stone-600';
 
 function emptyLocation(): LocationInput {
   return {
@@ -120,22 +120,22 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <button
           onClick={() => setType('in_store')}
-          className="rounded-xl border-2 border-gray-200 bg-white p-6 text-left transition-colors hover:border-green-500"
+          className="rounded-2xl border-2 border-stone-200 bg-white p-6 text-left shadow-card transition-colors hover:border-brand-500"
         >
           <p className="text-2xl">🛒</p>
-          <p className="mt-2 font-semibold text-gray-900">In-Store Activation</p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-2 font-semibold text-stone-900">In-Store Activation</p>
+          <p className="mt-1 text-sm text-stone-500">
             Product demos, sampling, or displays at retail locations. Supports multiple stores on
             the same date in one request.
           </p>
         </button>
         <button
           onClick={() => setType('field_event')}
-          className="rounded-xl border-2 border-gray-200 bg-white p-6 text-left transition-colors hover:border-green-500"
+          className="rounded-2xl border-2 border-stone-200 bg-white p-6 text-left shadow-card transition-colors hover:border-brand-500"
         >
           <p className="text-2xl">🎪</p>
-          <p className="mt-2 font-semibold text-gray-900">Field / Event Activation</p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-2 font-semibold text-stone-900">Field / Event Activation</p>
+          <p className="mt-1 text-sm text-stone-500">
             Brand presence at festivals, community events, trade shows, or sporting events.
           </p>
         </button>
@@ -146,14 +146,14 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
   // ---- Step 2: the form ----------------------------------------------------------
   return (
     <div className="space-y-5">
-      <button onClick={() => setType(null)} className="text-sm text-gray-400 hover:text-gray-600">
+      <button onClick={() => setType(null)} className="text-sm text-stone-400 hover:text-stone-600">
         ← Change activation type
       </button>
 
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+      {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
-      <section className="rounded-xl border border-gray-200 bg-white p-5">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">Brand</h2>
+      <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+        <h2 className="mb-3 text-sm font-semibold text-stone-900">Brand</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className={label}>Brand to activate</label>
@@ -183,8 +183,8 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
 
       {type === 'in_store' ? (
         <>
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">Activation details</h2>
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-sm font-semibold text-stone-900">Activation details</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className={label}>Date *</label>
@@ -205,15 +205,15 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
           </section>
 
           {locations.map((loc, i) => (
-            <section key={i} className="rounded-xl border border-gray-200 bg-white p-5">
+            <section key={i} className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-900">
+                <h2 className="text-sm font-semibold text-stone-900">
                   Location {locations.length > 1 ? i + 1 : ''}
                 </h2>
                 {locations.length > 1 && (
                   <button
                     onClick={() => setLocations((prev) => prev.filter((_, j) => j !== i))}
-                    className="text-xs text-gray-400 hover:text-rose-500"
+                    className="text-xs text-stone-400 hover:text-rose-500"
                   >
                     Remove
                   </button>
@@ -280,15 +280,15 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
 
           <button
             onClick={() => setLocations((prev) => [...prev, emptyLocation()])}
-            className="w-full rounded-xl border-2 border-dashed border-gray-300 py-3 text-sm font-medium text-gray-500 hover:border-green-500 hover:text-green-700"
+            className="w-full rounded-2xl border-2 border-dashed border-stone-300 py-3 text-sm font-medium text-stone-500 transition-colors hover:border-brand-500 hover:text-brand-700"
           >
             + Add another location (same date)
           </button>
         </>
       ) : (
         <>
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">Event basics</h2>
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-sm font-semibold text-stone-900">Event basics</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className={label}>Event name *</label>
@@ -348,16 +348,17 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
             </div>
           </section>
 
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="mb-1 text-sm font-semibold text-gray-900">Activation needs</h2>
-            <p className="mb-3 text-xs text-gray-500">
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="mb-1 text-sm font-semibold text-stone-900">Activation needs</h2>
+            <p className="mb-3 text-xs text-stone-500">
               Select everything that applies — this shapes our planning and quote.
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               {ACTIVATION_NEEDS.map((need) => (
-                <label key={need} className="flex items-center gap-2 text-sm text-gray-700">
+                <label key={need} className="flex items-center gap-2 text-sm text-stone-700">
                   <input
                     type="checkbox"
+                    className="size-4 rounded accent-brand-600"
                     checked={needs.includes(need)}
                     onChange={() => toggleNeed(need)}
                   />
@@ -375,8 +376,8 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
             )}
           </section>
 
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">Vision & logistics</h2>
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-sm font-semibold text-stone-900">Vision & logistics</h2>
             <div className="space-y-3">
               <div>
                 <label className={label}>Your vision for the activation (optional)</label>
@@ -412,13 +413,9 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
       )}
 
       <div className="flex items-center gap-3">
-        <button
-          onClick={submit}
-          disabled={pending}
-          className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
-        >
+        <Button onClick={submit} loading={pending} className="px-6">
           {pending ? 'Submitting…' : 'Submit request'}
-        </button>
+        </Button>
         {error && <span className="text-sm text-rose-600">{error}</span>}
       </div>
     </div>

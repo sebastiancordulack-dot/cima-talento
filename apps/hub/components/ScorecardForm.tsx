@@ -169,7 +169,7 @@ export function ScorecardForm({
                       <ToggleButton
                         key={opt.value}
                         active={p.scores[q.key] === opt.value}
-                        activeClass="bg-stone-900 text-white"
+                        activeClass="bg-brand-700 text-white"
                         onClick={() => setScore(q.key, opt.value)}
                       >
                         {opt.label}

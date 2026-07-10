@@ -21,11 +21,11 @@ export default async function EditRequestPage({ params }: { params: { id: string
 
   return (
     <div>
-      <Link href={`/requests/${solicitud.id}`} className="text-sm text-gray-400 hover:text-gray-600">
+      <Link href={`/requests/${solicitud.id}`} className="text-sm text-stone-400 hover:text-stone-600">
         ← Back to request
       </Link>
-      <h1 className="mt-2 text-2xl font-bold text-gray-900">Edit request</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-stone-900">Edit request</h1>
+      <p className="mt-1 text-sm text-stone-500">
         {solicitud.brand} · {place}
         {solicitud.batch_id && ' — this edits only this location.'}
       </p>

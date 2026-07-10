@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { buttonClasses } from '@cima/ui';
 import { RequestCard } from '@/components/RequestCard';
 import { listAllSolicitudes } from '@/lib/queries';
 import { CLIENT_STATUS_META } from '@/lib/status';
@@ -21,10 +22,10 @@ export default async function RequestsPage({
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-gray-900">My Requests</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-stone-900">My Requests</h1>
         <Link
           href="/requests/new"
-          className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
+          className={buttonClasses('primary')}
         >
           + Submit New Request
         </Link>
@@ -43,8 +44,8 @@ export default async function RequestsPage({
       </div>
 
       {solicitudes.length === 0 ? (
-        <div className="mt-8 rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="mt-8 rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center">
+          <p className="text-sm text-stone-500">
             {filter ? 'No requests with this status.' : 'No requests yet — submit your first one!'}
           </p>
         </div>
@@ -65,8 +66,8 @@ function FilterChip({ label, href, active }: { label: string; href: string; acti
       href={href}
       className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
         active
-          ? 'bg-gray-900 text-white'
-          : 'bg-white text-gray-600 ring-1 ring-inset ring-gray-200 hover:bg-gray-100'
+          ? 'bg-brand-700 text-white'
+          : 'bg-white text-stone-600 ring-1 ring-inset ring-stone-200 hover:bg-stone-100'
       }`}
     >
       {label}

@@ -5,14 +5,14 @@
 // each location is edited from its own page.
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, controlClasses } from '@cima/ui';
 import { updateSolicitud, type EditPayload, type LocationInput } from '@/lib/actions';
 import { ACTIVATION_NEEDS, BUDGET_OPTIONS, STORE_TYPES } from '@/lib/status';
 import { parseDateRange } from '@cima/activaciones/dates';
 import type { ClientSolicitud } from '@/lib/queries';
 
-const input =
-  'w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500';
-const label = 'mb-1 block text-xs font-medium uppercase tracking-wide text-gray-400';
+const input = controlClasses('w-full');
+const label = 'mb-1 block text-xs font-medium text-stone-600';
 
 const t = (v: string | null) => (v ? v.slice(0, 5) : '');
 
@@ -93,11 +93,11 @@ export function EditRequestForm({ solicitud }: { solicitud: ClientSolicitud }) {
 
   return (
     <div className="space-y-5">
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+      {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
       {isStore ? (
-        <section className="rounded-xl border border-gray-200 bg-white p-5">
-          <h2 className="mb-3 text-sm font-semibold text-gray-900">Activation details</h2>
+        <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+          <h2 className="mb-3 text-sm font-semibold text-stone-900">Activation details</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className={label}>Date *</label>
@@ -170,8 +170,8 @@ export function EditRequestForm({ solicitud }: { solicitud: ClientSolicitud }) {
         </section>
       ) : (
         <>
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">Event basics</h2>
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-sm font-semibold text-stone-900">Event basics</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className={label}>Event name *</label>
@@ -231,20 +231,20 @@ export function EditRequestForm({ solicitud }: { solicitud: ClientSolicitud }) {
             </div>
           </section>
 
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">Activation needs</h2>
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-sm font-semibold text-stone-900">Activation needs</h2>
             <div className="grid gap-2 sm:grid-cols-2">
               {ACTIVATION_NEEDS.map((need) => (
-                <label key={need} className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" checked={needs.includes(need)} onChange={() => toggleNeed(need)} />
+                <label key={need} className="flex items-center gap-2 text-sm text-stone-700">
+                  <input type="checkbox" className="size-4 rounded accent-brand-600" checked={needs.includes(need)} onChange={() => toggleNeed(need)} />
                   {need}
                 </label>
               ))}
             </div>
           </section>
 
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">Vision & logistics</h2>
+          <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-sm font-semibold text-stone-900">Vision & logistics</h2>
             <div className="space-y-3">
               <div>
                 <label className={label}>Your vision</label>
@@ -277,19 +277,12 @@ export function EditRequestForm({ solicitud }: { solicitud: ClientSolicitud }) {
       )}
 
       <div className="flex items-center gap-3">
-        <button
-          onClick={submit}
-          disabled={pending}
-          className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
-        >
+        <Button onClick={submit} loading={pending} className="px-6">
           {pending ? 'Saving…' : 'Save changes'}
-        </button>
-        <button
-          onClick={() => router.push(`/requests/${solicitud.id}`)}
-          className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
+        </Button>
+        <Button variant="secondary" onClick={() => router.push(`/requests/${solicitud.id}`)}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

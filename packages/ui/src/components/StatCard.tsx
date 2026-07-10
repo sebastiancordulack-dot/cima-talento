@@ -28,7 +28,7 @@ export function StatCard({
       className={cx(
         'rounded-2xl border bg-white p-5 shadow-card',
         active
-          ? 'border-brand-300 ring-2 ring-brand-500/40'
+          ? 'border-brand-400 ring-2 ring-brand-500/50'
           : 'border-stone-200/70',
         interactive && 'transition-shadow hover:shadow-card-hover',
         className,

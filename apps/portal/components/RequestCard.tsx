@@ -12,26 +12,26 @@ export function RequestCard({ solicitud }: { solicitud: ClientSolicitud }) {
   return (
     <Link
       href={`/requests/${s.id}`}
-      className="block rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+      className="block rounded-2xl border border-stone-200/70 bg-white p-4 shadow-card transition-shadow hover:shadow-card-hover"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-semibold text-gray-900">{s.brand}</p>
+        <p className="font-semibold text-stone-900">{s.brand}</p>
         <StatusBadge status={s.status} />
       </div>
-      <p className="mt-1 text-sm text-gray-600">
+      <p className="mt-1 text-sm text-stone-600">
         {place}
         {s.batch_id && (
-          <span className="ml-1.5 rounded bg-gray-100 px-1 py-0.5 text-[10px] font-medium text-gray-500">
+          <span className="ml-1.5 rounded bg-stone-100 px-1 py-0.5 text-[10px] font-medium text-stone-500">
             multi-location
           </span>
         )}
       </p>
-      <p className="mt-0.5 text-xs text-gray-400">
+      <p className="mt-0.5 text-xs text-stone-400">
         {s.activation_type === 'in_store' ? 'In-store activation' : 'Field / event activation'} ·{' '}
         {formatSolicitudDates(s)}
       </p>
       {meta.actionNeeded && (
-        <p className="mt-3 rounded-lg bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700">
+        <p className="mt-3 rounded-xl bg-violet-100 px-3 py-1.5 text-xs font-medium text-violet-800">
           {s.status === 'quote_sent' ? 'Review & approve your quote →' : 'Review the proposed change →'}
         </p>
       )}

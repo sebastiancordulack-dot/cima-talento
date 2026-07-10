@@ -4,8 +4,9 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md';
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  // Ink primary (spec §4.1): near-black CTA, lime reserved for accents.
-  primary: 'bg-stone-900 text-white hover:bg-stone-700',
+  // Deep CiMA green primary (palette v2 — replaced near-black after live
+  // review): the dark end of the logo lime, AA-readable with white text.
+  primary: 'bg-brand-700 text-white hover:bg-brand-800',
   secondary: 'border border-stone-200 bg-white text-stone-700 shadow-card hover:bg-stone-50',
   ghost: 'text-stone-500 hover:bg-stone-100 hover:text-stone-800',
   danger: 'bg-rose-600 text-white hover:bg-rose-500',

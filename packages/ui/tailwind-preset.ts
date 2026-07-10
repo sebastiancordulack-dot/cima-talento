@@ -9,8 +9,9 @@ export const cimaPreset: Config = {
   theme: {
     extend: {
       colors: {
-        // Page background — warm paper, sits between stone-50 and stone-100.
-        canvas: '#F7F6F4',
+        // Page background — soft sage paper (palette v2, 2026-07-10): tinted
+        // enough that white cards clearly pop against it.
+        canvas: '#F0F2E7',
         surface: '#FFFFFF',
         // Headline/near-black actions (stone-900).
         ink: '#1C1917',
