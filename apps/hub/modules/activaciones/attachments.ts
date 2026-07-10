@@ -12,14 +12,17 @@ const ATTACHMENTS_BUCKET = 'solicitud-attachments';
 export type SolicitudAttachment = Database['public']['Tables']['solicitud_attachments']['Row'];
 export type AttachmentWithUrl = SolicitudAttachment & { url: string | null };
 
+/** Files are submission-level: pass every id in the batch so any location's
+ *  workspace shows the full set. */
 export async function listAttachmentsWithUrls(
-  solicitudId: string,
+  solicitudIds: string[],
   expiresIn = 3600
 ): Promise<AttachmentWithUrl[]> {
+  if (solicitudIds.length === 0) return [];
   const { data, error } = await createClient()
     .from('solicitud_attachments')
     .select('*')
-    .eq('solicitud_id', solicitudId)
+    .in('solicitud_id', solicitudIds)
     .order('created_at', { ascending: true });
   if (error) throw error;
   const rows = data ?? [];

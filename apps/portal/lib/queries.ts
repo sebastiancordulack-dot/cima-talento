@@ -55,7 +55,7 @@ export async function getClientSolicitud(id: string): Promise<ClientSolicitudDet
   if (error) throw error;
   if (!solicitud) return null;
 
-  const [siblingsRes, changesRes, logRes, attachmentsRes] = await Promise.all([
+  const [siblingsRes, changesRes, logRes] = await Promise.all([
     solicitud.batch_id
       ? supabase
           .from('client_solicitudes')
@@ -74,21 +74,26 @@ export async function getClientSolicitud(id: string): Promise<ClientSolicitudDet
       .select('*')
       .eq('solicitud_id', solicitud.id)
       .order('changed_at', { ascending: true }),
-    supabase
-      .from('client_solicitud_attachments')
-      .select('*')
-      .eq('solicitud_id', solicitud.id)
-      .order('created_at', { ascending: true }),
   ]);
-  for (const res of [siblingsRes, changesRes, logRes, attachmentsRes]) {
+  for (const res of [siblingsRes, changesRes, logRes]) {
     if (res.error) throw res.error;
   }
+  const siblings = (siblingsRes.data ?? []) as ClientSolicitud[];
+
+  // Files are submission-level: a batch shares them, so every location's page
+  // shows the same list (uploads from the form land on the primary row).
+  const { data: attachments, error: attachmentsErr } = await supabase
+    .from('client_solicitud_attachments')
+    .select('*')
+    .in('solicitud_id', [solicitud.id, ...siblings.map((sib) => sib.id)])
+    .order('created_at', { ascending: true });
+  if (attachmentsErr) throw attachmentsErr;
 
   return {
     solicitud,
-    siblings: (siblingsRes.data ?? []) as ClientSolicitud[],
+    siblings,
     changes: changesRes.data ?? [],
     log: logRes.data ?? [],
-    attachments: attachmentsRes.data ?? [],
+    attachments: attachments ?? [],
   };
 }
