@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { buttonClasses } from '@cima/ui';
 import { SignOutButton } from '@/components/SignOutButton';
 import { requireBrandClient } from '@/lib/auth';
 
 // Authed portal shell (Brief §13, spec §5.2): polished white top bar — logo +
-// Client Portal chip, nav, ink New Request CTA — on the shared canvas. Every
+// Client Portal chip and nav — on the shared canvas. New Request lives on the
+// dashboard and My Requests pages, not up here (user call, 2026-07-10). Every
 // page inside requires an active brand client.
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const client = await requireBrandClient();
@@ -29,9 +29,6 @@ export default async function PortalLayout({ children }: { children: React.React
               className="text-sm font-medium text-stone-600 hover:text-stone-900"
             >
               My Requests
-            </Link>
-            <Link href="/requests/new" className={buttonClasses('primary', 'sm')}>
-              + New Request
             </Link>
             <span className="hidden text-sm text-stone-400 sm:inline">{client.company_name}</span>
             <SignOutButton />
