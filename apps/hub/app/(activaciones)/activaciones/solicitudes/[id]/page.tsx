@@ -37,12 +37,13 @@ export const dynamic = 'force-dynamic';
 // status history at the bottom. Sticky summary card keeps brand/status/actions
 // in view while working (spec §7.1).
 export default async function SolicitudDetailPage({ params }: { params: { id: string } }) {
-  const [detail, attachments] = await Promise.all([
-    getSolicitudDetail(params.id),
-    listAttachmentsWithUrls(params.id),
-  ]);
+  const detail = await getSolicitudDetail(params.id);
   if (!detail) notFound();
   const { solicitud, siblings, changes, log, assignments, talentOptions, suggestedMetro } = detail;
+  const attachments = await listAttachmentsWithUrls([
+    solicitud.id,
+    ...siblings.map((s) => s.id),
+  ]);
 
   const title =
     solicitud.activation_type === 'in_store' ? solicitud.store_name : solicitud.event_name;

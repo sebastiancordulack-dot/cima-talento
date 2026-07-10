@@ -36,7 +36,7 @@ export default async function RequestDetailPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { submitted?: string };
+  searchParams: { submitted?: string; files?: string };
 }) {
   const detail = await getClientSolicitud(params.id);
   if (!detail) notFound();
@@ -59,6 +59,12 @@ export default async function RequestDetailPage({
           <span className="font-semibold">Request submitted!</span> We&apos;ll review it and get
           back to you within 2 business days. A confirmation email is on its way. If you have brand
           assets or product files to share, attach them in the Files section below.
+        </div>
+      )}
+      {searchParams.files === 'partial' && (
+        <div className="mt-3 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Some of your files couldn&apos;t be attached. Please add them again in the Files section
+          below.
         </div>
       )}
 

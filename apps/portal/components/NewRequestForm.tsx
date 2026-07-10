@@ -6,8 +6,10 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, controlClasses } from '@cima/ui';
+import { FileStager } from '@/components/FileStager';
 import {
   submitSolicitud,
+  uploadAttachment,
   type LocationInput,
   type SubmitPayload,
 } from '@/lib/actions';
@@ -37,6 +39,10 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [type, setType] = useState<ActivationType | null>(null);
+
+  // Files staged for upload once the Solicitud exists (migration 0009).
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
 
   // Shared
   const [brand, setBrand] = useState(brands[0] ?? '');
@@ -106,7 +112,20 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
     start(async () => {
       const res = await submitSolicitud(payload);
       if (res.ok && res.id) {
-        router.push(`/requests/${res.id}?submitted=1`);
+        // The request exists now — never re-submit. Upload staged files one by
+        // one (each call stays under the action body cap); if any fail, the
+        // detail page flags it so the client can re-attach there.
+        let filesFailed = false;
+        if (files.length > 0) {
+          setUploadingFiles(true);
+          for (const file of files) {
+            const fd = new FormData();
+            fd.append('file', file);
+            const up = await uploadAttachment(res.id, fd);
+            if (!up.ok) filesFailed = true;
+          }
+        }
+        router.push(`/requests/${res.id}?submitted=1${filesFailed ? '&files=partial' : ''}`);
       } else {
         setError(res.error ?? 'Something went wrong. Please try again.');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -412,9 +431,18 @@ export function NewRequestForm({ brands }: { brands: string[] }) {
         </>
       )}
 
+      <section className="rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+        <h2 className="text-sm font-semibold text-stone-900">Files (optional)</h2>
+        <p className="mb-3 mt-0.5 text-xs text-stone-500">
+          Brand assets, product sheets, planograms — anything our team should have for this
+          activation. You can also add files later from the request page.
+        </p>
+        <FileStager files={files} onChange={setFiles} disabled={pending} />
+      </section>
+
       <div className="flex items-center gap-3">
         <Button onClick={submit} loading={pending} className="px-6">
-          {pending ? 'Submitting…' : 'Submit request'}
+          {pending ? (uploadingFiles ? 'Uploading files…' : 'Submitting…') : 'Submit request'}
         </Button>
         {error && <span className="text-sm text-rose-600">{error}</span>}
       </div>
