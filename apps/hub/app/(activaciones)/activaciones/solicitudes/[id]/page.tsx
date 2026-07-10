@@ -11,7 +11,12 @@ import { QuoteBuilder } from '@/components/activaciones/QuoteBuilder';
 import { ReviewerControl, StatusControls } from '@/components/activaciones/StatusControls';
 import { SubmissionPanel } from '@/components/activaciones/SubmissionPanel';
 import { TalentAssignPanel } from '@/components/activaciones/TalentAssignPanel';
-import { formatDateTime } from '@/lib/format';
+import { formatDate, formatDateTime } from '@/lib/format';
+import {
+  formatBytes,
+  listAttachmentsWithUrls,
+  type AttachmentWithUrl,
+} from '@/modules/activaciones/attachments';
 import { formatDaysSince, formatSolicitudDates } from '@cima/activaciones/dates';
 import {
   getSolicitudDetail,
@@ -32,7 +37,10 @@ export const dynamic = 'force-dynamic';
 // status history at the bottom. Sticky summary card keeps brand/status/actions
 // in view while working (spec §7.1).
 export default async function SolicitudDetailPage({ params }: { params: { id: string } }) {
-  const detail = await getSolicitudDetail(params.id);
+  const [detail, attachments] = await Promise.all([
+    getSolicitudDetail(params.id),
+    listAttachmentsWithUrls(params.id),
+  ]);
   if (!detail) notFound();
   const { solicitud, siblings, changes, log, assignments, talentOptions, suggestedMetro } = detail;
 
@@ -86,8 +94,9 @@ export default async function SolicitudDetailPage({ params }: { params: { id: st
       </Card>
 
       <div className="grid gap-5 lg:grid-cols-5">
-        <div className="lg:col-span-2">
+        <div className="space-y-5 lg:col-span-2">
           <SubmissionPanel solicitud={solicitud} siblings={siblings} />
+          {attachments.length > 0 && <AttachmentsCard attachments={attachments} />}
         </div>
         <div className="space-y-5 lg:col-span-3">
           <InternalFieldsForm solicitud={solicitud} />
@@ -112,6 +121,37 @@ export default async function SolicitudDetailPage({ params }: { params: { id: st
 
       <StatusHistory log={log} />
     </div>
+  );
+}
+
+// Files the client attached in the portal (migration 0009) — read-only here,
+// signed download links.
+function AttachmentsCard({ attachments }: { attachments: AttachmentWithUrl[] }) {
+  return (
+    <Card>
+      <CardHeader title="Archivos del cliente" />
+      <ul className="divide-y divide-stone-100/70">
+        {attachments.map((a) => (
+          <li key={a.id} className="flex items-center justify-between gap-3 py-2">
+            {a.url ? (
+              <a
+                href={a.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-w-0 truncate text-sm font-medium text-brand-700 hover:underline"
+              >
+                {a.file_name}
+              </a>
+            ) : (
+              <span className="min-w-0 truncate text-sm text-stone-700">{a.file_name}</span>
+            )}
+            <span className="shrink-0 text-xs tabular-nums text-stone-400">
+              {formatBytes(a.size_bytes)} · {formatDate(a.created_at)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 }
 
