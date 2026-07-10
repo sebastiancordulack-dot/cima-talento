@@ -55,9 +55,11 @@ Tokens live in `packages/ui` as CSS variables + a Tailwind preset consumed by bo
 Brand sampled from the CiMA banner (`apps/hub/public/email-banner-v2.jpg`):
 lime `#8fb72a`, warm charcoal `#282220`, warm grays.
 
-- **Neutrals — Tailwind `stone`** (warm gray, matches brand): canvas `#F7F6F4`
-  (custom, between stone-50/100), surface `#FFFFFF`, line `stone-200`, muted text
-  `stone-500`, body text `stone-700`, headings/ink `stone-900`.
+- **Neutrals — Tailwind `stone`** (warm gray, matches brand): canvas
+  **`#F0F2E7` soft sage paper** (palette v2, 2026-07-10 — the original
+  `#F7F6F4` read as "too white"; the sage tint makes white cards pop),
+  surface `#FFFFFF`, line `stone-200`, muted text `stone-500`, body text
+  `stone-700`, headings/ink `stone-900`.
 - **Brand (CiMA lime)** — custom scale around `#8fb72a`:
   - `brand-50 #f6f9ec` · `brand-100 #eaf2d3` · `brand-200 #d8e6ab` · `brand-500 #8fb72a`
     (base, decorative/accent only) · `brand-600 #7aa021` · `brand-700 #5c7d18`
@@ -65,11 +67,14 @@ lime `#8fb72a`, warm charcoal `#282220`, warm grays.
   - Usage: active nav fill (brand-50 bg + brand-700 text), focus rings, brand chip,
     selected states, positive accents. **Not** for solid buttons — white-on-lime fails
     contrast.
-- **Ink primary actions** — near-black `stone-900` solid buttons (hover `stone-700`),
-  matching the reference CTAs and the existing email button (`#0f172a`).
+- **Primary actions — deep CiMA green** (`brand-700 #5D7D19`, hover `brand-800`;
+  white text, AA-compliant). Palette v2: replaced the near-black ink CTAs after
+  live review ("dark black boxes"); active pill tabs and today-markers follow.
+  Ink (`stone-900`) remains for headings only.
 - **Semantic/status** — keep the existing hue assignments in `SOLICITUD_STATUS_META` /
   `CLIENT_STATUS_META` (they already encode meaning); unify the rendering as one
-  StatusPill style: soft tint bg (`*-50/100`) + strong text (`*-700`) + optional dot.
+  StatusPill style: tint bg `*-100` + text `*-800` + inset ring `*-600/20` +
+  optional dot (palette v2 — the `*-50` tints washed out on white cards).
   Deltas/trends: green up, rose down. Danger: rose. Warning/waiting: amber.
 
 ### 4.2 Typography

@@ -68,8 +68,8 @@ export function CandidateCard({ candidate, metros }: { candidate: Candidate; met
           <span
             className={`mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
               candidate.resume_uploaded_at
-                ? 'bg-green-50 text-green-700'
-                : 'bg-amber-50 text-amber-700'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-amber-100 text-amber-800'
             }`}
           >
             {candidate.resume_uploaded_at ? 'CV ✓' : 'CV pendiente'}

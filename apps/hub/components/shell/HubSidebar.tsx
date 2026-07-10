@@ -86,7 +86,7 @@ function Rail({
                         className={cx(
                           'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                           active
-                            ? 'bg-brand-50 text-brand-800'
+                            ? 'bg-brand-100 text-brand-900'
                             : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900',
                         )}
                       >

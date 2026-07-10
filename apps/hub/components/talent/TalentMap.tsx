@@ -144,7 +144,7 @@ export function TalentMap({
                           `/dashboard?tab=talento&metro=${encodeURIComponent(m.metro)}`
                         )
                       }
-                      className="mt-2 w-full rounded-lg bg-stone-900 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-stone-700"
+                      className="mt-2 w-full rounded-lg bg-brand-700 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-brand-800"
                     >
                       Ver la red aquí →
                     </button>

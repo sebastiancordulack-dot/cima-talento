@@ -82,7 +82,7 @@ export default async function RequestDetailPage({
 
       {/* Quote — the view nulls these columns until the quote is actually sent. */}
       {s.quote_amount != null && (
-        <section className="mt-4 rounded-2xl border border-brand-200 bg-white p-5 shadow-card">
+        <section className="mt-4 rounded-2xl border border-brand-300 bg-white p-5 shadow-card">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-stone-900">Your quote</h2>
             <span className="text-xl font-semibold tabular-nums text-stone-900">{formatMoney(s.quote_amount)}</span>

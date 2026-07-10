@@ -157,7 +157,7 @@ export function AddMetroForm({ onDone }: { onDone: () => void }) {
         <button
           onClick={submit}
           disabled={pending}
-          className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
+          className="rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
         >
           {pending ? 'Agregando…' : 'Agregar metro'}
         </button>

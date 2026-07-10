@@ -6,7 +6,7 @@ import { cx } from '../cx';
 export function pillTabClasses(active: boolean, className?: string): string {
   return cx(
     'inline-flex h-8 items-center gap-2 rounded-full px-3.5 text-sm font-medium transition-colors',
-    active ? 'bg-stone-900 text-white' : 'text-stone-500 hover:bg-stone-100 hover:text-stone-800',
+    active ? 'bg-brand-700 text-white' : 'text-stone-500 hover:bg-stone-100 hover:text-stone-800',
     className,
   );
 }

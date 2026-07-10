@@ -16,7 +16,7 @@ export default async function PortalLayout({ children }: { children: React.React
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
             <Image src="/cima-logo.png" alt="CiMA" width={92} height={30} priority />
-            <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">
+            <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800">
               Client Portal
             </span>
           </Link>

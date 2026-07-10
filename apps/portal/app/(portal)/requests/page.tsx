@@ -66,7 +66,7 @@ function FilterChip({ label, href, active }: { label: string; href: string; acti
       href={href}
       className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
         active
-          ? 'bg-stone-900 text-white'
+          ? 'bg-brand-700 text-white'
           : 'bg-white text-stone-600 ring-1 ring-inset ring-stone-200 hover:bg-stone-100'
       }`}
     >

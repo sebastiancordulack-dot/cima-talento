@@ -31,7 +31,7 @@ export function RequestCard({ solicitud }: { solicitud: ClientSolicitud }) {
         {formatSolicitudDates(s)}
       </p>
       {meta.actionNeeded && (
-        <p className="mt-3 rounded-xl bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700">
+        <p className="mt-3 rounded-xl bg-violet-100 px-3 py-1.5 text-xs font-medium text-violet-800">
           {s.status === 'quote_sent' ? 'Review & approve your quote →' : 'Review the proposed change →'}
         </p>
       )}

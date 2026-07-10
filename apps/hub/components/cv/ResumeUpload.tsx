@@ -73,7 +73,7 @@ export function ResumeUpload({
             href={calendlyLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 block w-full rounded-xl bg-stone-900 px-5 py-3.5 text-center text-base font-semibold text-white transition-colors hover:bg-stone-700"
+            className="mt-6 block w-full rounded-xl bg-brand-700 px-5 py-3.5 text-center text-base font-semibold text-white transition-colors hover:bg-brand-800"
           >
             Agendar mi llamada
           </a>
@@ -128,7 +128,7 @@ export function ResumeUpload({
       <button
         onClick={submit}
         disabled={!picked || pending}
-        className="mt-4 w-full rounded-xl bg-stone-900 px-5 py-3.5 text-base font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-50"
+        className="mt-4 w-full rounded-xl bg-brand-700 px-5 py-3.5 text-base font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
       >
         {pending ? 'Subiendo…' : 'Subir currículum'}
       </button>

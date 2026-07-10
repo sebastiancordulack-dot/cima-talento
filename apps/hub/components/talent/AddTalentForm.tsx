@@ -142,7 +142,7 @@ export function AddTalentForm({
               type="button"
               onClick={() => setDays((p) => ({ ...p, [d.key]: !p[d.key] }))}
               className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
-                days[d.key] ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                days[d.key] ? 'bg-brand-700 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               }`}
             >
               {d.label}
@@ -165,7 +165,7 @@ export function AddTalentForm({
       {error && <p className="mt-2 text-sm text-rose-600">{error}</p>}
 
       <div className="mt-4 flex gap-2">
-        <button onClick={submit} disabled={pending} className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-700 disabled:opacity-50">
+        <button onClick={submit} disabled={pending} className="rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-800 disabled:opacity-50">
           {pending ? 'Guardando…' : submitLabel}
         </button>
         <button onClick={onDone} disabled={pending} className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-card transition-colors hover:bg-stone-50">
