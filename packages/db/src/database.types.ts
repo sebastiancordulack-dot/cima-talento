@@ -485,6 +485,30 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['solicitud_changes']['Insert']>;
         Relationships: [];
       };
+      solicitud_attachments: {
+        Row: {
+          id: string;
+          created_at: string;
+          solicitud_id: string;
+          uploaded_by: SolicitudActor;
+          storage_path: string;
+          file_name: string;
+          content_type: string | null;
+          size_bytes: number;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          solicitud_id: string;
+          uploaded_by?: SolicitudActor;
+          storage_path: string;
+          file_name: string;
+          content_type?: string | null;
+          size_bytes: number;
+        };
+        Update: Partial<Database['public']['Tables']['solicitud_attachments']['Insert']>;
+        Relationships: [];
+      };
       solicitud_status_log: {
         Row: {
           id: string;
@@ -563,6 +587,12 @@ export interface Database {
       };
       client_solicitud_changes: {
         Row: Omit<Database['public']['Tables']['solicitud_changes']['Row'], 'proposed_by'>;
+        Relationships: [];
+      };
+      // Full passthrough: storage_path is unusable without the service-role
+      // client (private bucket, no storage policies) — see migration 0009.
+      client_solicitud_attachments: {
+        Row: Database['public']['Tables']['solicitud_attachments']['Row'];
         Relationships: [];
       };
       client_solicitud_status_log: {

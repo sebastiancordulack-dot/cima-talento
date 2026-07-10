@@ -9,6 +9,15 @@ import { createAdminClient } from '@cima/db/admin';
 import { sendSolicitudSubmittedEmails } from '@cima/activaciones/notify';
 import { TransitionError, transitionSolicitud } from '@cima/activaciones/transitions';
 import { assertBrandClient, PortalAuthError, type BrandClient } from '@/lib/auth';
+import {
+  ATTACHMENTS_BUCKET,
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENTS_PER_REQUEST,
+  extOf,
+  isAllowedAttachment,
+  sanitizeFilename,
+} from '@/lib/attachments';
+import { ACTIVE_STATUSES } from '@/lib/status';
 import type { ChangeResponse, Database } from '@cima/db';
 
 type Solicitud = Database['public']['Tables']['solicitudes']['Row'];
@@ -438,6 +447,118 @@ export async function approveQuote(solicitudId: string): Promise<ActionResult> {
     revalidatePath('/');
     revalidatePath('/requests');
     revalidatePath(`/requests/${solicitudId}`);
+    return { ok: true };
+  } catch (err) {
+    return failure(err);
+  }
+}
+
+// ---- File attachments (migration 0009) -----------------------------------------------
+// Clients attach brand assets / product info to their own requests while the
+// request is still active. Storage is a private bucket; the row + object are
+// written by the service role after the ownership and status gates below.
+
+/** Attachments are frozen once a request reaches a terminal status. */
+function attachmentsLocked(status: Solicitud['status']): boolean {
+  return !ACTIVE_STATUSES.includes(status);
+}
+
+export async function uploadAttachment(
+  solicitudId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  try {
+    const client = await assertBrandClient();
+    const solicitud = await ownSolicitud(solicitudId, client);
+    if (!solicitud) return { ok: false, error: 'Request not found.' };
+    if (attachmentsLocked(solicitud.status)) {
+      return { ok: false, error: 'Files can no longer be added to this request.' };
+    }
+
+    const file = formData.get('file');
+    if (!(file instanceof File) || file.size === 0) {
+      return { ok: false, error: 'Please choose a file.' };
+    }
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      return { ok: false, error: 'This file is over the 10 MB limit.' };
+    }
+    if (!isAllowedAttachment(file.name)) {
+      return { ok: false, error: 'This file type is not supported.' };
+    }
+
+    const supabase = createAdminClient();
+    const { count, error: countErr } = await supabase
+      .from('solicitud_attachments')
+      .select('id', { count: 'exact', head: true })
+      .eq('solicitud_id', solicitud.id);
+    if (countErr) throw countErr;
+    if ((count ?? 0) >= MAX_ATTACHMENTS_PER_REQUEST) {
+      return {
+        ok: false,
+        error: `This request already has ${MAX_ATTACHMENTS_PER_REQUEST} files — remove one first.`,
+      };
+    }
+
+    const path = `${solicitud.id}/${crypto.randomUUID()}.${extOf(file.name)}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const { error: upErr } = await supabase.storage
+      .from(ATTACHMENTS_BUCKET)
+      .upload(path, buffer, { contentType: file.type || undefined, upsert: false });
+    if (upErr) throw upErr;
+
+    const { error: insErr } = await supabase.from('solicitud_attachments').insert({
+      solicitud_id: solicitud.id,
+      uploaded_by: 'client',
+      storage_path: path,
+      file_name: sanitizeFilename(file.name),
+      content_type: file.type || null,
+      size_bytes: file.size,
+    });
+    if (insErr) {
+      // Don't strand an object without a row.
+      await supabase.storage.from(ATTACHMENTS_BUCKET).remove([path]);
+      throw insErr;
+    }
+
+    revalidatePath(`/requests/${solicitud.id}`);
+    return { ok: true };
+  } catch (err) {
+    return failure(err);
+  }
+}
+
+export async function deleteAttachment(attachmentId: string): Promise<ActionResult> {
+  try {
+    const client = await assertBrandClient();
+    const supabase = createAdminClient();
+
+    const { data: attachment, error } = await supabase
+      .from('solicitud_attachments')
+      .select('*')
+      .eq('id', attachmentId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!attachment) return { ok: false, error: 'File not found.' };
+
+    const solicitud = await ownSolicitud(attachment.solicitud_id, client);
+    if (!solicitud) return { ok: false, error: 'File not found.' };
+    if (attachment.uploaded_by !== 'client') {
+      return { ok: false, error: 'Only your own uploads can be removed.' };
+    }
+    if (attachmentsLocked(solicitud.status)) {
+      return { ok: false, error: 'Files can no longer be removed from this request.' };
+    }
+
+    // Row first (it's what gates visibility); the object removal is
+    // best-effort — an orphaned object in the private bucket is harmless.
+    const { error: delErr } = await supabase
+      .from('solicitud_attachments')
+      .delete()
+      .eq('id', attachmentId);
+    if (delErr) throw delErr;
+    await supabase.storage.from(ATTACHMENTS_BUCKET).remove([attachment.storage_path]);
+
+    revalidatePath(`/requests/${solicitud.id}`);
     return { ok: true };
   } catch (err) {
     return failure(err);

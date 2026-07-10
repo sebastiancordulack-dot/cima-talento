@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ApproveQuoteButton } from '@/components/ApproveQuoteButton';
+import { AttachmentsPanel } from '@/components/AttachmentsPanel';
 import { ChangeResponseButtons } from '@/components/ChangeResponseButtons';
 import { QuoteQuestionForm } from '@/components/QuoteQuestionForm';
 import { StatusBadge } from '@/components/StatusBadge';
+import { withSignedUrls } from '@/lib/attachment-urls';
 import { getClientSolicitud, type ClientChange, type ClientStatusLog } from '@/lib/queries';
-import { CLIENT_STATUS_META } from '@/lib/status';
+import { ACTIVE_STATUSES, CLIENT_STATUS_META } from '@/lib/status';
 import { formatPlainDate, formatSolicitudDates } from '@cima/activaciones/dates';
 import { formatMoney, parseQuoteData, sectionSubtotal } from '@cima/activaciones/quote';
 
@@ -43,6 +45,8 @@ export default async function RequestDetailPage({
   const meta = CLIENT_STATUS_META[s.status];
   const quote = parseQuoteData(s.quote_line_items);
   const place = s.activation_type === 'in_store' ? s.store_name : s.event_name;
+  const canUpload = ACTIVE_STATUSES.includes(s.status);
+  const attachments = await withSignedUrls(detail.attachments);
 
   return (
     <div>
@@ -53,7 +57,8 @@ export default async function RequestDetailPage({
       {searchParams.submitted && (
         <div className="mt-3 rounded-2xl bg-green-50 px-4 py-3 text-sm text-green-800">
           <span className="font-semibold">Request submitted!</span> We&apos;ll review it and get
-          back to you within 2 business days. A confirmation email is on its way.
+          back to you within 2 business days. A confirmation email is on its way. If you have brand
+          assets or product files to share, attach them in the Files section below.
         </div>
       )}
 
@@ -205,6 +210,18 @@ export default async function RequestDetailPage({
           )}
         </dl>
       </section>
+
+      {/* Client file attachments (migration 0009). */}
+      {(attachments.length > 0 || canUpload) && (
+        <section className="mt-4 rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+          <h2 className="text-sm font-semibold text-stone-900">Files</h2>
+          <p className="mb-3 mt-0.5 text-xs text-stone-500">
+            Brand assets, product sheets, planograms — anything our team should have for this
+            activation.
+          </p>
+          <AttachmentsPanel solicitudId={s.id} attachments={attachments} canUpload={canUpload} />
+        </section>
+      )}
 
       {/* Other locations in the same submission. */}
       {siblings.length > 0 && (

@@ -9,6 +9,7 @@ import type { Database, SolicitudStatus } from '@cima/db';
 export type ClientSolicitud = Database['public']['Views']['client_solicitudes']['Row'];
 export type ClientChange = Database['public']['Views']['client_solicitud_changes']['Row'];
 export type ClientStatusLog = Database['public']['Views']['client_solicitud_status_log']['Row'];
+export type ClientAttachment = Database['public']['Views']['client_solicitud_attachments']['Row'];
 
 /** Active requests for the dashboard, newest first (Brief §13.1). */
 export async function listActiveSolicitudes(): Promise<ClientSolicitud[]> {
@@ -41,6 +42,7 @@ export interface ClientSolicitudDetail {
   siblings: ClientSolicitud[];
   changes: ClientChange[];
   log: ClientStatusLog[];
+  attachments: ClientAttachment[];
 }
 
 export async function getClientSolicitud(id: string): Promise<ClientSolicitudDetail | null> {
@@ -53,7 +55,7 @@ export async function getClientSolicitud(id: string): Promise<ClientSolicitudDet
   if (error) throw error;
   if (!solicitud) return null;
 
-  const [siblingsRes, changesRes, logRes] = await Promise.all([
+  const [siblingsRes, changesRes, logRes, attachmentsRes] = await Promise.all([
     solicitud.batch_id
       ? supabase
           .from('client_solicitudes')
@@ -72,8 +74,13 @@ export async function getClientSolicitud(id: string): Promise<ClientSolicitudDet
       .select('*')
       .eq('solicitud_id', solicitud.id)
       .order('changed_at', { ascending: true }),
+    supabase
+      .from('client_solicitud_attachments')
+      .select('*')
+      .eq('solicitud_id', solicitud.id)
+      .order('created_at', { ascending: true }),
   ]);
-  for (const res of [siblingsRes, changesRes, logRes]) {
+  for (const res of [siblingsRes, changesRes, logRes, attachmentsRes]) {
     if (res.error) throw res.error;
   }
 
@@ -82,5 +89,6 @@ export async function getClientSolicitud(id: string): Promise<ClientSolicitudDet
     siblings: (siblingsRes.data ?? []) as ClientSolicitud[],
     changes: changesRes.data ?? [],
     log: logRes.data ?? [],
+    attachments: attachmentsRes.data ?? [],
   };
 }
