@@ -168,9 +168,13 @@ apps where it already lives.
   primitives.
 
 ### 7.2 Hub — Talento
-- Dashboard: PageHeader + existing tabs as pill Tabs w/ counts; CandidateCard →
-  Card-based row grid or Table (decide in-phase against real data); scorecard/metro
-  controls restyled with form primitives.
+- Dashboard (decisions 2026-07-10): tabs are clickable StatCards (Activaciones
+  pattern); candidate tabs get a **Lista/Tarjetas** segmented toggle, URL-driven
+  (`vista=`), defaulting to **Lista** — one flat lean table (metro as a column,
+  no inline actions; the row opens the profile). Tarjetas keeps the metro-grouped
+  card grid. Toolbar adds view-layer **search** (name/email/phone/metro) over the
+  fetched list; Nuevos filters ride along. Scorecard/metro controls on form
+  primitives.
 - Vista de Julia: same treatment; JuliaCandidateCard on Card primitives.
 - CV pages: typography + Card polish only.
 
