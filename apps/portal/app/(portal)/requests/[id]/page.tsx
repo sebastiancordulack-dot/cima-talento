@@ -19,8 +19,8 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   if (value == null || value === '') return null;
   return (
     <div className="grid grid-cols-3 gap-2 py-1.5">
-      <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</dt>
-      <dd className="col-span-2 text-sm text-gray-800">{value}</dd>
+      <dt className="text-[11px] font-medium uppercase tracking-wider text-stone-400">{label}</dt>
+      <dd className="col-span-2 text-sm text-stone-700">{value}</dd>
     </div>
   );
 }
@@ -46,12 +46,12 @@ export default async function RequestDetailPage({
 
   return (
     <div>
-      <Link href="/requests" className="text-sm text-gray-400 hover:text-gray-600">
+      <Link href="/requests" className="text-sm text-stone-400 hover:text-stone-600">
         ← My Requests
       </Link>
 
       {searchParams.submitted && (
-        <div className="mt-3 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div className="mt-3 rounded-2xl bg-green-50 px-4 py-3 text-sm text-green-800">
           <span className="font-semibold">Request submitted!</span> We&apos;ll review it and get
           back to you within 2 business days. A confirmation email is on its way.
         </div>
@@ -59,33 +59,33 @@ export default async function RequestDetailPage({
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">{s.brand}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-stone-900">{s.brand}</h1>
           <StatusBadge status={s.status} />
         </div>
         {(s.status === 'submitted' || s.status === 'in_review') && (
           <Link
             href={`/requests/${s.id}/edit`}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="inline-flex h-9 items-center rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 shadow-card transition-colors hover:bg-stone-50"
           >
             Edit request
           </Link>
         )}
       </div>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-stone-500">
         {place} · {formatSolicitudDates(s)}
       </p>
 
       {/* Plain-English status explanation (§13.4). */}
-      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
-        <p className="text-sm text-gray-700">{meta.explanation}</p>
+      <div className="mt-4 rounded-2xl border border-stone-200/70 bg-white p-4 shadow-card">
+        <p className="text-sm text-stone-700">{meta.explanation}</p>
       </div>
 
       {/* Quote — the view nulls these columns until the quote is actually sent. */}
       {s.quote_amount != null && (
-        <section className="mt-4 rounded-xl border border-green-200 bg-white p-5">
+        <section className="mt-4 rounded-2xl border border-brand-200 bg-white p-5 shadow-card">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-900">Your quote</h2>
-            <span className="text-lg font-bold text-gray-900">{formatMoney(s.quote_amount)}</span>
+            <h2 className="text-sm font-semibold text-stone-900">Your quote</h2>
+            <span className="text-xl font-semibold tabular-nums text-stone-900">{formatMoney(s.quote_amount)}</span>
           </div>
           {quote && quote.sections.length > 0 && (
             <div className="mt-3 space-y-4">
@@ -93,19 +93,19 @@ export default async function RequestDetailPage({
                 <div key={section.solicitud_id}>
                   {quote.sections.length > 1 && (
                     <div className="mb-1 flex items-center justify-between">
-                      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-stone-400">
                         {section.label}
                       </p>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs tabular-nums text-stone-500">
                         {formatMoney(sectionSubtotal(section))}
                       </span>
                     </div>
                   )}
-                  <ul className="divide-y divide-gray-50">
+                  <ul className="divide-y divide-stone-100/70">
                     {section.items.map((item, i) => (
                       <li key={i} className="flex items-center justify-between py-1.5 text-sm">
-                        <span className="text-gray-700">{item.concept}</span>
-                        <span className="text-gray-900">{formatMoney(item.amount)}</span>
+                        <span className="text-stone-700">{item.concept}</span>
+                        <span className="tabular-nums text-stone-900">{formatMoney(item.amount)}</span>
                       </li>
                     ))}
                   </ul>
@@ -113,7 +113,7 @@ export default async function RequestDetailPage({
               ))}
             </div>
           )}
-          {s.quote_notes && <p className="mt-3 text-xs text-gray-500">{s.quote_notes}</p>}
+          {s.quote_notes && <p className="mt-3 text-xs text-stone-500">{s.quote_notes}</p>}
           {s.status === 'quote_sent' && (
             <>
               <ApproveQuoteButton solicitudId={s.id} locationCount={siblings.length + 1} />
@@ -125,12 +125,12 @@ export default async function RequestDetailPage({
 
       {/* Proposed changes (§13.4). */}
       {changes.length > 0 && (
-        <section className="mt-4 rounded-xl border border-violet-200 bg-white p-5">
-          <h2 className="mb-3 text-sm font-semibold text-gray-900">Proposed changes</h2>
+        <section className="mt-4 rounded-2xl border border-violet-200 bg-white p-5 shadow-card">
+          <h2 className="mb-3 text-sm font-semibold text-stone-900">Proposed changes</h2>
           <ul className="space-y-3">
             {changes.map((c: ClientChange) => (
-              <li key={c.id} className="rounded-lg bg-violet-50/50 p-3">
-                <p className="text-sm text-gray-800">
+              <li key={c.id} className="rounded-xl bg-violet-50/50 p-3">
+                <p className="text-sm text-stone-700">
                   {c.original_value && (
                     <>
                       <span className="line-through">{c.original_value}</span>
@@ -139,7 +139,7 @@ export default async function RequestDetailPage({
                   )}
                   <span className="font-semibold">{c.proposed_value}</span>
                 </p>
-                {c.reason && <p className="mt-1 text-xs text-gray-500">{c.reason}</p>}
+                {c.reason && <p className="mt-1 text-xs text-stone-500">{c.reason}</p>}
                 {c.client_response === 'pending' && s.status === 'changes_proposed' ? (
                   <ChangeResponseButtons changeId={c.id} />
                 ) : (
@@ -158,9 +158,9 @@ export default async function RequestDetailPage({
       )}
 
       {/* The original submission, read-only. */}
-      <section className="mt-4 rounded-xl border border-gray-200 bg-white p-5">
-        <h2 className="mb-2 text-sm font-semibold text-gray-900">Your submission</h2>
-        <dl className="divide-y divide-gray-50">
+      <section className="mt-4 rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+        <h2 className="mb-2 text-sm font-semibold text-stone-900">Your submission</h2>
+        <dl className="divide-y divide-stone-100/70">
           <Row label="Brand" value={s.brand} />
           <Row label="Brands featured" value={s.brands_featured} />
           <Row label="Brand ambassadors" value={s.num_brand_ambassadors} />
@@ -208,14 +208,14 @@ export default async function RequestDetailPage({
 
       {/* Other locations in the same submission. */}
       {siblings.length > 0 && (
-        <section className="mt-4 rounded-xl border border-gray-200 bg-white p-5">
-          <h2 className="mb-2 text-sm font-semibold text-gray-900">
+        <section className="mt-4 rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+          <h2 className="mb-2 text-sm font-semibold text-stone-900">
             Other locations in this submission
           </h2>
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-stone-100/70">
             {siblings.map((sib) => (
               <li key={sib.id} className="flex items-center justify-between py-2">
-                <Link href={`/requests/${sib.id}`} className="text-sm text-green-700 hover:underline">
+                <Link href={`/requests/${sib.id}`} className="text-sm font-medium text-brand-700 hover:underline">
                   {sib.store_name}
                 </Link>
                 <StatusBadge status={sib.status} />
@@ -226,12 +226,12 @@ export default async function RequestDetailPage({
       )}
 
       {/* Client-visible timeline (§13.4). */}
-      <section className="mt-4 rounded-xl border border-gray-200 bg-white p-5">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">Timeline</h2>
+      <section className="mt-4 rounded-2xl border border-stone-200/70 bg-white p-5 shadow-card">
+        <h2 className="mb-3 text-sm font-semibold text-stone-900">Timeline</h2>
         <ul className="space-y-2">
           {log.map((entry: ClientStatusLog) => (
             <li key={entry.id} className="flex items-center gap-3 text-sm">
-              <span className="w-28 shrink-0 text-xs text-gray-400">
+              <span className="w-28 shrink-0 text-xs tabular-nums text-stone-400">
                 {new Intl.DateTimeFormat('en-US', {
                   month: 'short',
                   day: 'numeric',

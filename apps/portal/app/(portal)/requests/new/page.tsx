@@ -12,11 +12,11 @@ export default async function NewRequestPage() {
 
   return (
     <div>
-      <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">
+      <Link href="/" className="text-sm text-stone-400 hover:text-stone-600">
         ← Dashboard
       </Link>
-      <h1 className="mt-2 text-2xl font-bold text-gray-900">Submit New Request</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-stone-900">Submit New Request</h1>
+      <p className="mt-1 text-sm text-stone-500">
         Tell us what you need — our team reviews every request and follows up with a quote.
       </p>
       <div className="mt-6">

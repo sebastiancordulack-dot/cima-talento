@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@cima/ui';
 import { respondToChange } from '@/lib/actions';
 
 // Approve / Decline for a CiMA-proposed change (Brief §13.4). Approving moves
@@ -28,20 +29,12 @@ export function ChangeResponseButtons({ changeId }: { changeId: string }) {
   return (
     <div className="mt-2">
       <div className="flex gap-2">
-        <button
-          onClick={() => respond('approved')}
-          disabled={pending}
-          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
-        >
+        <Button onClick={() => respond('approved')} loading={pending}>
           Approve change
-        </button>
-        <button
-          onClick={() => respond('rejected')}
-          disabled={pending}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-        >
+        </Button>
+        <Button variant="secondary" onClick={() => respond('rejected')} disabled={pending}>
           Decline
-        </button>
+        </Button>
       </div>
       {error && <p className="mt-2 text-sm text-rose-600">{error}</p>}
     </div>
