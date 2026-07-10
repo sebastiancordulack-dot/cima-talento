@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CiMA Talento",
-  description: "Pipeline de talento — CiMA Sales",
+  title: "CiMA Hub",
+  description: "Talento y activaciones — CiMA Sales Strategies",
 };
 
 export default function RootLayout({

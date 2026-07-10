@@ -15,7 +15,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "CiMA Client Portal",
-  description: "Portal de clientes — CiMA Sales",
+  description: "Your brand activations with CiMA — all in one place.",
 };
 
 export default function RootLayout({
