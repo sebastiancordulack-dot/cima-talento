@@ -11,6 +11,7 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@cima/db/admin';
 import { transitionCandidateStatus } from '@/lib/candidates/transitions';
+import { deleteCandidateRecord } from '@/lib/candidates/delete';
 import { getMetros } from '@/lib/location/metros-store';
 import { assertCandidateAccess, assertAdmin } from '@/lib/auth/session';
 
@@ -40,13 +41,18 @@ export async function markFit(candidateId: string): Promise<ActionResult> {
   }
 }
 
-/** HM marks the candidate not a fit → status `rejected_hm`, Email 2 (No es un fit). */
-export async function markNotFit(candidateId: string): Promise<ActionResult> {
+/** Staff marks the candidate not a fit → optional rejection email (Email 2),
+ *  then the candidate's data is permanently deleted (migration 0011). Only an
+ *  anonymous funnel row and the email hash survive. */
+export async function markNotFit(
+  candidateId: string,
+  options: { sendEmail?: boolean } = {}
+): Promise<ActionResult> {
   try {
-    const user = await assertCandidateAccess(candidateId);
-    await transitionCandidateStatus(candidateId, 'rejected_hm', {
-      patch: { hm_decision: 'not_fit', hm_call_at: new Date().toISOString() },
-      actorId: user.hm?.id ?? null,
+    await assertCandidateAccess(candidateId);
+    await deleteCandidateRecord(candidateId, {
+      outcome: 'rejected_hm',
+      emailType: options.sendEmail !== false ? 'rejection_hm' : null,
     });
     revalidateCandidate(candidateId);
     return { ok: true };
@@ -71,13 +77,17 @@ export async function approveCandidate(candidateId: string): Promise<ActionResul
   }
 }
 
-/** Julia does not advance → status `rejected_julia`, Email 5 (No avanza). */
-export async function doNotAdvanceCandidate(candidateId: string): Promise<ActionResult> {
+/** Julia does not advance → optional rejection email (Email 5), then the
+ *  candidate's data is permanently deleted (migration 0011). */
+export async function doNotAdvanceCandidate(
+  candidateId: string,
+  options: { sendEmail?: boolean } = {}
+): Promise<ActionResult> {
   try {
-    const user = await assertAdmin();
-    await transitionCandidateStatus(candidateId, 'rejected_julia', {
-      patch: { julia_decision: 'not_approved', julia_call_at: new Date().toISOString() },
-      actorId: user.hm?.id ?? null,
+    await assertAdmin();
+    await deleteCandidateRecord(candidateId, {
+      outcome: 'rejected_julia',
+      emailType: options.sendEmail !== false ? 'rejection_julia' : null,
     });
     revalidateCandidate(candidateId);
     return { ok: true };
@@ -126,14 +136,19 @@ export async function assignMetro(candidateId: string, metro: string): Promise<A
   }
 }
 
-/** Julia archives the candidate for the future → status `archived`, sends the
- *  warm "kept on file" email. A softer alternative to "No avanzar". */
-export async function archiveCandidate(candidateId: string): Promise<ActionResult> {
+/** Any staff archives the candidate for the future → status `archived`. The
+ *  Archivo is the "promise for the future" pool — a softer alternative to
+ *  rejecting. The warm "kept on file" email is optional (staff choose in the
+ *  confirm dialog); default is to send it. */
+export async function archiveCandidate(
+  candidateId: string,
+  options: { sendEmail?: boolean } = {}
+): Promise<ActionResult> {
   try {
-    const user = await assertAdmin();
+    const user = await assertCandidateAccess(candidateId);
     await transitionCandidateStatus(candidateId, 'archived', {
-      patch: { julia_call_at: new Date().toISOString() },
       actorId: user.hm?.id ?? null,
+      sendEmail: options.sendEmail !== false,
     });
     revalidateCandidate(candidateId);
     return { ok: true };
@@ -169,6 +184,36 @@ export async function bumpCandidate(candidateId: string): Promise<ActionResult> 
       .update({ last_bumped_at: new Date().toISOString() })
       .eq('id', candidateId);
     if (error) throw error;
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** Permanently delete a candidate sitting in the Archivo tab. No email — the
+ *  person already received their close-out email when they entered the
+ *  Archivo. Same total deletion as a rejection, but without adding them to
+ *  the re-applicant suppression list (clean slate). */
+export async function deleteFromArchive(candidateId: string): Promise<ActionResult> {
+  try {
+    await assertCandidateAccess(candidateId);
+
+    // Only candidates already out of the active pipeline can be purged here.
+    const { data: cand } = await createAdminClient()
+      .from('candidates')
+      .select('status')
+      .eq('id', candidateId)
+      .maybeSingle();
+    const archivoStatuses = ['archived', 'rejected_hm', 'rejected_julia', 'no_show', 'removed'];
+    if (!cand || !archivoStatuses.includes(cand.status)) {
+      return { ok: false, error: 'Solo se pueden eliminar candidatos del Archivo.' };
+    }
+
+    await deleteCandidateRecord(candidateId, {
+      outcome: 'deleted_from_archive',
+      emailType: null,
+    });
     revalidateCandidate(candidateId);
     return { ok: true };
   } catch (err) {

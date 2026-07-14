@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { TBody, Td, Th, THead, Table, Tr } from '@cima/ui';
 import { StatusBadge } from '@/components/StatusBadge';
+import { PreviouslyRejectedBadge } from '@/components/PreviouslyRejectedBadge';
 import { formatDate, fullName } from '@/lib/format';
 import type { Candidate } from '@/lib/candidates/queries';
 
@@ -29,6 +30,7 @@ export function CandidatesTable({ candidates }: { candidates: Candidate[] }) {
                 {fullName(c.first_name, c.last_name)}
               </Link>
               <p className="text-xs text-stone-400">{c.email}</p>
+              <PreviouslyRejectedBadge rejectedAt={c.previously_rejected_at} />
             </Td>
             <Td className="whitespace-nowrap text-stone-600">
               {c.metro_area ?? <span className="text-stone-300">Sin metro</span>}

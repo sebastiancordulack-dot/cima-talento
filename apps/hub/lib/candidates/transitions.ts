@@ -19,6 +19,10 @@ export interface TransitionOptions {
   patch?: CandidatePatch;
   /** hiring_managers.id who made the change — recorded on the history row. */
   actorId?: string | null;
+  /** Skip the status email when false. Staff choose this per-action for
+   *  archive/rejection; defaults to true so every other caller (webhook,
+   *  approval) keeps the automatic behavior (Brief §7). */
+  sendEmail?: boolean;
 }
 
 export interface TransitionResult {
@@ -67,7 +71,7 @@ export async function transitionCandidateStatus(
     await addToTalentPool(candidate);
   }
 
-  const email = await sendStatusEmail(candidate);
+  const email = options.sendEmail === false ? null : await sendStatusEmail(candidate);
   return { candidate, email };
 }
 

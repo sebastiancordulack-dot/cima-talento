@@ -30,6 +30,8 @@ export type EmailType =
 
 export type EmailStatus = 'queued' | 'sent' | 'delivered' | 'failed' | 'bounced';
 
+export type CandidateOutcome = 'rejected_hm' | 'rejected_julia' | 'deleted_from_archive';
+
 // Structured weekly availability for future dispatch matching, e.g.
 // { mon: ['09:00-17:00'], tue: ['09:00-12:00'] }.
 export type Availability = Partial<
@@ -144,6 +146,7 @@ export interface Database {
           resume_uploaded_at: string | null;
           upload_token: string;
           last_bumped_at: string | null;
+          previously_rejected_at: string | null;
         };
         Insert: {
           id?: string;
@@ -180,6 +183,7 @@ export interface Database {
           resume_uploaded_at?: string | null;
           upload_token?: string;
           last_bumped_at?: string | null;
+          previously_rejected_at?: string | null;
         };
         Update: Partial<Database['public']['Tables']['candidates']['Insert']>;
         Relationships: [];
@@ -254,6 +258,44 @@ export interface Database {
           error_message?: string | null;
         };
         Update: Partial<Database['public']['Tables']['email_log']['Insert']>;
+        Relationships: [];
+      };
+      candidate_outcomes: {
+        Row: {
+          id: string;
+          decided_at: string;
+          applied_at: string | null;
+          metro_area: string | null;
+          state: string | null;
+          source: string | null;
+          stage_reached: string;
+          outcome: CandidateOutcome;
+        };
+        Insert: {
+          id?: string;
+          decided_at?: string;
+          applied_at?: string | null;
+          metro_area?: string | null;
+          state?: string | null;
+          source?: string | null;
+          stage_reached: string;
+          outcome: CandidateOutcome;
+        };
+        Update: Partial<Database['public']['Tables']['candidate_outcomes']['Insert']>;
+        Relationships: [];
+      };
+      rejected_applicants: {
+        Row: {
+          email_hash: string;
+          rejected_at: string;
+          stage: string;
+        };
+        Insert: {
+          email_hash: string;
+          rejected_at?: string;
+          stage: string;
+        };
+        Update: Partial<Database['public']['Tables']['rejected_applicants']['Insert']>;
         Relationships: [];
       };
       metros: {

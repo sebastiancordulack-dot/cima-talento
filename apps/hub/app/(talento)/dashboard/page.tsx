@@ -8,6 +8,7 @@ import { NuevosFilterBar } from '@/components/NuevosFilterBar';
 import { TalentPoolSection } from '@/components/talent/TalentPoolSection';
 import { listCandidatesForTab, tabCounts, type Candidate } from '@/lib/candidates/queries';
 import { getMetros } from '@/lib/location/metros-store';
+import { getSessionUser, isAdminRole } from '@/lib/auth/session';
 import { fullName } from '@/lib/format';
 import {
   applyNuevosFilters,
@@ -108,11 +109,13 @@ async function NuevosQueue({
   vista: Vista;
   q?: string;
 }) {
-  const [candidates, metroRecords] = await Promise.all([
+  const [candidates, metroRecords, user] = await Promise.all([
     listCandidatesForTab('nuevos'),
     getMetros(),
+    getSessionUser(),
   ]);
   const metros = metroRecords.map((m) => m.metro).sort();
+  const isAdmin = isAdminRole(user?.hm?.role);
 
   const filters = parseNuevosFilters(searchParams);
   const availableMetros = availableMetrosFrom(candidates);
@@ -126,17 +129,30 @@ async function NuevosQueue({
         filters={filters}
         active={isNuevosFilterActive(filters)}
       />
-      <Results tab="nuevos" vista={vista} q={q} candidates={filtered} metros={metros} />
+      <Results tab="nuevos" vista={vista} q={q} candidates={filtered} metros={metros} isAdmin={isAdmin} />
     </div>
   );
 }
 
 async function CandidateQueue({ tab, vista, q }: { tab: DashboardTab; vista: Vista; q?: string }) {
-  const [candidates, metroRecords] = await Promise.all([listCandidatesForTab(tab), getMetros()]);
+  const [candidates, metroRecords, user] = await Promise.all([
+    listCandidatesForTab(tab),
+    getMetros(),
+    getSessionUser(),
+  ]);
   const metros = metroRecords.map((m) => m.metro).sort();
   const list = q ? searchCandidates(candidates, q) : candidates;
 
-  return <Results tab={tab} vista={vista} q={q} candidates={list} metros={metros} />;
+  return (
+    <Results
+      tab={tab}
+      vista={vista}
+      q={q}
+      candidates={list}
+      metros={metros}
+      isAdmin={isAdminRole(user?.hm?.role)}
+    />
+  );
 }
 
 // Lista → one flat lean table in a card (Activaciones pattern).
@@ -147,12 +163,14 @@ function Results({
   q,
   candidates,
   metros,
+  isAdmin,
 }: {
   tab: DashboardTab;
   vista: Vista;
   q?: string;
   candidates: Candidate[];
   metros: string[];
+  isAdmin: boolean;
 }) {
   const empty = candidates.length === 0;
   const emptyState = (
@@ -178,7 +196,7 @@ function Results({
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {list.map((c) => (
-                <CandidateCard key={c.id} candidate={c} metros={metros} />
+                <CandidateCard key={c.id} candidate={c} metros={metros} isAdmin={isAdmin} />
               ))}
             </div>
           </section>
