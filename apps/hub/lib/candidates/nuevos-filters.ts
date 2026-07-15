@@ -2,7 +2,7 @@
 // safe (no 'server-only' import; the Candidate type comes from database.types,
 // type-only). Filters combine with AND and are driven entirely by URL params so
 // the view is shareable and consistent with the Talento-tab filters.
-import type { Database } from '@cima/db';
+import type { CandidateRole, Database } from '@cima/db';
 
 type Candidate = Database['public']['Tables']['candidates']['Row'];
 
@@ -13,6 +13,8 @@ export const METRO_UNASSIGNED = 'Sin metro asignado';
 export interface NuevosFilters {
   /** Selected metros; empty = all. Uses METRO_UNASSIGNED for null metro. */
   metros: string[];
+  /** Role filter; 'sin' = unclassified, null = todos. */
+  rol: CandidateRole | 'sin' | null;
   /** con = CV uploaded, sin = not uploaded, null = todos. */
   cv: 'con' | 'sin' | null;
   /** agendada = status 'scheduled', sin = status 'new', null = todas. */
@@ -26,15 +28,23 @@ export function parseNuevosFilters(sp: Record<string, string | undefined>): Nuev
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+  const rol =
+    sp.rol === 'mercaderista' || sp.rol === 'promotor' || sp.rol === 'sin' ? sp.rol : null;
   const cv = sp.cv === 'con' || sp.cv === 'sin' ? sp.cv : null;
   const llamada = sp.llamada === 'agendada' || sp.llamada === 'sin' ? sp.llamada : null;
   const sort = sp.sort === 'recientes' ? 'recientes' : 'antiguos';
-  return { metros, cv, llamada, sort };
+  return { metros, rol, cv, llamada, sort };
 }
 
 /** True when anything deviates from the default (all metros, todos, antiguos). */
 export function isNuevosFilterActive(f: NuevosFilters): boolean {
-  return f.metros.length > 0 || f.cv !== null || f.llamada !== null || f.sort !== 'antiguos';
+  return (
+    f.metros.length > 0 ||
+    f.rol !== null ||
+    f.cv !== null ||
+    f.llamada !== null ||
+    f.sort !== 'antiguos'
+  );
 }
 
 function metroKey(c: Candidate): string {
@@ -45,6 +55,7 @@ function metroKey(c: Candidate): string {
 export function applyNuevosFilters(candidates: Candidate[], f: NuevosFilters): Candidate[] {
   const filtered = candidates.filter((c) => {
     if (f.metros.length > 0 && !f.metros.includes(metroKey(c))) return false;
+    if (f.rol === 'sin' ? c.role !== null : f.rol !== null && c.role !== f.rol) return false;
     if (f.cv === 'con' && !c.resume_uploaded_at) return false;
     if (f.cv === 'sin' && c.resume_uploaded_at) return false;
     if (f.llamada === 'agendada' && c.status !== 'scheduled') return false;

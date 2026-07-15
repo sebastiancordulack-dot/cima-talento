@@ -12,8 +12,10 @@ import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@cima/db/admin';
 import { transitionCandidateStatus } from '@/lib/candidates/transitions';
 import { deleteCandidateRecord } from '@/lib/candidates/delete';
+import { isCandidateRole } from '@/lib/candidates/roles';
 import { getMetros } from '@/lib/location/metros-store';
 import { assertCandidateAccess, assertAdmin } from '@/lib/auth/session';
+import type { CandidateRole } from '@cima/db';
 
 export interface ActionResult {
   ok: boolean;
@@ -130,6 +132,55 @@ export async function assignMetro(candidateId: string, metro: string): Promise<A
     await supabase.from('talent_pool').update({ metro_area: name }).eq('candidate_id', candidateId);
 
     revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** Set (or clear, with null) a candidate's role — mercaderista vs promotor/a.
+ *  Manual assignment covers unclassified Meta leads, corrections, and the
+ *  backfill of candidates created before roles existed. */
+export async function assignRole(
+  candidateId: string,
+  role: CandidateRole | null
+): Promise<ActionResult> {
+  try {
+    if (role !== null && !isCandidateRole(role)) return { ok: false, error: 'Rol desconocido.' };
+    await assertCandidateAccess(candidateId);
+    const { error } = await createAdminClient()
+      .from('candidates')
+      .update({ role })
+      .eq('id', candidateId);
+    if (error) throw error;
+    revalidateCandidate(candidateId);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** Bulk role assignment from the candidates table (backfill workflow). Each
+ *  candidate is access-checked like a single assignment. */
+export async function assignRoleBulk(
+  candidateIds: string[],
+  role: CandidateRole
+): Promise<ActionResult> {
+  try {
+    if (!isCandidateRole(role)) return { ok: false, error: 'Rol desconocido.' };
+    const ids = Array.from(new Set(candidateIds)).filter(Boolean);
+    if (ids.length === 0) return { ok: false, error: 'Selecciona al menos un candidato.' };
+
+    for (const id of ids) await assertCandidateAccess(id);
+
+    const { error } = await createAdminClient()
+      .from('candidates')
+      .update({ role })
+      .in('id', ids);
+    if (error) throw error;
+
+    revalidatePath('/dashboard');
+    revalidatePath('/julia');
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };

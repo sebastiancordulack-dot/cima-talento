@@ -9,7 +9,7 @@ import 'server-only';
 import { createAdminClient } from '@cima/db/admin';
 import { getResend, FROM_EMAIL } from '@/lib/email/resend';
 import { renderEmail } from '@/lib/email/templates';
-import { resolveJuliaCalendlyLink } from '@/lib/email/calendly';
+import { resolveHmCalendlyLink, resolveJuliaCalendlyLink } from '@/lib/email/calendly';
 import { appUrl } from '@/lib/config';
 import type { Database, EmailType, CandidateStatus } from '@cima/db';
 
@@ -65,8 +65,13 @@ function emailExtras(type: EmailType): EmailExtras {
 
 /** Render the dynamic vars an email type needs for a given candidate. */
 async function buildVars(type: EmailType, candidate: Candidate) {
-  const base = { firstName: candidate.first_name };
+  const base = { firstName: candidate.first_name, role: candidate.role };
   if (type === 'availability') {
+    // Promotores/as schedule directly (no CV gate); everyone else goes through
+    // the upload page, which reveals the same Calendly link after the upload.
+    if (candidate.role === 'promotor') {
+      return { ...base, calendlyHmLink: await resolveHmCalendlyLink(candidate.metro_area) };
+    }
     return { ...base, uploadUrl: `${appUrl()}/cv/${candidate.upload_token}` };
   }
   if (type === 'schedule_julia') {

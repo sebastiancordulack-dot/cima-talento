@@ -16,7 +16,8 @@ import { createAdminClient } from '@cima/db/admin';
 import { deriveLocation } from '@/lib/location/metro';
 import { sendCandidateEmail } from '@/lib/email/send';
 import { emailHash } from '@/lib/candidates/delete';
-import type { Database } from '@cima/db';
+import { escalateRole } from '@/lib/candidates/roles';
+import type { CandidateRole, Database } from '@cima/db';
 
 /** Normalized candidate fields a form adapter must produce. */
 export interface CandidateIntake {
@@ -29,6 +30,10 @@ export interface CandidateIntake {
   state?: string | null;
   source_ad_location?: string | null;
   submission_id?: string | null;
+  /** Merch vs promo, classified from the Meta form name; null = sin clasificar. */
+  role?: CandidateRole | null;
+  meta_form_id?: string | null;
+  meta_form_name?: string | null;
 }
 
 export interface IngestResult {
@@ -77,6 +82,11 @@ export async function ingestCandidate(intake: CandidateIntake): Promise<IngestRe
         state: location.state ?? existing.state,
         source_ad_location: intake.source_ad_location ?? existing.source_ad_location,
         fillout_submission_id: intake.submission_id ?? existing.fillout_submission_id,
+        // Escalate-only: promotor → mercaderista on a merch application, never
+        // the other way (mercaderistas can already do promo work).
+        role: escalateRole(existing.role, intake.role),
+        meta_form_id: intake.meta_form_id ?? existing.meta_form_id,
+        meta_form_name: intake.meta_form_name ?? existing.meta_form_name,
       })
       .eq('id', existing.id)
       .select('*')
@@ -111,6 +121,9 @@ export async function ingestCandidate(intake: CandidateIntake): Promise<IngestRe
       source_ad_location: intake.source_ad_location ?? null,
       fillout_submission_id: intake.submission_id ?? null,
       previously_rejected_at: priorRejection?.rejected_at ?? null,
+      role: intake.role ?? null,
+      meta_form_id: intake.meta_form_id ?? null,
+      meta_form_name: intake.meta_form_name ?? null,
     })
     .select('*')
     .single();

@@ -8,8 +8,11 @@ import { CandidateNotes } from '@/components/CandidateNotes';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { ReactivateButton } from '@/components/ReactivateButton';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
+import { RoleAssignControl } from '@/components/RoleAssignControl';
+import { RoleBadge } from '@/components/RoleBadge';
 import { WhatsAppBumpButton } from '@/components/WhatsAppBumpButton';
 import { PreviouslyRejectedBadge } from '@/components/PreviouslyRejectedBadge';
+import { resumeRequired } from '@/lib/candidates/roles';
 import { formatDate, fullName } from '@/lib/format';
 import type { Candidate } from '@/lib/candidates/queries';
 
@@ -41,29 +44,37 @@ export function CandidateCard({
             {candidate.state ? ` · ${candidate.state}` : ''}
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            <span
-              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                candidate.resume_uploaded_at
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-amber-100 text-amber-800'
-              }`}
-            >
-              {candidate.resume_uploaded_at ? 'CV ✓' : 'CV pendiente'}
-            </span>
+            <RoleBadge role={candidate.role} />
+            {(candidate.resume_uploaded_at || resumeRequired(candidate.role)) && (
+              <span
+                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                  candidate.resume_uploaded_at
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-amber-100 text-amber-800'
+                }`}
+              >
+                {candidate.resume_uploaded_at ? 'CV ✓' : 'CV pendiente'}
+              </span>
+            )}
             <PreviouslyRejectedBadge rejectedAt={candidate.previously_rejected_at} />
           </div>
         </div>
         <StatusBadge status={candidate.status} />
       </div>
 
-      {candidate.metro_area === null && (
-        <div className="mt-2">
-          <MetroAssignControl
-            candidateId={candidate.id}
-            current={candidate.metro_area}
-            metros={metros}
-            size="sm"
-          />
+      {(candidate.metro_area === null || candidate.role === null) && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {candidate.metro_area === null && (
+            <MetroAssignControl
+              candidateId={candidate.id}
+              current={candidate.metro_area}
+              metros={metros}
+              size="sm"
+            />
+          )}
+          {candidate.role === null && (
+            <RoleAssignControl candidateId={candidate.id} current={candidate.role} size="sm" />
+          )}
         </div>
       )}
 
@@ -107,7 +118,7 @@ export function CandidateCard({
           {candidate.status === 'archived' && (
             <ReactivateButton candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
           )}
-          {!candidate.resume_uploaded_at && (
+          {!candidate.resume_uploaded_at && resumeRequired(candidate.role) && (
             <WhatsAppBumpButton
               candidateId={candidate.id}
               firstName={candidate.first_name}

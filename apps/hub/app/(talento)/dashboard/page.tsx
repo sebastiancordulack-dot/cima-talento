@@ -66,6 +66,7 @@ export default async function DashboardPage({
     tab === 'nuevos'
       ? {
           metros: searchParams.metros,
+          rol: searchParams.rol,
           cv: searchParams.cv,
           llamada: searchParams.llamada,
           sort: searchParams.sort,

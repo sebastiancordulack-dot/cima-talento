@@ -16,6 +16,9 @@ export type CandidateStatus =
 
 export type UserRole = 'admin' | 'hiring_manager' | 'julia' | 'regional_manager';
 
+// Staff type a candidate applied as (migration 0012). Null = sin clasificar.
+export type CandidateRole = 'mercaderista' | 'promotor';
+
 export type HmDecision = 'fit' | 'not_fit';
 
 export type JuliaDecision = 'approved' | 'not_approved';
@@ -147,6 +150,9 @@ export interface Database {
           upload_token: string;
           last_bumped_at: string | null;
           previously_rejected_at: string | null;
+          role: CandidateRole | null;
+          meta_form_id: string | null;
+          meta_form_name: string | null;
         };
         Insert: {
           id?: string;
@@ -184,6 +190,9 @@ export interface Database {
           upload_token?: string;
           last_bumped_at?: string | null;
           previously_rejected_at?: string | null;
+          role?: CandidateRole | null;
+          meta_form_id?: string | null;
+          meta_form_name?: string | null;
         };
         Update: Partial<Database['public']['Tables']['candidates']['Insert']>;
         Relationships: [];

@@ -3,7 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { addTalentMember } from '@/lib/talent/actions';
-import type { Availability } from '@cima/db';
+import { CANDIDATE_ROLES, ROLE_LABELS } from '@/lib/candidates/roles';
+import type { Availability, CandidateRole } from '@cima/db';
 
 const DAYS: { key: keyof Availability; label: string }[] = [
   { key: 'mon', label: 'Lun' },
@@ -26,6 +27,7 @@ export interface TalentPrefill {
   state?: string | null;
   zip_code?: string | null;
   metro_area?: string | null;
+  role?: CandidateRole | null;
 }
 
 export function AddTalentForm({
@@ -53,6 +55,7 @@ export function AddTalentForm({
     state: initial?.state ?? '',
     zip_code: initial?.zip_code ?? '',
     metro_area: initial?.metro_area ?? '',
+    role: initial?.role ?? '',
     onboarding_complete: false,
     send_welcome: false,
   });
@@ -76,6 +79,7 @@ export function AddTalentForm({
         state: f.state || undefined,
         zip_code: f.zip_code || undefined,
         metro_area: f.metro_area || undefined,
+        role: (f.role || undefined) as CandidateRole | undefined,
         availability,
         onboarding_complete: f.onboarding_complete,
         send_welcome: f.send_welcome,
@@ -130,6 +134,17 @@ export function AddTalentForm({
             Metro (opcional — se deriva de la ciudad/ZIP si se deja vacío)
           </label>
           <input className={input} value={f.metro_area} onChange={(e) => set('metro_area', e.target.value)} placeholder="Dallas–Fort Worth" />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="mb-1 block text-xs font-medium text-stone-600">Rol</label>
+          <select className={input} value={f.role} onChange={(e) => set('role', e.target.value)}>
+            <option value="">Sin clasificar</option>
+            {CANDIDATE_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {ROLE_LABELS[r]}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

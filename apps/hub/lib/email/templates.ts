@@ -3,7 +3,7 @@
 //
 // Each builder returns { subject, html, text }. Copy is kept verbatim from the
 // brief; only the dynamic bits ([Nombre], Calendly links) are interpolated.
-import type { EmailType } from '@cima/db';
+import type { CandidateRole, EmailType } from '@cima/db';
 import { renderBrandedEmail } from '@cima/email';
 
 export type { RenderedEmail } from '@cima/email';
@@ -11,8 +11,12 @@ import type { RenderedEmail } from '@cima/email';
 
 export interface TemplateVars {
   firstName: string;
-  /** Resume-upload page link — Email 1 only (scheduling is gated behind it). */
+  /** Merch vs promo — adjusts the position wording; null/absent = neutral copy. */
+  role?: CandidateRole | null;
+  /** Resume-upload page link — Email 1, mercaderista/unclassified variants. */
   uploadUrl?: string;
+  /** HM scheduling link — Email 1, promotor variant (no CV gate). */
+  calendlyHmLink?: string;
   /** Julia scheduling link — Email 3 only. */
   calendlyJuliaLink?: string;
   /** Approx. length of Julia's call, in minutes — Email 3. */
@@ -32,14 +36,42 @@ function build(subject: string, body: string): RenderedEmail {
 
 // ---------------------------------------------------------------------------
 // Email 1 — Disponibilidad
+//
+// Three variants by role: mercaderista (CV gate, original copy), promotor/a
+// (no CV — schedules directly), and unclassified (role-neutral copy, CV gate
+// kept since it's the stricter path and never states a wrong position).
 // ---------------------------------------------------------------------------
 function availability(v: TemplateVars): RenderedEmail {
+  if (v.role === 'promotor') {
+    const link = v.calendlyHmLink ?? '';
+    return build(
+      'Recibimos tu información — agenda tu llamada',
+      `Hola ${v.firstName},
+
+Gracias por tu interés en unirte al equipo de CiMA Sales como Promotor/a. Nos da mucho gusto que hayas dado ese primer paso.
+
+El siguiente paso es una llamada corta de 15 a 20 minutos con uno de nuestros representantes. Agéndala aquí — toma menos de un minuto:
+
+{{cta:Agendar mi llamada|${link}}}
+
+Si tienes alguna pregunta antes de la llamada, responde a este correo y te atendemos con gusto.
+
+¡Esperamos hablar contigo muy pronto!
+
+${SIGNATURE_CIMA}`
+    );
+  }
+
   const link = v.uploadUrl ?? '';
+  const interes =
+    v.role === 'mercaderista'
+      ? 'unirte al equipo de CiMA Sales como Mercaderista'
+      : 'unirte al equipo de CiMA Sales';
   return build(
     'Recibimos tu información — sube tu CV y agenda tu llamada',
     `Hola ${v.firstName},
 
-Gracias por tu interés en unirte al equipo de CiMA Sales como Mercaderista. Nos da mucho gusto que hayas dado ese primer paso.
+Gracias por tu interés en ${interes}. Nos da mucho gusto que hayas dado ese primer paso.
 
 El siguiente paso es una llamada corta de 15 a 20 minutos con uno de nuestros representantes. Para agendarla, primero sube tu currículum (CV) en el siguiente enlace — toma menos de un minuto, y desde ahí podrás reservar tu llamada:
 
@@ -53,6 +85,14 @@ ${SIGNATURE_CIMA}`
   );
 }
 
+/** "la posición de Mercaderista" / "la posición de Promotor/a", or a neutral
+ *  phrase when the candidate was never classified. */
+function positionPhrase(role: TemplateVars['role']): string {
+  if (role === 'mercaderista') return 'la posición de Mercaderista';
+  if (role === 'promotor') return 'la posición de Promotor/a';
+  return 'las oportunidades';
+}
+
 // ---------------------------------------------------------------------------
 // Email 2 — No es un fit (post-HM call)
 // ---------------------------------------------------------------------------
@@ -61,7 +101,7 @@ function rejectionHm(v: TemplateVars): RenderedEmail {
     'Gracias por tu interés en CiMA Sales',
     `Hola ${v.firstName},
 
-Gracias por tomarte el tiempo de conectar con nosotros y conocer más sobre la posición de Mercaderista en CiMA Sales. Apreciamos sinceramente tu interés.
+Gracias por tomarte el tiempo de conectar con nosotros y conocer más sobre ${positionPhrase(v.role)} en CiMA Sales. Apreciamos sinceramente tu interés.
 
 Después de evaluar tu perfil, hemos decidido continuar con otros candidatos cuya experiencia se ajusta mejor a lo que buscamos en este momento.
 
@@ -99,6 +139,13 @@ ${SIGNATURE_CIMA}`
   );
 }
 
+/** Team the welcome email adds them to, by role (neutral when unclassified). */
+function teamPhrase(role: TemplateVars['role']): string {
+  if (role === 'mercaderista') return 'nuestro equipo de mercaderistas';
+  if (role === 'promotor') return 'nuestro equipo de promotores/as';
+  return 'nuestra Red de Talento';
+}
+
 // ---------------------------------------------------------------------------
 // Email 4 — Bienvenido/a al talent pool
 // ---------------------------------------------------------------------------
@@ -109,7 +156,7 @@ function welcome(v: TemplateVars): RenderedEmail {
 
 ¡Bienvenido/a al equipo de CiMA Sales! Es un placer darte la bienvenida oficial a la Red de Talento.
 
-Has sido agregado/a a nuestro equipo de mercaderistas, y ahora formas parte de un grupo que representa algunas de las marcas más emocionantes en el mercado hispano independiente a nivel nacional.
+Has sido agregado/a a ${teamPhrase(v.role)}, y ahora formas parte de un grupo que representa algunas de las marcas más emocionantes en el mercado hispano independiente a nivel nacional.
 
 Para darte de alta en nuestro sistema de pagos, necesitamos que envíes la siguiente información a Mary Badillo (mary@cimasales.com):
 

@@ -10,6 +10,7 @@ import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { normalizeText } from '@/lib/location/metro-data';
 import type { CandidateIntake } from '@/lib/candidates/ingest';
+import type { CandidateRole } from '@cima/db';
 
 const GRAPH_VERSION = process.env.META_GRAPH_VERSION ?? 'v21.0';
 
@@ -110,10 +111,66 @@ export async function fetchLead(leadgenId: string): Promise<LeadDetails> {
   return data;
 }
 
+// ---------------------------------------------------------------------------
+// Role classification — which staff type the lead applied as.
+//
+// The merch and promo campaigns use different lead forms, and forms are
+// duplicated per new campaign/area (form_ids churn), so we classify by the
+// form's NAME, fetched once per form from the Graph API. A name that reveals
+// neither role leaves the lead unclassified (role null) for manual assignment.
+// ---------------------------------------------------------------------------
+
+/** 'merca…' → mercaderista, 'promo…'/'edecán' → promotor, else null. */
+export function classifyRoleFromFormName(name: string | null): CandidateRole | null {
+  if (!name) return null;
+  const n = normalizeText(name);
+  const merch = n.includes('merca'); // mercaderista(s), mercadeo
+  const promo = n.includes('promo') || n.includes('edecan'); // promotor(a/es), promotoria
+  if (merch && !promo) return 'mercaderista';
+  if (promo && !merch) return 'promotor';
+  return null; // ambiguous or silent → sin clasificar
+}
+
+// Form names are immutable per form_id for our purposes — cache per instance so
+// a burst of leads from one campaign costs one Graph call, not one per lead.
+const formNameCache = new Map<string, string | null>();
+
+/**
+ * Fetch a lead form's name from the Graph API. Never throws: classification is
+ * best-effort and must not block ingestion (the lead lands "sin clasificar").
+ */
+export async function fetchFormName(formId: string): Promise<string | null> {
+  const cached = formNameCache.get(formId);
+  if (cached !== undefined) return cached;
+
+  const token = process.env.META_PAGE_ACCESS_TOKEN;
+  if (!token) return null;
+  try {
+    const url = `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(
+      formId
+    )}?fields=name&access_token=${encodeURIComponent(token)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Graph API ${res.status}`);
+    const data = (await res.json()) as { name?: string };
+    const name = typeof data.name === 'string' ? data.name : null;
+    formNameCache.set(formId, name);
+    return name;
+  } catch (err) {
+    console.warn(`[meta-lead] form ${formId} name fetch failed:`, err);
+    return null; // don't cache — a later lead may succeed
+  }
+}
+
 // Map Meta field `name` keys → our intake. Meta's standard fields keep canonical
 // English names even when the label is in Spanish; Spanish aliases cover custom
 // questions just in case. Matching is case-insensitive.
-const FIELD_ALIASES: Record<keyof Omit<CandidateIntake, 'source_ad_location' | 'submission_id'>, string[]> = {
+const FIELD_ALIASES: Record<
+  keyof Omit<
+    CandidateIntake,
+    'source_ad_location' | 'submission_id' | 'role' | 'meta_form_id' | 'meta_form_name'
+  >,
+  string[]
+> = {
   email: ['email', 'correo', 'correo_electronico', 'e-mail'],
   first_name: ['first_name', 'nombre'],
   last_name: ['last_name', 'apellido', 'apellidos'],
