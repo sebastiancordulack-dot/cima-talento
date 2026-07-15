@@ -9,7 +9,8 @@ import { assertUser } from '@/lib/auth/session';
 import { deriveLocation } from '@/lib/location/metro';
 import { normalizeState } from '@/lib/location/metro-data';
 import { sendCandidateEmail } from '@/lib/email/send';
-import type { Availability } from '@cima/db';
+import { isCandidateRole } from '@/lib/candidates/roles';
+import type { Availability, CandidateRole } from '@cima/db';
 
 export interface ActionResult {
   ok: boolean;
@@ -51,6 +52,7 @@ export interface NewTalentInput {
   state?: string;
   zip_code?: string;
   metro_area?: string; // optional manual override
+  role?: CandidateRole; // mercaderista / promotor; omit = sin clasificar
   availability?: Availability;
   onboarding_complete?: boolean;
   send_welcome?: boolean;
@@ -92,6 +94,7 @@ export async function addTalentMember(input: NewTalentInput): Promise<ActionResu
       zip_code: input.zip_code?.trim() || null,
       metro_area,
       state,
+      ...(isCandidateRole(input.role) ? { role: input.role } : {}),
     };
 
     // Dedup on email: reuse an existing candidate, else create one.

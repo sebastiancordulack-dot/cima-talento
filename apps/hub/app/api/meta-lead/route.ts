@@ -13,6 +13,8 @@ import {
   verifySubscription,
   parseLeadgenRefs,
   fetchLead,
+  fetchFormName,
+  classifyRoleFromFormName,
   mapLeadToIntake,
 } from '@/lib/webhooks/meta';
 
@@ -63,6 +65,14 @@ export async function POST(req: Request) {
       if (!intake) {
         results.push({ leadgen_id: ref.leadgen_id, skipped: true });
         continue;
+      }
+      // Classify merch vs promo from the lead form's name (best-effort — a
+      // fetch failure or unrecognized name leaves the lead "sin clasificar").
+      if (ref.form_id) {
+        const formName = await fetchFormName(ref.form_id);
+        intake.meta_form_id = ref.form_id;
+        intake.meta_form_name = formName;
+        intake.role = classifyRoleFromFormName(formName);
       }
       const { candidate, isNew } = await ingestCandidate(intake);
       results.push({ leadgen_id: ref.leadgen_id, candidateId: candidate.id, isNew });

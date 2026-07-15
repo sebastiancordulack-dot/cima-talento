@@ -7,11 +7,14 @@ import { PreviouslyRejectedBadge } from '@/components/PreviouslyRejectedBadge';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { ReactivateButton } from '@/components/ReactivateButton';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
+import { RoleAssignControl } from '@/components/RoleAssignControl';
+import { RoleBadge } from '@/components/RoleBadge';
 import { WhatsAppBumpButton } from '@/components/WhatsAppBumpButton';
 import { getCandidateProfile } from '@/lib/candidates/queries';
 import { getResumeSignedUrl } from '@/lib/candidates/resume';
 import { getMetros } from '@/lib/location/metros-store';
 import { getSessionUser, isAdminRole } from '@/lib/auth/session';
+import { ROLE_LABELS, ROLE_UNCLASSIFIED_LABEL, resumeRequired } from '@/lib/candidates/roles';
 import { STATUS_META } from '@/lib/candidates/status';
 import {
   HARD_FILTERS,
@@ -83,7 +86,8 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
             {candidate.metro_area ?? candidate.city ?? 'Sin metro asignado'}
             {candidate.state ? ` · ${candidate.state}` : ''}
           </p>
-          <div className="mt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <RoleBadge role={candidate.role} />
             <PreviouslyRejectedBadge rejectedAt={candidate.previously_rejected_at} />
           </div>
         </div>
@@ -109,7 +113,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
           {candidate.status === 'archived' && (
             <ReactivateButton candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
           )}
-          {!candidate.resume_uploaded_at && (
+          {!candidate.resume_uploaded_at && resumeRequired(candidate.role) && (
             <WhatsAppBumpButton
               candidateId={candidate.id}
               firstName={candidate.first_name}
@@ -125,6 +129,7 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
             metros={metros}
             size="sm"
           />
+          <RoleAssignControl candidateId={candidate.id} current={candidate.role} size="sm" />
         </div>
       </div>
 
@@ -138,7 +143,12 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
             <Row label="Código postal" value={candidate.zip_code ?? '—'} />
             <Row label="Metro" value={candidate.metro_area ?? '—'} />
             <Row label="Estado" value={candidate.state ?? '—'} />
+            <Row
+              label="Rol"
+              value={candidate.role ? ROLE_LABELS[candidate.role] : ROLE_UNCLASSIFIED_LABEL}
+            />
             <Row label="Origen del anuncio" value={candidate.source_ad_location ?? '—'} />
+            <Row label="Formulario (Meta)" value={candidate.meta_form_name ?? '—'} />
             <Row label="Recibido" value={formatDate(candidate.created_at)} />
           </dl>
         </Section>
@@ -178,9 +188,13 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
               </a>
             )}
           </div>
-        ) : (
+        ) : resumeRequired(candidate.role) ? (
           <p className="text-sm text-amber-700">
             Pendiente — el candidato aún no ha subido su currículum.
+          </p>
+        ) : (
+          <p className="text-sm text-stone-400">
+            No requerido — los promotores/as agendan su llamada sin subir CV.
           </p>
         )}
       </Section>

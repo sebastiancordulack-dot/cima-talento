@@ -36,6 +36,7 @@ export function NuevosFilterBar({
     const p = new URLSearchParams();
     p.set('tab', 'nuevos');
     if (next.metros.length) p.set('metros', next.metros.join(','));
+    if (next.rol) p.set('rol', next.rol);
     if (next.cv) p.set('cv', next.cv);
     if (next.llamada) p.set('llamada', next.llamada);
     if (next.sort !== 'antiguos') p.set('sort', next.sort);
@@ -107,6 +108,23 @@ export function NuevosFilterBar({
               </div>
             )}
           </div>
+        </label>
+
+        {/* Rol */}
+        <label className="flex items-center gap-1.5 text-sm text-stone-600">
+          Rol
+          <select
+            value={filters.rol ?? ''}
+            onChange={(e) =>
+              navigate({ ...filters, rol: (e.target.value || null) as NuevosFilters['rol'] })
+            }
+            className={selectCls}
+          >
+            <option value="">Todos</option>
+            <option value="mercaderista">Mercaderistas</option>
+            <option value="promotor">Promotores/as</option>
+            <option value="sin">Sin clasificar</option>
+          </select>
         </label>
 
         {/* CV */}
