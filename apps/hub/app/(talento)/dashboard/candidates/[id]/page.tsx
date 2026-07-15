@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
-import { JuliaActions } from '@/components/JuliaActions';
+import { CandidateActions } from '@/components/CandidateActions';
+import { CandidateNotes } from '@/components/CandidateNotes';
+import { PreviouslyRejectedBadge } from '@/components/PreviouslyRejectedBadge';
 import { RestoreTalentControl } from '@/components/talent/RestoreTalentControl';
 import { ReactivateButton } from '@/components/ReactivateButton';
 import { MetroAssignControl } from '@/components/MetroAssignControl';
@@ -81,6 +83,9 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
             {candidate.metro_area ?? candidate.city ?? 'Sin metro asignado'}
             {candidate.state ? ` · ${candidate.state}` : ''}
           </p>
+          <div className="mt-2">
+            <PreviouslyRejectedBadge rejectedAt={candidate.previously_rejected_at} />
+          </div>
         </div>
         <div className="flex flex-col items-end gap-2">
           <StatusBadge status={candidate.status} />
@@ -92,9 +97,14 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
               Completar scorecard
             </Link>
           )}
-          {isAdmin && ['advanced', 'julia_scheduled'].includes(candidate.status) && (
-            <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
-          )}
+          <CandidateActions
+            candidateId={candidate.id}
+            firstName={candidate.first_name}
+            status={candidate.status}
+            isAdmin={isAdmin}
+            size="sm"
+            redirectOnDelete="/dashboard"
+          />
           {candidate.status === 'removed' && <RestoreTalentControl prefill={candidate} size="sm" />}
           {candidate.status === 'archived' && (
             <ReactivateButton candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
@@ -227,13 +237,9 @@ export default async function CandidateProfilePage({ params }: { params: { id: s
         </div>
       </Section>
 
-      {/* Notes */}
+      {/* Notes — editable inline (comentarios) */}
       <Section title="Notas de la llamada">
-        {candidate.notes ? (
-          <p className="whitespace-pre-wrap text-sm text-stone-700">{candidate.notes}</p>
-        ) : (
-          <p className="text-sm text-stone-400">Sin notas.</p>
-        )}
+        <CandidateNotes candidateId={candidate.id} initialNotes={candidate.notes} rows={4} />
       </Section>
 
       <div className="grid gap-5 lg:grid-cols-2">

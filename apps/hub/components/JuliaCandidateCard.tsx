@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { StatusBadge } from '@/components/StatusBadge';
-import { JuliaActions } from '@/components/JuliaActions';
+import { CandidateActions } from '@/components/CandidateActions';
 import { MAX_SCORE, verdictForScore, VERDICT_META } from '@/lib/scorecard/questions';
 import { formatDate, fullName } from '@/lib/format';
 import type { Candidate } from '@/lib/candidates/queries';
@@ -52,7 +52,14 @@ export function JuliaCandidateCard({ candidate }: { candidate: Candidate }) {
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <JuliaActions candidateId={candidate.id} candidateName={candidate.first_name} size="sm" />
+        {/* The /julia page is requireAdmin-gated, so isAdmin is a given. */}
+        <CandidateActions
+          candidateId={candidate.id}
+          firstName={candidate.first_name}
+          status={candidate.status}
+          isAdmin
+          size="sm"
+        />
         <Link
           href={`/dashboard/candidates/${candidate.id}`}
           className="shrink-0 text-sm font-medium text-brand-700 hover:underline"

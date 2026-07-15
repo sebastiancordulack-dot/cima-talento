@@ -15,6 +15,7 @@ import 'server-only';
 import { createAdminClient } from '@cima/db/admin';
 import { deriveLocation } from '@/lib/location/metro';
 import { sendCandidateEmail } from '@/lib/email/send';
+import { emailHash } from '@/lib/candidates/delete';
 import type { Database } from '@cima/db';
 
 /** Normalized candidate fields a form adapter must produce. */
@@ -85,6 +86,15 @@ export async function ingestCandidate(intake: CandidateIntake): Promise<IngestRe
     return { candidate: data, isNew: false };
   }
 
+  // Rejected candidates are deleted outright (migration 0011), so a returning
+  // one arrives as brand new. The suppression list remembers the email hash;
+  // stamp the flag so staff see "Rechazado anteriormente".
+  const { data: priorRejection } = await supabase
+    .from('rejected_applicants')
+    .select('rejected_at')
+    .eq('email_hash', emailHash(email))
+    .maybeSingle();
+
   // New candidate: starts at `new` (the column default; the status-history
   // trigger logs null → new automatically).
   const { data, error } = await supabase
@@ -100,6 +110,7 @@ export async function ingestCandidate(intake: CandidateIntake): Promise<IngestRe
       state: location.state,
       source_ad_location: intake.source_ad_location ?? null,
       fillout_submission_id: intake.submission_id ?? null,
+      previously_rejected_at: priorRejection?.rejected_at ?? null,
     })
     .select('*')
     .single();

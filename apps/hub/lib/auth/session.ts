@@ -1,8 +1,12 @@
-// Auth + authorization helpers (Brief §10).
+// Auth + authorization helpers (Brief §10, revised 2026-07: metros are no
+// longer an access wall — see migration 0010).
 //
-//   admin / julia    → full access to all candidates and decisions
-//   hiring_manager   → candidates in their assigned_metros; can mark fit/not_fit
-//                       but cannot approve to the talent pool
+//   admin / julia    → everything, including approve to the talent pool and
+//                       Julia decisions
+//   hiring_manager   → sees and acts on candidates in ALL metros; cannot
+//                       approve to the talent pool
+//
+// assigned_metros stays on hiring_managers as informational data only.
 //
 // Pages use the redirect guards (requireUser/requireAdmin). Server actions use
 // the throwing asserts, whose messages surface as the action's error string.
@@ -45,13 +49,6 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   return { id: user.id, email: user.email ?? '', hm: hm ?? null };
 }
 
-/** True if the user may see/act on a candidate in `metro`. */
-export function canAccessMetro(user: SessionUser, metro: string | null): boolean {
-  if (isAdminRole(user.hm?.role)) return true;
-  if (metro === null) return true; // unmapped — visible to all so nothing is lost
-  return (user.hm?.assigned_metros ?? []).includes(metro);
-}
-
 // ---- Page guards (redirect) ------------------------------------------------
 
 /**
@@ -90,21 +87,17 @@ export async function assertAdmin(): Promise<SessionUser> {
   return user;
 }
 
-/** Ensure the caller may edit this candidate (admin, or HM in its metro). */
+/** Ensure the caller is staff and the candidate exists. Metros no longer
+ *  restrict access (migration 0010) — any active staff may act on any
+ *  candidate; the existence check keeps action errors human-readable. */
 export async function assertCandidateAccess(candidateId: string): Promise<SessionUser> {
   const user = await assertUser();
-  if (isAdminRole(user.hm?.role)) return user;
 
-  // Look up the candidate's metro with the service-role client (the guard does
-  // its own authorization; we just need the metro to check scope).
   const { data: candidate } = await createAdminClient()
     .from('candidates')
-    .select('metro_area')
+    .select('id')
     .eq('id', candidateId)
     .maybeSingle();
   if (!candidate) throw new AuthError('Candidato no encontrado.');
-  if (!canAccessMetro(user, candidate.metro_area)) {
-    throw new AuthError('No tienes acceso a este candidato.');
-  }
   return user;
 }
