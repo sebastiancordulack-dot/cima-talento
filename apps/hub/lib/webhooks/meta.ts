@@ -10,7 +10,6 @@ import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { normalizeText } from '@/lib/location/metro-data';
 import type { CandidateIntake } from '@/lib/candidates/ingest';
-import type { CandidateRole } from '@cima/db';
 
 const GRAPH_VERSION = process.env.META_GRAPH_VERSION ?? 'v21.0';
 
@@ -118,18 +117,9 @@ export async function fetchLead(leadgenId: string): Promise<LeadDetails> {
 // duplicated per new campaign/area (form_ids churn), so we classify by the
 // form's NAME, fetched once per form from the Graph API. A name that reveals
 // neither role leaves the lead unclassified (role null) for manual assignment.
+// The heuristic itself lives in lib/candidates/roles (shared with the
+// backfill script, which can't import this server-only module).
 // ---------------------------------------------------------------------------
-
-/** 'merca…' → mercaderista, 'promo…'/'edecán' → promotor, else null. */
-export function classifyRoleFromFormName(name: string | null): CandidateRole | null {
-  if (!name) return null;
-  const n = normalizeText(name);
-  const merch = n.includes('merca'); // mercaderista(s), mercadeo
-  const promo = n.includes('promo') || n.includes('edecan'); // promotor(a/es), promotoria
-  if (merch && !promo) return 'mercaderista';
-  if (promo && !merch) return 'promotor';
-  return null; // ambiguous or silent → sin clasificar
-}
 
 // Form names are immutable per form_id for our purposes — cache per instance so
 // a burst of leads from one campaign costs one Graph call, not one per lead.

@@ -8,13 +8,13 @@
 // Nothing else in the platform changes.
 import { NextResponse } from 'next/server';
 import { ingestCandidate } from '@/lib/candidates/ingest';
+import { classifyRoleFromFormName } from '@/lib/candidates/roles';
 import {
   verifyMetaSignature,
   verifySubscription,
   parseLeadgenRefs,
   fetchLead,
   fetchFormName,
-  classifyRoleFromFormName,
   mapLeadToIntake,
 } from '@/lib/webhooks/meta';
 
